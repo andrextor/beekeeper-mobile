@@ -67,7 +67,7 @@ pnpm ci:check    # all of the above
 pnpm android     # dev build on a connected phone / emulator
 ```
 
-The session runs `pnpm ci:check` once when every task of a plan is committed and reports the output as is; Iván tests on his phone before merging.
+**Iván runs the tests and checks, never the session** (Iván, 2026-10-26): the session writes code and tests, commits each task, and hands Iván the exact command (`pnpm ci:check`) when the plan is done; he runs it and tests on his phone before merging.
 
 ## Changelog and versions
 

@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Mandatory workflow (see AGENTS.md):** read `DESIGN.md`, the `frontend-design` skill and `../beekeeper/docs/api.md` → spec → plan → wait for Iván's explicit OK → implement. Never implement in the same turn the plan is written. Modules go in the order of `docs/ROADMAP.md`; this repo starts after the backend phase of `beekeeper` is done.
 
+**Never run tests or checks.** Iván runs them, always (2026-10-26). Do not run `pnpm test`, `pnpm typecheck`, `pnpm ci:check`, jest or any test command, not even the test just written. Write the code and the tests, commit each task, and at the end hand Iván the exact one-line command to run; he pastes back whatever fails.
+
 ## Project
 
 Landak Apiario Android app: offline-first hive management. Flow: scan a hive's QR → see its history → dictate or tap the inspection → confirm the proposed fields → saved on the phone → synced to Supabase when there is signal, never lost, never duplicated.
