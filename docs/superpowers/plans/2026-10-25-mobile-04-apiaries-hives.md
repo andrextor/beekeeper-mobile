@@ -1,0 +1,25 @@
+# M4 · Apiaries and hives — plan
+
+Spec: `docs/superpowers/specs/2026-10-25-mobile-04-apiaries-hives-design.md` · Branch: `feat/m4-apiaries-hives` · Status: **awaiting OK**
+
+New dependencies (approval asked here): `expo-location`, `@react-native-community/datetimepicker` (native date picker, via `pnpm expo install`).
+
+1. **Schemas and helpers** — `src/features/apiaries/schema.ts`, `src/features/hives/schema.ts` (Zod, every B3 rule) + tests; `src/features/hives/age.ts`, `queen-color.ts`, `qr-code.ts` (`newQrCode()`) + tests; `next-name.ts` ("C-13") + test.
+2. **Local queries** — `src/features/apiaries/queries.ts` (list with active hive counts and last inspection, detail), `src/features/hives/queries.ts` (by apiary with filter, detail).
+3. **Apiarios tab and apiary detail** — `src/app/(tabs)/apiaries.tsx`, `src/app/apiary/[id]/index.tsx`, `ApiaryListItem.tsx`, `HiveListItem.tsx`, empty states per role.
+4. **Apiary form** — `src/app/apiary/new.tsx`, `src/app/apiary/[id]/edit.tsx`, `ApiaryForm.tsx` (location button, soft delete with `apiary_not_empty` check, undo).
+5. **Hive form** — `src/app/hive/new.tsx`, `src/app/hive/[id]/edit.tsx`, `HiveForm.tsx` (steppers, chips, queen color suggestion, live age).
+6. **Hive facts** — `src/app/hive/[id]/index.tsx` header (`HiveFacts.tsx`); timeline placeholder for M6.
+7. **Role gating and rejections** — `useRole()` in every owner action, edit-route guard; Pendientes "Revisar" opens the form with the failing field; automatic `qr_taken` regeneration in `push.ts` hook.
+8. **Remove the M3 dev button** "Crear colmena de prueba".
+9. **Release** — `chore(release): 0.4.0`. Check: `pnpm ci:check`.
+
+## How Iván tests it
+
+1. As `owner@landak.test`: Apiarios shows Vallecito 1 and La Loma (from the seed); open Vallecito 1 → 2 active hives, chip "Todas" → C-03 "Muerta".
+2. **Airplane mode**, gloves on: "Nuevo apiario" "Vallecito 2" with "Usar mi ubicación" → "Nueva colmena" → name suggested "C-…", type with a chip, 1 cámara, 2 alzas, queen year 2026 → color suggested "Blanco" → save.
+3. Kill and reopen the app offline → both records still there; Pendientes shows them pending.
+4. Airplane mode off → synced; check in `beekeeper` admin or Studio.
+5. Try to delete Vallecito 2 while its hive is active → blocked message.
+6. Sign in as `reviewer@landak.test` → same lists, no "Nuevo"/"Editar" buttons.
+7. Create a hive named "C-01" (existing) while offline, go online → "Requiere atención" with "Ya existe…" → Revisar → rename → synced.

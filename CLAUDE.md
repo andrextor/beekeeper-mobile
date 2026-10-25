@@ -1,0 +1,22 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+@AGENTS.md
+
+**Mandatory workflow (see AGENTS.md):** read `DESIGN.md`, the `frontend-design` skill and `../beekeeper/docs/api.md` → spec → plan → wait for Iván's explicit OK → implement. Never implement in the same turn the plan is written. Modules go in the order of `docs/ROADMAP.md`; this repo starts after the backend phase of `beekeeper` is done.
+
+## Project
+
+Landak Apiario Android app: offline-first hive management. Flow: scan a hive's QR → see its history → dictate or tap the inspection → confirm the proposed fields → saved on the phone → synced to Supabase when there is signal, never lost, never duplicated.
+
+## Stack
+
+Expo (React Native, New Architecture) + TypeScript + Expo Router · NativeWind (Tailwind) · `lucide-react-native` · Arsenal + Inter (`@expo-google-fonts/*`) · `expo-sqlite` (local source of truth) · `@supabase/supabase-js` · `expo-camera` (QR + photos) · `expo-image-manipulator` · `expo-speech-recognition` (on-device Spanish) · Zod · jest-expo · EAS Build (APK) + EAS Update (OTA fixes). Decided in `docs/superpowers/specs/2026-10-25-mobile-01-scaffold-design.md`.
+
+## Architecture
+
+- **SQLite is the source of truth for the UI.** Screens read local tables only; the sync engine (`src/features/sync/`) moves rows between SQLite and Supabase.
+- **Outbox:** every local write inserts the row and an outbox entry in one transaction; the pusher upserts by client UUID (idempotent), photos upload file → thumbnail → row.
+- **Pull:** per table, `updated_at > cursor`, pages of 500, cursor minus 2 minutes overlap; memberships are reloaded whole.
+- **Roles in the UI mirror RLS** (`owner` / `reviewer`); hiding a button is convenience, the server decides.
