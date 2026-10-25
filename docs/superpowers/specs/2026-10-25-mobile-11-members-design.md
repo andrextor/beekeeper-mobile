@@ -46,7 +46,7 @@ All of this goes through B2 RPCs, which check roles at the moment of the call an
 
 ### Data loading
 
-- Members: `organization_members` select with embedded `profiles(email, display_name)` (FK `user_id → profiles`, readable via `shares_org`), for the current organization.
+- Members: `organization_members` select with embedded `profiles(email, display_name)` (FK `user_id → profiles`, readable via `private.co_member_ids()`), for the current organization.
 - Invites (owner): `organization_invites` (`id`, `label`, `role`, `expires_at`; never the code) where `organization_id = …` and `accepted_at is null and revoked_at is null and expires_at > now()`.
 - Cached in SQLite (`members_cache`) for the offline read-only view; refreshed on screen focus and after every action.
 
