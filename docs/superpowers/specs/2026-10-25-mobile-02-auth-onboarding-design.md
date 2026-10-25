@@ -1,10 +1,10 @@
 # M2 · Sign-in, onboarding, invites, organization switcher — spec
 
-Date: 2026-10-25 · Branch: `feat/m2-auth-onboarding` · Status: **awaiting OK** · Version: 0.2.0
+Date: 2026-10-25 · Branch: `feat/m2-auth-onboarding` · Status: **awaiting OK** · Version: 0.2.0 · Revised 2026-10-25: email + password and invite codes (backend B2 §Authentication)
 
 ## Problem
 
-A beekeeper installs the APK, signs in with nothing but an email, creates their organization, and from then on stays signed in for months, including weeks without signal. A reviewer invited by an owner signs in with the invited email and lands directly in that organization. A person in several organizations switches between them.
+A beekeeper installs the APK, creates an account with email + password, creates their organization, and from then on stays signed in for months, including weeks without signal. A reviewer creates their own account the same way and joins an owner's organization with the invite code the owner sent them (WhatsApp). No email is ever sent: the project has no domain to send from. A person in several organizations switches between them.
 
 ## Decisions
 
@@ -15,18 +15,23 @@ A beekeeper installs the APK, signs in with nothing but an email, creates their 
 - `AppState` listener: `startAutoRefresh()` when active, `stopAutoRefresh()` in background.
 - Offline: an expired access token is not a sign-out. The app keeps working on local data; the sync engine (M3) refreshes the session when the network returns. Only an explicit refresh failure with `invalid_grant`/`refresh_token_not_found` asks to sign in again, and local data with pending outbox rows is **kept** until the user signs in again with the same email (different email → wipe, after a warning listing the pending count).
 
-### Sign-in flow (backend B2)
+### Sign-up and sign-in (backend B2)
 
-1. `(auth)/sign-in`: "Tu correo" (`keyboardType="email-address"`, `autoComplete="email"`), "Enviar código" → `auth.signInWithOtp({ email, options: { shouldCreateUser: true } })`.
-2. `(auth)/code`: one 6-digit field (`keyboardType="number-pad"`, `textContentType="oneTimeCode"`, `autoComplete="sms-otp"`), 32-sp digits, "Reenviar código" after 60 s, "Cambiar correo" → `auth.verifyOtp({ email, token, type: 'email' })`.
-3. After verify: `rpc('accept_my_invites')` → `rpc('my_memberships')`.
-4. No membership → `(auth)/onboarding`; one → that organization becomes active; several → the last used one (stored in SecureStore as `active_organization_id`), else `organizations` modal.
+1. `(auth)/welcome`: two 56-dp buttons, **Crear cuenta** (primary) and **Ya tengo cuenta**.
+2. `(auth)/sign-up`: "Tu correo" (`keyboardType="email-address"`, `autoComplete="email"`, `autoCapitalize="none"`), "Contraseña" (`secureTextEntry`, `autoComplete="new-password"`, show/hide `eye` toggle, hint "Mínimo 8 caracteres"), "Repite la contraseña" (must match, checked before sending) → `auth.signUp({ email, password })` → session at once (no confirmation email).
+3. `(auth)/sign-in`: email + password (`autoComplete="current-password"`) → `auth.signInWithPassword({ email, password })`. Link "¿Olvidaste tu contraseña?" opens a sheet: "Pide a quien administra Landak Apiario que la restablezca." (no self-service recovery until a domain exists).
+4. After either: `rpc('my_memberships')`. No membership → `(auth)/onboarding`; one → that organization becomes active; several → the last used one (stored in SecureStore as `active_organization_id`), else `organizations` modal.
+5. The email is saved (not the password) so "Ya tengo cuenta" prefills it after a sign-out.
 
 Sign-in requires network; the screen says so when offline ("Necesitas conexión para entrar la primera vez.").
 
 ### Onboarding
 
-`(auth)/onboarding`: title "Crea tu organización", hint "Es el nombre de tu explotación apícola. Podrás invitar revisores después.", field "Nombre" (prefilled "Apiario de <display name or email prefix>"), optional "Tu nombre" (→ `profiles.display_name`). Submit → `rpc('create_organization', { p_id: uuid(), p_name })`. The client id is generated once and kept in component state, so a retry after a timeout reuses it (the RPC is idempotent for the same owner). Then → Apiarios tab with the empty state "Crea tu primer apiario" (M4).
+`(auth)/onboarding` offers two big choices: **Crear mi apiario** (I am the beekeeper) and **Tengo un código** (someone invited me).
+
+**Tengo un código** → `(auth)/join`: one field, 8 characters shown as `XXXX-XXXX` (`autoCapitalize="characters"`, `autoCorrect={false}`, 28-sp monospace, paste supported, dash inserted automatically; lowercase, spaces, O/0 and I/L mix-ups are accepted by the server) → `rpc('accept_invite', { p_code })` → returned organization becomes active → Inicio. The same screen is reachable later from the organizations modal ("Unirme con un código") for a second organization.
+
+**Crear mi apiario** → title "Crea tu organización", hint "Es el nombre de tu explotación apícola. Podrás invitar revisores después.", field "Nombre" (prefilled "Apiario de <display name or email prefix>"), optional "Tu nombre" (→ `profiles.display_name`). Submit → `rpc('create_organization', { p_id: uuid(), p_name })`. The client id is generated once and kept in component state, so a retry after a timeout reuses it (the RPC is idempotent for the same owner). Then → Apiarios tab with the empty state "Crea tu primer apiario" (M4).
 
 ### Organization switcher
 
@@ -46,19 +51,22 @@ Confirm sheet (outside field mode, so a dialog is allowed): if the outbox has pe
 
 | Source | Code | Message |
 |--------|------|---------|
-| Auth | rate limit (429) | "Demasiados intentos. Espera un minuto." |
-| Auth | `otp_expired` / invalid token | "El código no es válido o ya venció. Pide uno nuevo." |
+| Auth | `invalid_credentials` | "Correo o contraseña incorrectos." |
+| Auth | `user_already_exists` / `email_exists` | "Ya existe una cuenta con ese correo. Ingresa con tu contraseña." (button switches to sign-in with the email prefilled) |
+| Auth | `weak_password` | "La contraseña debe tener al menos 8 caracteres." |
+| Auth | `validation_failed` | "Revisa el correo y la contraseña." |
+| Auth | rate limit (`over_request_rate_limit`, 429) | "Demasiados intentos. Espera un minuto." |
 | Auth | network | "No hay conexión. Revisa tu internet." |
+| RPC | `invalid_code` | "El código no es válido, ya se usó o venció. Pide uno nuevo al propietario." |
 | RPC | `invalid_name` | "Escribe un nombre de 1 a 120 caracteres." |
 | RPC | `id_taken` | regenerate id and retry once, silently |
-| RPC | `email_not_confirmed` | "Confirma tu correo para aceptar invitaciones." |
 | RPC | `not_signed_in` | back to sign-in |
 
 `src/lib/errors.ts`: `messageFor(error: unknown): string` reading `detail` first, then the Auth code, then a generic "Algo salió mal. Inténtalo de nuevo."; shared by every later module.
 
 ## Field use
 
-Sign-in happens at home, but the code screen must work with one thumb: big digits, paste from the email app, auto-submit at 6 digits. After sign-in the field is never blocked by auth: no session expiry prompt while offline.
+Sign-up happens at home or next to the owner; the code screen must work with one thumb: big monospace characters, paste from WhatsApp, the dash inserted automatically, submit enabled at 8 characters. After sign-in the field is never blocked by auth: no session expiry prompt while offline.
 
 ## Security constraints
 
@@ -68,8 +76,8 @@ Sign-in happens at home, but the code screen must work with one thumb: big digit
 
 ## Backend contract used (B2)
 
-`auth.signInWithOtp`, `auth.verifyOtp(type 'email')`; RPCs `accept_my_invites() returns setof uuid`, `my_memberships() returns table (organization_id, organization_name, role)`, `create_organization(p_id uuid, p_name text) returns uuid`; `profiles` own-row update of `display_name`; error details `invalid_name`, `id_taken`, `email_not_confirmed`, `not_signed_in`.
+`auth.signUp`, `auth.signInWithPassword`; RPCs `accept_invite(p_code text) returns uuid`, `my_memberships() returns table (organization_id, organization_name, role)`, `create_organization(p_id uuid, p_name text) returns uuid`; `profiles` own-row update of `display_name`; error details `invalid_name`, `id_taken`, `invalid_code`, `not_signed_in`; Auth error codes in `../beekeeper/docs/api.md` → Auth.
 
 ## Out of scope
 
-Google sign-in, account deletion, member management (M11), offline display name edits.
+Google sign-in, password recovery by email (needs a domain), account deletion, member management (M11), offline display name edits.

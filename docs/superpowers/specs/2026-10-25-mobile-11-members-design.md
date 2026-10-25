@@ -13,19 +13,22 @@ The beekeeper (owner) wants other people — a helper, a technician, a family me
 | Screen | Owner | Reviewer |
 |--------|-------|----------|
 | Members list (email, name, role badge, "Tú") | yes, each row opens actions | yes, read-only |
-| Pending invites (email, role, date) | yes, "Cancelar invitación" | hidden (RLS does not return them) |
+| Pending invite codes (label, role, "vence el …") | yes, "Cancelar código" | hidden (RLS does not return them) |
 | "Invitar persona" button (72 dp, bottom) | yes | hidden |
 | "Salir de esta organización" | yes (refused if last owner) | yes |
 
 ### Invite flow (owner)
 
-1. Email field (`keyboardType="email-address"`, `autoCapitalize="none"`), role segmented control **Revisor** (default) / **Propietario** with one-line explanations:
+Revised 2026-10-25: no email is sent and the email is not verified, so access is given by a **single-use code** (backend B2 §Authentication), never by email.
+
+1. Optional "¿Para quién es?" label (e.g. "Juan", ≤ 80, only to recognise the code in the pending list), role segmented control **Revisor** (default) / **Propietario** with one-line explanations:
    - Revisor: "Puede ver todo y registrar revisiones, notas, fotos y actividades. No puede cambiar apiarios ni colmenas."
    - Propietario: "Puede hacer todo, incluso invitar y quitar personas."
-2. `rpc('invite_member', { p_organization_id, p_email, p_role })`.
-3. Success screen with **"Compartir invitación"** → React Native `Share.share` (no extra dependency) with the message:
-   "Te invité a Landak Apiario para ayudarme con mis colmenas de <organización>. Instala la app e ingresa con este correo: <email>. <install link from M12>"
-4. The invite appears in the pending list. When the person signs in, M2 already calls `accept_my_invites()`.
+2. `rpc('create_invite', { p_organization_id, p_role, p_label })` → `{ invite_id, code, expires_at }`. The plain code exists only in this response: the success screen is the only place it is shown (it is not stored on the phone either).
+3. Success screen: the code in 40-sp monospace (`K7M2-9QXA`), "Vence el 1 de noviembre · sirve una sola vez", **"Compartir por WhatsApp"** (72 dp) → React Native `Share.share` (no extra dependency) with:
+   "Te invité a <organización> en Landak Apiario. Instala la app (<install link from M12>), crea tu cuenta y escribe este código: K7M2-9QXA. Vence el 1 de noviembre."
+   and "Copiar código". Leaving the screen asks nothing; a lost code is simply cancelled and a new one created.
+4. The code appears in the pending list (label, role, expiry). The invited person creates their own account and types the code in **Tengo un código** (M2 `accept_invite`).
 
 ### Member actions (owner, on a member row)
 
@@ -44,7 +47,7 @@ All of this goes through B2 RPCs, which check roles at the moment of the call an
 ### Data loading
 
 - Members: `organization_members` select with embedded `profiles(email, display_name)` (FK `user_id → profiles`, readable via `shares_org`), for the current organization.
-- Invites (owner): `organization_invites` where `organization_id = …` and `accepted_at is null and revoked_at is null`.
+- Invites (owner): `organization_invites` (`id`, `label`, `role`, `expires_at`; never the code) where `organization_id = …` and `accepted_at is null and revoked_at is null and expires_at > now()`.
 - Cached in SQLite (`members_cache`) for the offline read-only view; refreshed on screen focus and after every action.
 
 ### Error mapping (`detail` → Spanish, `src/features/members/errors.ts`)
@@ -52,12 +55,11 @@ All of this goes through B2 RPCs, which check roles at the moment of the call an
 | `detail` | Message |
 |----------|---------|
 | `not_owner` | Solo el propietario de la organización puede hacer esto. |
-| `already_member` | Esa persona ya es parte de la organización. |
-| `invalid_email` | Revisa el correo, parece que no está bien escrito. |
+| `invalid_label` | El nombre puede tener hasta 80 caracteres. |
 | `invalid_role` | Elige Revisor o Propietario. |
 | `last_owner` | La organización debe tener al menos un propietario. |
 | `not_member` | Esa persona ya no es parte de la organización. |
-| `invite_not_pending` | Esa invitación ya fue aceptada o cancelada. |
+| `invite_not_pending` | Ese código ya se usó o fue cancelado. |
 | `not_allowed` | No tienes permiso para quitar a esa persona. |
 | `not_signed_in` | Tu sesión terminó. Ingresa de nuevo. |
 | network / other | No pudimos completar la acción. Revisa tu conexión e inténtalo de nuevo. |
@@ -84,8 +86,8 @@ Not a field screen: used at home or before a visit. Still 56-dp targets, big rol
 
 ## Backend contract used
 
-B2: `invite_member(p_organization_id, p_email, p_role)`, `revoke_invite(p_invite_id)`, `set_member_role(p_organization_id, p_user_id, p_role)`, `remove_member(p_organization_id, p_user_id)`, `my_memberships()`, `accept_my_invites()` (M2); tables `organization_members`, `organization_invites`, `profiles`; error `detail` codes listed above.
+B2: `create_invite(p_organization_id, p_role, p_label) returns table (invite_id, code, expires_at)`, `revoke_invite(p_invite_id)`, `set_member_role(p_organization_id, p_user_id, p_role)`, `remove_member(p_organization_id, p_user_id)`, `my_memberships()`, `accept_invite(p_code)` (M2); tables `organization_members`, `organization_invites`, `profiles`; error `detail` codes listed above.
 
 ## Out of scope
 
-Per-apiary access, a read-only viewer role, invitation links with tokens, transferring ownership as a single action (done as invite owner + leave).
+Per-apiary access, a read-only viewer role, invitation deep links (a `landak://join/<code>` link could prefill the code later), transferring ownership as a single action (done as invite owner + leave).
