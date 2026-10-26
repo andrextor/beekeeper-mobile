@@ -1,6 +1,6 @@
 # M2 · Sign-in, onboarding, invites, organization switcher — spec
 
-Date: 2026-10-25 · Branch: `feat/m2-auth-onboarding` · Status: **awaiting OK** · Version: 0.2.0 · Revised 2026-10-25: email + password and invite codes (backend B2 §Authentication)
+Date: 2026-10-25 · Branch: `feat/m2-auth-onboarding` · Status: **approved** (Iván, 2026-10-26) · Version: 0.2.0 · Revised 2026-10-25: email + password and invite codes (backend B2 §Authentication)
 
 ## Problem
 
