@@ -35,6 +35,9 @@ function encrypt(key: Uint8Array, value: string): string {
 }
 
 function decrypt(hexKey: string, encrypted: string): string {
-  const cipher = new aesjs.ModeOfOperation.ctr(aesjs.utils.hex.toBytes(hexKey), new aesjs.Counter(1))
+  const cipher = new aesjs.ModeOfOperation.ctr(
+    aesjs.utils.hex.toBytes(hexKey),
+    new aesjs.Counter(1),
+  )
   return aesjs.utils.utf8.fromBytes(cipher.decrypt(aesjs.utils.hex.toBytes(encrypted)))
 }

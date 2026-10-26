@@ -7,7 +7,9 @@ import { LargeSecureStore } from './large-secure-store'
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL
 const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 if (!url || !key) {
-  throw new Error('EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY are required (.env)')
+  throw new Error(
+    'EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY are required (.env)',
+  )
 }
 
 export const supabase = createClient<Database>(url, key, {

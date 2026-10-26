@@ -19,7 +19,10 @@ jest.mock('expo-crypto', () => ({
 
 describe('LargeSecureStore', () => {
   const store = new LargeSecureStore()
-  const session = JSON.stringify({ access_token: 'a'.repeat(3000), user: { email: 'á@landak.test' } })
+  const session = JSON.stringify({
+    access_token: 'a'.repeat(3000),
+    user: { email: 'á@landak.test' },
+  })
 
   beforeEach(() => {
     mockAsyncData.clear()
