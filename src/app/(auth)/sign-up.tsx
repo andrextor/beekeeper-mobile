@@ -2,6 +2,7 @@ import { router } from 'expo-router'
 import { useState } from 'react'
 import { Text } from 'react-native'
 
+import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
@@ -39,6 +40,7 @@ export default function SignUpScreen() {
 
   return (
     <Screen>
+      <BackButton />
       <Text accessibilityRole="header" className="font-display text-title text-text">
         Crear cuenta
       </Text>

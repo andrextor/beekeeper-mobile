@@ -3,6 +3,7 @@ import { Hexagon, KeyRound } from 'lucide-react-native'
 import { useRef, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
+import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
@@ -26,6 +27,7 @@ export default function OnboardingScreen() {
   if (creating) {
     return (
       <CreateFinca
+        onBack={add === '1' ? undefined : () => setCreating(false)}
         userId={state.session.user.id}
         email={state.session.user.email ?? ''}
         onCreated={async (id) => {
@@ -87,10 +89,12 @@ function Choice({
 }
 
 function CreateFinca({
+  onBack,
   userId,
   email,
   onCreated,
 }: {
+  onBack?: () => void
   userId: string
   email: string
   onCreated: (id: string) => Promise<void>
@@ -118,6 +122,7 @@ function CreateFinca({
 
   return (
     <Screen>
+      <BackButton onPress={onBack} />
       <Text accessibilityRole="header" className="font-display text-title text-text">
         Crea tu finca
       </Text>
