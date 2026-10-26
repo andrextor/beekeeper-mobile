@@ -8,11 +8,12 @@ const today = '2026-10-26'
 async function database(): Promise<Db> {
   const db = openTestDb()
   await migrate(db)
-  for (const [id, status, deleted] of [
+  const hives: [string, string, string | null][] = [
     ['h-1', 'active', null],
     ['h-dead', 'dead', null],
     ['h-gone', 'active', '2026-10-01T00:00:00.000Z'],
-  ]) {
+  ]
+  for (const [id, status, deleted] of hives) {
     await db.runAsync(
       "insert into hives (id, organization_id, apiary_id, name, qr_code, status, deleted_at) values (?, 'o', 'a', ?, 'X', ?, ?)",
       [id, id, status, deleted],

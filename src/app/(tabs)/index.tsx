@@ -108,7 +108,8 @@ export default function HomeScreen() {
                       .map((h) => (
                         <ListItem
                           key={h.id}
-                          title={`   ${h.name}`}
+                          icon={Hexagon}
+                          title={h.name}
                           onPress={() => openHive(h.id)}
                         />
                       ))
