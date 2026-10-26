@@ -1,8 +1,8 @@
 const hourMs = 60 * 60_000
 
-/** At most one check per hour, however often the app comes to the front. */
+/** At most one check per hour, however often the app comes to the front; 0 = never checked. */
 export function dueForCheck(lastCheck: number, now: number): boolean {
-  return now - lastCheck >= hourMs
+  return lastCheck === 0 || now - lastCheck >= hourMs
 }
 
 /** SemVer "x.y.z" comparison; anything unreadable is never newer. */
