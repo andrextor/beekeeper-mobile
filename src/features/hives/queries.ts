@@ -56,3 +56,16 @@ export function useHiveNames(apiaryId: string): {
   )
   return { names: rows, loading }
 }
+
+export type FincaHive = { id: string; name: string; apiary_name: string | null }
+
+/** Every live hive of the finca with its apiary, for "Asignar a una colmena". */
+export function useFincaHives(organizationId: string): FincaHive[] {
+  return useLocalQuery<FincaHive>(
+    `select h.id, h.name, a.name as apiary_name from hives h left join apiaries a on a.id = h.apiary_id
+     where h.organization_id = ? and h.deleted_at is null
+     order by a.name collate nocase, h.name collate nocase limit 500`,
+    [organizationId],
+    ['hives', 'apiaries'],
+  ).rows
+}

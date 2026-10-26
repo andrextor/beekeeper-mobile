@@ -2,9 +2,10 @@ import type { ServerRow } from '@/db/mapping'
 import { migrate } from '@/db/migrate'
 import { openTestDb } from '@/db/test-db'
 import { saveRow } from '@/db/write'
-import { replaceTakenQrCode } from './qr-taken'
+import { relabelHive, replaceTakenQrCode } from './relabel'
 
-jest.mock('expo-crypto', () => ({ randomUUID: () => 'event-1' }))
+let mockId = 0
+jest.mock('expo-crypto', () => ({ randomUUID: () => `event-${++mockId}` }))
 
 const now = '2026-10-26T10:00:00.000Z'
 
@@ -32,7 +33,7 @@ const hive: ServerRow<'hives'> = {
   deleted_at: null,
 }
 
-describe('replaceTakenQrCode', () => {
+describe('relabelHive', () => {
   it('re-queues the hive with a new code and records the relabel', async () => {
     const db = openTestDb()
     await migrate(db)
@@ -55,16 +56,28 @@ describe('replaceTakenQrCode', () => {
     })
   })
 
-  it('gives up after three relabels', async () => {
+  it('updates the queued event instead of adding one, keeping the code the server knows', async () => {
     const db = openTestDb()
     await migrate(db)
     await saveRow(db, 'hives', hive)
-    for (const n of [1, 2, 3]) {
-      await db.runAsync(
-        "insert into hive_events (id, organization_id, hive_id, type, occurred_at) values (?, 'org-1', 'h-1', 'qr_relabel', '2026-10-26')",
-        [`e-${n}`],
-      )
+    await relabelHive(db, 'h-1', 'BBBBBBBBBB')
+    await relabelHive(db, 'h-1', 'CCCCCCCCCC')
+    const events = await db.getAllAsync<{ details: string }>(
+      "select details from hive_events where type = 'qr_relabel'",
+    )
+    expect(events.map((e) => JSON.parse(e.details))).toEqual([
+      { old_qr_code: 'AAAAAAAAAA', new_qr_code: 'CCCCCCCCCC' },
+    ])
+  })
+
+  it('gives up after three automatic fixes for the same hive', async () => {
+    const db = openTestDb()
+    await migrate(db)
+    await saveRow(db, 'hives', { ...hive, id: 'h-2' })
+    const results = []
+    for (const code of ['BBBBBBBBBB', 'CCCCCCCCCC', 'DDDDDDDDDD', 'EEEEEEEEEE']) {
+      results.push(await replaceTakenQrCode(db, 'h-2', code))
     }
-    expect(await replaceTakenQrCode(db, 'h-1', 'CCCCCCCCCC')).toBe(false)
+    expect(results).toEqual([true, true, true, false])
   })
 })

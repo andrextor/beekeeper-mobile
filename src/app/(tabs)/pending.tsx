@@ -8,13 +8,17 @@ import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { SyncChip } from '@/components/ui/SyncChip'
 import { Toast } from '@/components/ui/Toast'
+import { showToast } from '@/components/ui/ToastHost'
+import { getDb } from '@/db/database'
 import { discardChange } from '@/features/sync/discard'
 import { PendingList } from '@/features/sync/PendingList'
 import { entryTitle, type PendingEntry, usePendingEntries } from '@/features/sync/pending'
+import { relabelHive } from '@/features/sync/relabel'
 import { exclusive, syncNow } from '@/features/sync/triggers'
 import { type SyncStatus, useSyncStatus } from '@/features/sync/useSyncStatus'
 import { messageFor } from '@/lib/errors'
 import { formatRelative, plural } from '@/lib/format'
+import { newQrCode } from '@/lib/qr-code'
 
 function StatusChip({ status }: { status: SyncStatus }) {
   if (status.attention > 0) return <SyncChip state="attention" count={status.attention} />
@@ -51,10 +55,8 @@ function Header({ status }: { status: SyncStatus }) {
 
 const forms = { apiaries: '/apiary/[id]/edit', hives: '/hive/[id]/edit' } as const
 
-// A failed deletion has no form to open: its card offers "Descartar cambio", which restores it.
-const canReview = (entry: PendingEntry) =>
-  entry.table_name in forms &&
-  (JSON.parse(entry.payload) as { deleted_at?: unknown }).deleted_at == null
+const isDeletion = (entry: PendingEntry) =>
+  (JSON.parse(entry.payload) as { deleted_at?: unknown }).deleted_at != null
 
 /** The record's form; a repeated name arrives highlighted (spec M4 → Server rejections). */
 function review(entry: PendingEntry) {
@@ -70,6 +72,29 @@ export default function PendingScreen() {
   const [discarding, setDiscarding] = useState<PendingEntry | null>(null)
   const [error, setError] = useState<string | null>(null)
   const undone = useRef(false)
+
+  // A re-label whose code another hive has (spec M5): a fresh code, the same queued event.
+  const newCode = async (entry: PendingEntry) => {
+    try {
+      await exclusive(async () => {
+        await relabelHive(await getDb(), entry.row_id, newQrCode())
+      })
+      showToast('Código nuevo guardado. Imprime la etiqueta otra vez.')
+    } catch (e) {
+      setError(messageFor(e))
+    }
+  }
+
+  // A failed deletion has no form to open: "Descartar cambio" restores it.
+  const fixFor = (entry: PendingEntry) => {
+    if (entry.table_name === 'hives' && entry.last_error_code === 'qr_taken') {
+      return { label: 'Generar otro código', onPress: () => void newCode(entry) }
+    }
+    if (entry.table_name in forms && !isDeletion(entry)) {
+      return { label: 'Revisar', onPress: () => review(entry) }
+    }
+    return null
+  }
 
   const discard = async (entry: PendingEntry) => {
     try {
@@ -93,8 +118,7 @@ export default function PendingScreen() {
         header={<Header status={status} />}
         refreshing={status.running}
         onRefresh={() => void syncNow()}
-        canReview={canReview}
-        onReview={review}
+        fixFor={fixFor}
         onDiscard={(entry) => {
           // A second discard inside the window closes the first one's window now.
           if (discarding && !undone.current) void discard(discarding)
