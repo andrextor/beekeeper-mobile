@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { AppState } from 'react-native'
 import { z } from 'zod'
 
+import { withTimeout } from '@/features/sync/server'
 import { latestJsonUrl } from '@/lib/releases'
 import { dueForCheck, isNewer } from './check'
 
@@ -27,9 +28,12 @@ let found: NewApk | null = null
  * native fingerprint, so an OTA never carries the version of an APK with newer native code.
  */
 async function fetchNewApk(): Promise<NewApk | null> {
-  const response = await fetch(latestJsonUrl)
-  if (!response.ok) return null
-  const latest = latestSchema.safeParse(await response.json())
+  // A weak farm signal can stall a fetch forever and leave `checking` stuck until a cold start.
+  const body = await withTimeout(async (signal): Promise<unknown> => {
+    const response = await fetch(latestJsonUrl, { signal })
+    return response.ok ? response.json() : null
+  })
+  const latest = latestSchema.safeParse(body)
   const current = Constants.expoConfig?.version ?? ''
   return latest.success && isNewer(latest.data.version, current) ? latest.data : null
 }

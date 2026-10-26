@@ -20,6 +20,10 @@ git diff --quiet && git diff --cached --quiet || { echo 'Commit or stash your ch
 command -v gh >/dev/null || { echo 'Install gh: brew install gh && gh auth login'; exit 1; }
 ! gh release view "$tag" --repo "$repo" >/dev/null 2>&1 || { echo "$tag is already published."; exit 1; }
 
+if [[ "$mode" == 'local' ]] && { [[ -z "${ANDROID_HOME:-}" ]] || ! command -v java >/dev/null; }; then
+  echo 'A local build needs JDK 17 and ANDROID_HOME. Use: pnpm release:apk --cloud'; exit 1
+fi
+
 rm -rf dist && mkdir dist
 if [[ "$mode" == 'local' ]]; then
   npx eas-cli@latest build --local -p android --profile preview --non-interactive \
