@@ -1,19 +1,28 @@
 import {
   attentionLevelLabels,
+  colonyOriginLabels,
   broodPatternLabels,
   diseaseSignLabels,
   eventTypeLabels,
+  feedLabels,
+  harvestProductLabels,
   hiveStatusLabels,
+  hiveTypeLabels,
   inspectionSourceLabels,
   label,
+  lossCauseLabels,
   observedLabels,
   pestLabels,
   plannedActionLabels,
   populationStrengthLabels,
   queenCellsLabels,
+  queenChangeReasonLabels,
+  queenColorLabels,
+  queenOriginLabels,
   roleLabels,
   storesLabels,
   temperamentLabels,
+  treatmentMethodLabels,
   varroaMethodLabels,
   weatherLabels,
 } from './labels'
@@ -21,6 +30,13 @@ import {
 // Enum values as listed in ../beekeeper/docs/api.md; a value added there fails here until labelled.
 const contract: [Readonly<Record<string, string>>, string[]][] = [
   [roleLabels, ['owner', 'reviewer']],
+  [hiveTypeLabels, ['langstroth', 'dadant', 'top_bar', 'warre', 'nucleus', 'rustic', 'other']],
+  [
+    colonyOriginLabels,
+    ['swarm_capture', 'split', 'package', 'nucleus_purchase', 'colony_purchase', 'unknown'],
+  ],
+  [queenColorLabels, ['white', 'yellow', 'red', 'green', 'blue']],
+  [queenOriginLabels, ['own_rearing', 'purchased', 'natural', 'unknown']],
   [hiveStatusLabels, ['active', 'inactive', 'dead', 'absconded', 'merged', 'sold']],
   [inspectionSourceLabels, ['manual', 'voice']],
   [observedLabels, ['yes', 'no', 'not_checked']],
@@ -75,6 +91,11 @@ const contract: [Readonly<Record<string, string>>, string[]][] = [
       'qr_relabel',
     ],
   ],
+  [feedLabels, ['sugar_syrup', 'fondant', 'pollen_patty', 'honey', 'other']],
+  [treatmentMethodLabels, ['strip', 'drip', 'vapor', 'dust', 'other']],
+  [harvestProductLabels, ['honey', 'pollen', 'propolis', 'wax']],
+  [lossCauseLabels, ['starvation', 'pests', 'disease', 'absconding', 'pesticide', 'unknown']],
+  [queenChangeReasonLabels, ['failing', 'aggressive', 'lost', 'planned']],
 ]
 
 describe('labels', () => {

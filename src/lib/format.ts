@@ -76,6 +76,6 @@ export function formatColonyAge(startedOn: string, now: Date = new Date()): stri
   return rest ? `${yearsText} y ${plural(rest, 'mes', 'meses')}` : yearsText
 }
 
-export function formatAmount(value: number, unit: 'kg' | 'l' | '°C'): string {
+export function formatAmount(value: number, unit: 'kg' | 'g' | 'l' | '°C'): string {
   return `${formatNumber(value)} ${unit}`
 }
