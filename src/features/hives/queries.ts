@@ -45,10 +45,14 @@ export function useHive(id: string): { hive: HiveDetail | null; loading: boolean
 }
 
 /** Names of the live hives of an apiary: the next-name suggestion and the local uniqueness check. */
-export function useHiveNames(apiaryId: string): { id: string; name: string }[] {
-  return useLocalQuery<{ id: string; name: string }>(
+export function useHiveNames(apiaryId: string): {
+  names: { id: string; name: string }[]
+  loading: boolean
+} {
+  const { rows, loading } = useLocalQuery<{ id: string; name: string }>(
     'select id, name from hives where apiary_id = ? and deleted_at is null',
     [apiaryId],
     ['hives'],
-  ).rows
+  )
+  return { names: rows, loading }
 }

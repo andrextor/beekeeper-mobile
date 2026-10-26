@@ -18,6 +18,7 @@ import {
   hiveTypeLabels,
   queenOriginLabels,
 } from '@/lib/labels'
+import { nameTaken } from '@/lib/text'
 import { ColonyStartField } from './ColonyStartField'
 import { nextHiveName } from './next-name'
 import { QueenColorField } from './QueenColorField'
@@ -78,22 +79,29 @@ export function HiveForm({
   const insets = useSafeAreaInsets()
   const [draft, setDraft] = useState(initial)
   const [nameTouched, setNameTouched] = useState(Boolean(hiveId))
-  const [colorTouched, setColorTouched] = useState(initial.queen_color !== null)
+  // Editing keeps what was saved, "Sin marca" included: the year only suggests on a new hive.
+  const [colorTouched, setColorTouched] = useState(Boolean(hiveId) || initial.queen_color !== null)
   const [errors, setErrors] = useState<Record<string, string>>(nameError ? { name: nameError } : {})
   const [failure, setFailure] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const set = <K extends keyof HiveDraft>(key: K, value: HiveDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }))
 
-  const siblings = useHiveNames(draft.apiary_id).filter((h) => h.id !== hiveId)
+  const { names, loading: namesLoading } = useHiveNames(draft.apiary_id)
+  const siblings = names.filter((h) => h.id !== hiveId)
   const name = nameTouched ? draft.name : nextHiveName(siblings.map((h) => h.name))
 
   const save = async () => {
-    if (saving) return
+    // The chosen apiary's names must be loaded: they decide the suggestion and the duplicate check.
+    if (saving || namesLoading) return
     const result = hiveSchema(localDay()).safeParse({ ...draft, name })
     if (!result.success) return setErrors(fieldErrors(result.error))
-    const wanted = result.data.name.toLowerCase()
-    if (siblings.some((h) => h.name.toLowerCase() === wanted)) {
+    if (
+      nameTaken(
+        result.data.name,
+        siblings.map((h) => h.name),
+      )
+    ) {
       return setErrors({ name: 'Ya hay una colmena con ese nombre en este apiario.' })
     }
     setErrors({})

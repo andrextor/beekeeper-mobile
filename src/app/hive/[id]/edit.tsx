@@ -7,7 +7,7 @@ import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Sheet } from '@/components/ui/Sheet'
-import { showToast } from '@/components/ui/ToastHost'
+import { showToast, undoFailed } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { saveRow } from '@/db/write'
 import { useApiaryNames } from '@/features/apiaries/queries'
@@ -44,7 +44,10 @@ export default function EditHiveScreen() {
     router.dismissTo({ pathname: '/apiary/[id]', params: { id: row.apiary_id } })
     showToast('Colmena eliminada', {
       durationMs: 5000,
-      onUndo: () => void saveRow(db, 'hives', { ...row, deleted_at: null }),
+      onUndo: () =>
+        saveRow(db, 'hives', { ...row, deleted_at: null }).catch(() =>
+          showToast(undoFailed, { tone: 'danger' }),
+        ),
     })
   }
 

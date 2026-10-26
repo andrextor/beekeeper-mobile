@@ -1,18 +1,7 @@
-import { Text, View } from 'react-native'
-
 import { Card } from '@/components/ui/Card'
+import { Fact } from '@/components/ui/Fact'
 import { formatAltitude } from '@/lib/format'
 import type { Apiary } from './queries'
-
-function Fact({ label, value }: { label: string; value: string | null }) {
-  if (!value) return null
-  return (
-    <View className="gap-0.5">
-      <Text className="font-sans text-caption text-muted">{label}</Text>
-      <Text className="font-sans text-body text-text">{value}</Text>
-    </View>
-  )
-}
 
 /** What the apiary record says; empty facts are left out. */
 export function ApiaryFacts({ apiary }: { apiary: Apiary }) {

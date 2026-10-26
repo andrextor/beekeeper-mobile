@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native'
 
 import { Card } from '@/components/ui/Card'
+import { Fact } from '@/components/ui/Fact'
 import { formatCalendarDate, formatColonyAge } from '@/lib/format'
 import {
   colonyOriginLabels,
@@ -12,16 +13,6 @@ import {
 } from '@/lib/labels'
 import { QueenDot } from './QueenDot'
 import type { HiveDetail } from './queries'
-
-function Fact({ label: name, value }: { label: string; value: string | null }) {
-  if (!value) return null
-  return (
-    <View className="gap-0.5">
-      <Text className="font-sans text-caption text-muted">{name}</Text>
-      <Text className="font-sans text-body text-text">{value}</Text>
-    </View>
-  )
-}
 
 const optional = (labels: Readonly<Record<string, string>>, value: string | null) =>
   value === null ? null : label(labels, value)

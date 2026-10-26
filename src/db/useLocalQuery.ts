@@ -10,10 +10,11 @@ export function useLocalQuery<T>(
   params: SqlValue[],
   tables: readonly string[],
 ): { rows: T[]; loading: boolean } {
-  const [rows, setRows] = useState<T[]>([])
-  const [loading, setLoading] = useState(true)
   const paramsKey = JSON.stringify(params)
   const tablesKey = tables.join(',')
+  const key = `${sql}\n${paramsKey}`
+  // Rows are tagged with the query that produced them: new params never show the old answer.
+  const [result, setResult] = useState<{ key: string; rows: T[] } | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -22,12 +23,10 @@ export function useLocalQuery<T>(
       timer = null
       try {
         const db = await getDb()
-        const result = await db.getAllAsync<T>(sql, JSON.parse(paramsKey) as SqlValue[])
-        if (alive) setRows(result)
+        const rows = await db.getAllAsync<T>(sql, JSON.parse(paramsKey) as SqlValue[])
+        if (alive) setResult({ key: `${sql}\n${paramsKey}`, rows })
       } catch {
         // A database being wiped keeps the last rows until it reopens.
-      } finally {
-        if (alive) setLoading(false)
       }
     }
     void run()
@@ -43,5 +42,6 @@ export function useLocalQuery<T>(
     }
   }, [sql, paramsKey, tablesKey])
 
-  return { rows, loading }
+  const current = result?.key === key ? result : null
+  return { rows: current?.rows ?? [], loading: current === null }
 }

@@ -13,10 +13,19 @@ type Props = {
   onUndo?: () => void
   onHide: () => void
   durationMs?: number
+  /** Extra space above the bottom inset, e.g. to clear the tab bar. */
+  bottomOffset?: number
 }
 
 /** Controlled: render it with a message to show it; it calls onHide after durationMs. */
-export function Toast({ message, tone = 'success', onUndo, onHide, durationMs = 3000 }: Props) {
+export function Toast({
+  message,
+  tone = 'success',
+  onUndo,
+  onHide,
+  durationMs = 3000,
+  bottomOffset = 16,
+}: Props) {
   const insets = useSafeAreaInsets()
   const hide = useRef(onHide)
   hide.current = onHide
@@ -33,7 +42,7 @@ export function Toast({ message, tone = 'success', onUndo, onHide, durationMs = 
   return (
     <View
       accessibilityLiveRegion="polite"
-      style={{ bottom: insets.bottom + 16 }}
+      style={{ bottom: insets.bottom + bottomOffset }}
       className={cx(
         'absolute right-4 left-4 min-h-target flex-row items-center gap-3 rounded-card py-2 pr-2 pl-4 shadow-lg',
         tone === 'success' ? 'border border-primary bg-success-bg' : 'bg-danger',

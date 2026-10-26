@@ -1,5 +1,5 @@
 import { fieldErrors } from '@/lib/form'
-import { apiarySchema, emptyApiary, nameTaken } from './schema'
+import { apiarySchema, emptyApiary } from './schema'
 
 describe('apiarySchema', () => {
   it('turns empty optional text into null and trims', () => {
@@ -42,12 +42,5 @@ describe('apiarySchema', () => {
     expect(apiarySchema.safeParse({ ...emptyApiary, name: 'A', altitude_m: '25.5' }).success).toBe(
       false,
     )
-  })
-})
-
-describe('nameTaken', () => {
-  it('ignores case and spaces around', () => {
-    expect(nameTaken(' vallecito 1 ', ['Vallecito 1', 'La Loma'])).toBe(true)
-    expect(nameTaken('Vallecito 2', ['Vallecito 1'])).toBe(false)
   })
 })

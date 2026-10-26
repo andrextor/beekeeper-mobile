@@ -34,9 +34,3 @@ export const emptyApiary: ApiaryDraft = {
   water_source: '',
   notes: '',
 }
-
-/** Names are unique per finca among live apiaries, ignoring case (B3). */
-export function nameTaken(name: string, others: readonly string[]): boolean {
-  const wanted = name.trim().toLowerCase()
-  return others.some((other) => other.toLowerCase() === wanted)
-}

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
-import { showToast } from '@/components/ui/ToastHost'
+import { showToast, undoFailed } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { saveRow } from '@/db/write'
 import { ApiaryForm, toDraft } from '@/features/apiaries/ApiaryForm'
@@ -36,7 +36,7 @@ export default function EditApiaryScreen() {
   }
 
   // B3 refuses it too (`apiary_not_empty`); dead hives count, as on the server.
-  const blocked = hives.length > 0
+  const blocked = hives.names.length > 0
 
   const remove = async () => {
     const db = await getDb()
@@ -45,7 +45,10 @@ export default function EditApiaryScreen() {
     router.dismissTo('/apiaries')
     showToast('Apiario eliminado', {
       durationMs: 5000,
-      onUndo: () => void saveRow(db, 'apiaries', { ...apiary, deleted_at: null }),
+      onUndo: () =>
+        saveRow(db, 'apiaries', { ...apiary, deleted_at: null }).catch(() =>
+          showToast(undoFailed, { tone: 'danger' }),
+        ),
     })
   }
 
@@ -65,6 +68,7 @@ export default function EditApiaryScreen() {
         variant="danger"
         icon={Trash2}
         label="Eliminar apiario"
+        disabled={hives.loading}
         onPress={() => setConfirming(true)}
       />
       <Sheet

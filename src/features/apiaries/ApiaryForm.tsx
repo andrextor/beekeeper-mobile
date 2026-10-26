@@ -6,9 +6,10 @@ import { FormError } from '@/components/ui/FormError'
 import { TextField } from '@/components/ui/TextField'
 import { messageFor } from '@/lib/errors'
 import { fieldErrors } from '@/lib/form'
+import { nameTaken } from '@/lib/text'
 import { LocationField } from './LocationField'
 import type { Apiary } from './queries'
-import { type ApiaryDraft, type ApiaryFields, apiarySchema, emptyApiary, nameTaken } from './schema'
+import { type ApiaryDraft, type ApiaryFields, apiarySchema, emptyApiary } from './schema'
 
 export function toDraft(apiary: Apiary): ApiaryDraft {
   return {
