@@ -1,6 +1,6 @@
 # M6 · Hive detail and timeline — spec
 
-Date: 2026-10-25 · Branch: `feat/m6-hive-timeline` · Status: **awaiting OK** (reviewed 2026-10-26 after M5) · Version: 0.6.0
+Date: 2026-10-25 · Branch: `feat/m6-hive-timeline` · Status: **approved** (Iván, 2026-10-26) · Version: 0.6.0
 
 ## Problem
 

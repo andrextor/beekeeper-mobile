@@ -1,6 +1,6 @@
 # M6 · Hive detail and timeline — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-06-hive-timeline-design.md` · Branch: `feat/m6-hive-timeline` · Status: **awaiting OK** (reviewed 2026-10-26 after M5)
+Spec: `docs/superpowers/specs/2026-10-25-mobile-06-hive-timeline-design.md` · Branch: `feat/m6-hive-timeline` · Status: **approved** (Iván, 2026-10-26)
 
 No new dependencies.
 
