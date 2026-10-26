@@ -1,3 +1,4 @@
+import { Redirect } from 'expo-router'
 import { type BottomTabBarButtonProps, Tabs } from 'expo-router/tabs'
 import {
   CloudUpload,
@@ -10,6 +11,7 @@ import {
 import { Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { useSession } from '@/features/auth/session'
 import { tapHaptic } from '@/lib/haptics'
 import { color, iconSize, iconStroke } from '@/lib/theme'
 
@@ -41,6 +43,13 @@ function ScanTabButton({ onPress, accessibilityState }: BottomTabBarButtonProps)
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets()
+  const { state } = useSession()
+
+  // "/" is where the app opens: send each auth state to its entry screen.
+  if (state.status !== 'signedIn') return <Redirect href="/welcome" />
+  if (state.memberships.length === 0) return <Redirect href="/onboarding" />
+  if (!state.activeOrganizationId) return <Redirect href="/organizations" />
+
   return (
     <Tabs
       screenOptions={{

@@ -37,16 +37,11 @@ export default function RootLayout() {
   )
 }
 
-/**
- * Guards mirror the auth state: signed out → (auth) welcome; signed in without a finca → onboarding;
- * several fincas and none chosen → the switcher; otherwise the tabs.
- */
+/** The tabs layout redirects to the right entry screen; (auth) guards its own screens. */
 function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
   const { state } = useSession()
   const ready = fontsReady && state.status !== 'loading'
-  const signedIn = state.status === 'signedIn'
-  const hasFincas = signedIn && state.memberships.length > 0
-  const inFinca = signedIn && state.activeOrganizationId !== null
+  const hasFincas = state.status === 'signedIn' && state.memberships.length > 0
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync()
@@ -56,9 +51,7 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bgSoft } }}>
-      <Stack.Protected guard={inFinca}>
-        <Stack.Screen name="(tabs)" />
-      </Stack.Protected>
+      <Stack.Screen name="(tabs)" />
       <Stack.Protected guard={hasFincas}>
         <Stack.Screen name="organizations" options={{ presentation: 'modal' }} />
       </Stack.Protected>
