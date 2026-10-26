@@ -2,7 +2,7 @@
   "expo": {
     "name": "Landak Apiario",
     "slug": "landak-apiario",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "landak",
@@ -31,7 +31,15 @@
       "expo-font",
       "expo-secure-store",
       "expo-sqlite",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-sharing",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "La cámara lee el código QR de cada colmena.",
+          "recordAudioAndroid": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

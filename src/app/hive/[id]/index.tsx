@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { ClipboardCheck, Hexagon, Pencil } from 'lucide-react-native'
+import { ClipboardCheck, Hexagon, Pencil, QrCode } from 'lucide-react-native'
 import { Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
@@ -26,6 +26,12 @@ export default function HiveScreen() {
         {hive.name}
       </Text>
       <HiveFacts hive={hive} />
+      <Button
+        variant="secondary"
+        icon={QrCode}
+        label="Etiqueta QR"
+        onPress={() => router.push({ pathname: '/hive/[id]/label', params: { id } })}
+      />
       {owner ? (
         <Button
           variant="secondary"

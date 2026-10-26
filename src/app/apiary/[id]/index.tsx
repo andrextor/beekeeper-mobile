@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, MapPin, Navigation, Pencil, Plus } from 'lucide-react-native'
+import { Hexagon, MapPin, Navigation, Pencil, Plus, Printer } from 'lucide-react-native'
 import { useState } from 'react'
 import { FlatList, Linking, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -8,12 +8,17 @@ import { ChipSelect } from '@/components/field/ChipSelect'
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { FormError } from '@/components/ui/FormError'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { ApiaryFacts, mapUrl } from '@/features/apiaries/ApiaryFacts'
 import { useApiary } from '@/features/apiaries/queries'
 import { useRole } from '@/features/auth/session'
 import { HiveListItem } from '@/features/hives/HiveListItem'
 import { useHives } from '@/features/hives/queries'
+import { apiaryLabels } from '@/features/qr/apiary-labels'
+import { sheetHtml } from '@/features/qr/label-html'
+import { shareLabelsPdf } from '@/features/qr/print'
+import { messageFor } from '@/lib/errors'
 import { color } from '@/lib/theme'
 
 const filters = { active: 'Activas', all: 'Todas' } as const
@@ -25,9 +30,25 @@ export default function ApiaryScreen() {
   const { apiary, loading } = useApiary(id)
   const [all, setAll] = useState(false)
   const hives = useHives(id, all)
+  const [printing, setPrinting] = useState(false)
+  const [printError, setPrintError] = useState<string | null>(null)
 
   if (!apiary)
     return loading ? null : <NotAvailable icon={MapPin} title="Este apiario ya no existe." />
+
+  const printAll = async () => {
+    setPrinting(true)
+    setPrintError(null)
+    try {
+      const labels = await apiaryLabels(id)
+      if (labels.length === 0) return setPrintError('Este apiario todavía no tiene colmenas.')
+      await shareLabelsPdf(sheetHtml(labels), `Etiquetas ${apiary.name}`)
+    } catch (e) {
+      setPrintError(messageFor(e))
+    } finally {
+      setPrinting(false)
+    }
+  }
 
   const map = mapUrl(apiary)
   const edit = () => router.push({ pathname: '/apiary/[id]/edit', params: { id } })
@@ -65,6 +86,14 @@ export default function ApiaryScreen() {
                 <Button variant="secondary" icon={Pencil} label="Editar apiario" onPress={edit} />
               </>
             ) : null}
+            <Button
+              variant="secondary"
+              icon={Printer}
+              label="Imprimir etiquetas"
+              loading={printing}
+              onPress={printAll}
+            />
+            <FormError message={printError} />
             <ChipSelect
               label="Colmenas"
               options={filters}

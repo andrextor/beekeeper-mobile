@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-26
+
+### Added
+
+- Escanear (center tab): reads hive labels with the camera only while the tab is on screen; Linterna and **Escribir código** in the thumb zone; forgives O/0 and I/1/L; any other QR is never opened.
+- Lookup on the phone first (works in airplane mode), then the server; scanning a hive of another of your fincas switches to it. Unknown codes: owners can **Asignar a una colmena**; without signal the app never claims a hive is not yours.
+- Labels: hive → **Etiqueta QR** (preview, Compartir PDF, Imprimir) and apiary → **Imprimir etiquetas** (A4, 3 × 4). Only the hive name, the QR and the code; no place or finca.
+- **Cambiar etiqueta** (owner): scan a new label or generate a code, with a `qr_relabel` event; a code another hive has shows **Generar otro código** in Pendientes.
+- `landak://h/<code>` opens the hive from the system camera, also after signing in.
+
+### Changed
+
+- The relabel transaction moved to `src/features/sync/relabel.ts`: a queued `qr_relabel` event is updated instead of duplicated, and it never reaches the server before its hive's new code.
+
 ## [0.4.0] - 2026-10-26
 
 ### Added

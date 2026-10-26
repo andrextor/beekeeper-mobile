@@ -15,24 +15,22 @@ type Props = {
   refreshing: boolean
   onRefresh: () => void
   onDiscard: (entry: PendingEntry) => void
-  /** Opens the record's form; only for tables whose module has one. */
-  onReview: (entry: PendingEntry) => void
-  canReview: (entry: PendingEntry) => boolean
+  /** The way to fix an attention entry, when its module has one ("Revisar", "Generar otro código"). */
+  fixFor: (entry: PendingEntry) => { label: string; onPress: () => void } | null
 }
 
-type CardProps = Pick<Props, 'onDiscard' | 'onReview' | 'canReview'> & { entry: PendingEntry }
+type CardProps = Pick<Props, 'onDiscard' | 'fixFor'> & { entry: PendingEntry }
 
-function EntryCard({ entry, onDiscard, onReview, canReview }: CardProps) {
+function EntryCard({ entry, onDiscard, fixFor }: CardProps) {
   const attention = entry.state === 'failed_permanent'
+  const fix = attention ? fixFor(entry) : null
   return (
     <Card className="gap-2">
       <Text className="font-sans-semibold text-body text-text">{entryTitle(entry)}</Text>
       <Text className={cx('font-sans text-caption', attention ? 'text-danger' : 'text-muted')}>
         {attention ? (entry.last_error ?? 'No se pudo guardar.') : entryDetail(entry)}
       </Text>
-      {attention && canReview(entry) ? (
-        <Button label="Revisar" onPress={() => onReview(entry)} />
-      ) : null}
+      {fix ? <Button label={fix.label} onPress={fix.onPress} /> : null}
       {attention ? (
         <Button variant="secondary" label="Descartar cambio" onPress={() => onDiscard(entry)} />
       ) : null}
@@ -41,15 +39,7 @@ function EntryCard({ entry, onDiscard, onReview, canReview }: CardProps) {
 }
 
 /** Pull to refresh runs a full sync. */
-export function PendingList({
-  entries,
-  header,
-  refreshing,
-  onRefresh,
-  onDiscard,
-  onReview,
-  canReview,
-}: Props) {
+export function PendingList({ entries, header, refreshing, onRefresh, onDiscard, fixFor }: Props) {
   const attention = entries.filter((e) => e.state === 'failed_permanent')
   const queued = entries.filter((e) => e.state !== 'failed_permanent')
   const sections = [
@@ -77,9 +67,7 @@ export function PendingList({
           {section.title}
         </Text>
       )}
-      renderItem={({ item }) => (
-        <EntryCard entry={item} onDiscard={onDiscard} onReview={onReview} canReview={canReview} />
-      )}
+      renderItem={({ item }) => <EntryCard entry={item} onDiscard={onDiscard} fixFor={fixFor} />}
       ItemSeparatorComponent={() => <View className="h-3" />}
       refreshing={refreshing}
       onRefresh={onRefresh}

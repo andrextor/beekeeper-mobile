@@ -62,8 +62,12 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="hive/new" />
         <Stack.Screen name="hive/[id]/index" />
         <Stack.Screen name="hive/[id]/edit" />
+        <Stack.Screen name="hive/[id]/label" />
+        <Stack.Screen name="hive/[id]/relabel" />
+        <Stack.Screen name="qr/assign" />
       </Stack.Protected>
       <Stack.Screen name="(auth)" />
+      <Stack.Screen name="h/[code]" />
       <Stack.Screen name="_design" />
     </Stack>
   )

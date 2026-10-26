@@ -1,4 +1,4 @@
-import { Redirect } from 'expo-router'
+import { Redirect, router } from 'expo-router'
 import { type BottomTabBarButtonProps, Tabs } from 'expo-router/tabs'
 import {
   CloudUpload,
@@ -8,10 +8,12 @@ import {
   ScanQrCode,
   UserRound,
 } from 'lucide-react-native'
+import { useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useSession } from '@/features/auth/session'
+import { takeWaitingLink } from '@/features/qr/pending-link'
 import { useSyncTriggers } from '@/features/sync/triggers'
 import { useSyncStatus } from '@/features/sync/useSyncStatus'
 import { tapHaptic } from '@/lib/haptics'
@@ -58,6 +60,11 @@ export default function TabsLayout() {
 function SyncedTabs() {
   const insets = useSafeAreaInsets()
   useSyncTriggers()
+  // A label scanned with the system camera before signing in opens now.
+  useEffect(() => {
+    const code = takeWaitingLink()
+    if (code) router.push({ pathname: '/h/[code]', params: { code } })
+  }, [])
   const { pending, attention } = useSyncStatus()
   const waiting = pending + attention
 

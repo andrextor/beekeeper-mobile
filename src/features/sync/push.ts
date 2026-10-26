@@ -5,7 +5,7 @@ import { errorCode, messageFor } from '@/lib/errors'
 import { newQrCode } from '@/lib/qr-code'
 import { classify, retryDelayMs } from './classify'
 import { type OutboxEntry, pushSteps, type Step } from './order'
-import { replaceTakenQrCode } from './qr-taken'
+import { replaceTakenQrCode } from './relabel'
 import { client, fetchServerRow, withTimeout } from './server'
 
 type Answer = { data: unknown; error: unknown; status: number }
@@ -70,6 +70,14 @@ async function mustWait(db: Db, { entry, payload }: Step): Promise<boolean> {
   }
   for (const [table, column] of parents[entry.table_name]) {
     if ((await onServer(db, table, payload[column])) === 0) return true
+  }
+  // A relabel event never reaches the server before the code it announces.
+  if (entry.table_name === 'hive_events' && payload.type === 'qr_relabel') {
+    const hive = await db.getFirstAsync(
+      "select 1 from outbox where table_name = 'hives' and row_id = ?",
+      [typeof payload.hive_id === 'string' ? payload.hive_id : ''],
+    )
+    return hive !== null
   }
   return false
 }
