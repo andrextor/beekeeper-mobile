@@ -1,6 +1,6 @@
 import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AppState } from 'react-native'
 import { z } from 'zod'
 
@@ -17,6 +17,15 @@ async function fetchOta(): Promise<void> {
   if (result.isAvailable) await Updates.fetchUpdateAsync()
 }
 
+// Module level: a remount of Inicio (finca switch, sign-in) must not check again within the hour.
+let lastCheck = 0
+let checking = false
+let found: NewApk | null = null
+
+/**
+ * Semver is enough: every PR bumps `expo.version`, and an OTA only reaches a binary with the same
+ * native fingerprint, so an OTA never carries the version of an APK with newer native code.
+ */
 async function fetchNewApk(): Promise<NewApk | null> {
   const response = await fetch(latestJsonUrl)
   if (!response.ok) return null
@@ -31,22 +40,27 @@ async function fetchNewApk(): Promise<NewApk | null> {
  */
 export function useUpdateChecks(): { otaReady: boolean; newApk: NewApk | null } {
   const { isUpdatePending } = Updates.useUpdates()
-  const [newApk, setNewApk] = useState<NewApk | null>(null)
-  const lastCheck = useRef(0)
+  const [newApk, setNewApk] = useState<NewApk | null>(found)
 
   useEffect(() => {
-    const check = () => {
-      const now = Date.now()
-      if (!dueForCheck(lastCheck.current, now)) return
-      lastCheck.current = now
-      // No signal or no release yet: try again next hour.
-      void fetchOta().catch(() => {})
-      void fetchNewApk()
-        .then(setNewApk)
-        .catch(() => {})
+    const check = async () => {
+      if (checking || !dueForCheck(lastCheck, Date.now())) return
+      checking = true
+      try {
+        found = await fetchNewApk()
+        setNewApk(found)
+        await fetchOta()
+        lastCheck = Date.now()
+      } catch {
+        // No signal: the next time the app comes to the front tries again.
+      } finally {
+        checking = false
+      }
     }
-    check()
-    const subscription = AppState.addEventListener('change', (s) => s === 'active' && check())
+    void check()
+    const subscription = AppState.addEventListener('change', (s) => {
+      if (s === 'active') void check()
+    })
     return () => subscription.remove()
   }, [])
 

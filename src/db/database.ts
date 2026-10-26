@@ -18,7 +18,6 @@ let wiping: Promise<void> | null = null
 async function open() {
   // The change listener feeds useLocalQuery.
   const native = await openDatabaseAsync(name, { enableChangeListener: true })
-  await native.execAsync('pragma journal_mode = WAL; pragma foreign_keys = ON;')
   const db: Db = {
     execAsync: (sql) => native.execAsync(sql),
     runAsync: async (sql, params: SqlValue[] = []) => ({
@@ -30,9 +29,10 @@ async function open() {
     transaction: serialized((task) => native.withTransactionAsync(task)),
   }
   try {
+    await native.execAsync('pragma journal_mode = WAL; pragma foreign_keys = ON;')
     await migrate(db)
   } catch (error) {
-    // The failed step rolled back; fold the WAL into the file so "Enviar respaldo" carries everything.
+    // A failed step rolled back; fold the WAL into the file so "Enviar respaldo" carries everything.
     await native.execAsync('pragma wal_checkpoint(truncate)').catch(() => {})
     await native.closeAsync().catch(() => {})
     throw error
@@ -47,17 +47,19 @@ export async function shareDatabase(): Promise<void> {
   await Sharing.shareAsync(uri, { mimeType: 'application/x-sqlite3', dialogTitle: 'Respaldo' })
 }
 
-/** The app's local database, opened and migrated once. */
+/**
+ * The app's local database, opened and migrated once. A failure sticks until `retryDb()` (the
+ * DbError screen): sync timers must not reopen and re-migrate the file while it is being shared.
+ */
 export async function getDb(): Promise<Db> {
   // A query or sync during sign-out must not reopen the file before it is deleted.
   while (wiping) await wiping
   opening ??= open()
-  try {
-    return (await opening).db
-  } catch (error) {
-    opening = null
-    throw error
-  }
+  return (await opening).db
+}
+
+export function retryDb(): void {
+  opening = null
 }
 
 async function wipe(): Promise<void> {

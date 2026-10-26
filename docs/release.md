@@ -7,7 +7,7 @@ https://github.com/andrextor/beekeeper-releases/releases/latest/download/landak-
 
 - [ ] `brew install gh && gh auth login`.
 - [ ] Crear el repo público: `gh repo create andrextor/beekeeper-releases --public --description "Landak Apiario APK releases"`.
-- [ ] En `eas.json` (perfiles `preview` y `production`) reemplazar `PASTE_SB_PUBLISHABLE_KEY` por la publishable key de D1 (Dashboard → Project Settings → API Keys, `sb_publishable_…`). No es secreta: va dentro de cada APK. Nunca la secret key.
+- [ ] En `eas.json` (perfil `preview`; `production` lo hereda) reemplazar `PASTE_SB_PUBLISHABLE_KEY` por la publishable key de D1 (Dashboard → Project Settings → API Keys, `sb_publishable_…`). No es secreta: va dentro de cada APK. Nunca la secret key.
 - [ ] Build local: JDK 17 y Android SDK (`ANDROID_HOME`). Si no, `pnpm release:apk --cloud` usa la cuota gratis de EAS.
 - [ ] **Después del primer build:** `npx eas-cli@latest credentials` → Android → preview → descargar el keystore y guardar archivo + contraseñas en el gestor de contraseñas. Si se pierde, cada apicultor tendría que desinstalar (y perder lo no sincronizado) para instalar la siguiente versión.
 
@@ -27,5 +27,5 @@ Hace falta un APK nuevo cuando cambia algo nativo (un módulo de Expo nuevo, un 
 Solo si no cambia nada nativo ni la base local (una migración nunca va por OTA: si la app vuelve al bundle del APK tras un fallo, ese código viejo se encontraría con un esquema nuevo).
 
 - [ ] Mismo flujo de siempre: rama, `chore(release): x.y.z` de parche, `pnpm ci:check`, merge. No hace falta subir `versionCode`: no hay APK.
-- [ ] En `main`: `npx eas-cli@latest update --channel preview --message "x.y.z: qué arregla"`. Si EAS dice que no hay builds con ese runtime, el cambio tocó algo nativo: va como APK.
+- [ ] En `main`: `pnpm release:ota "x.y.z: qué arregla"`. Usa la URL y la key de D1 de `eas.json`; un `eas update` a mano tomaría el `.env` local (el stack del Mac) y dejaría los teléfonos sin sincronizar. Si EAS dice que no hay builds con ese runtime, el cambio tocó algo nativo: va como APK.
 - [ ] En un teléfono: Inicio → "Hay una actualización" → Reiniciar ahora → el arreglo se ve.

@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "ci:check": "pnpm lint && pnpm typecheck && pnpm test",
-    "release:apk": "scripts/release-apk.sh"
+    "release:apk": "scripts/release-apk.sh",
+    "release:ota": "scripts/release-ota.sh"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",

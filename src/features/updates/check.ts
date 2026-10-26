@@ -11,8 +11,6 @@ export function isNewer(candidate: string, current: string): boolean {
   const a = parse(candidate)
   const b = parse(current)
   if (!a || !b) return false
-  for (let i = 0; i < 3; i++) {
-    if ((a[i] ?? 0) !== (b[i] ?? 0)) return (a[i] ?? 0) > (b[i] ?? 0)
-  }
-  return false
+  const i = a.findIndex((part, index) => part !== b[index])
+  return i >= 0 && (a[i] ?? 0) > (b[i] ?? 0)
 }
