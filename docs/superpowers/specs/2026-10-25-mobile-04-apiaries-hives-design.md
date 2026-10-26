@@ -1,6 +1,6 @@
 # M4 · Apiaries and hives — spec
 
-Date: 2026-10-25 · Branch: `feat/m4-apiaries-hives` · Status: **awaiting OK** (reviewed 2026-10-26 after M3) · Version: 0.4.0
+Date: 2026-10-25 · Branch: `feat/m4-apiaries-hives` · Status: **approved** · Version: 0.4.0
 
 ## Problem
 

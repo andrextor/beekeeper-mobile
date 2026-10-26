@@ -1,6 +1,6 @@
 # M4 · Apiaries and hives — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-04-apiaries-hives-design.md` · Branch: `feat/m4-apiaries-hives` · Status: **awaiting OK**
+Spec: `docs/superpowers/specs/2026-10-25-mobile-04-apiaries-hives-design.md` · Branch: `feat/m4-apiaries-hives` · Status: **approved** (Iván, 2026-10-26)
 
 New dependencies (approval asked here): `expo-location`, `@react-native-community/datetimepicker` (native date picker, via `pnpm expo install`). Both are native: like M3's, they wait for the single development build of the final phone pass (Iván, 2026-10-26).
 
