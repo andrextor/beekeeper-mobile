@@ -173,4 +173,24 @@ describe('finishDraft', () => {
     expect(await count(db, "select count(*) as n from hive_events where id = 'f-1'")).toBe(0)
     expect((await findNewDraft(db, 'h-1'))?.events).toEqual([feeding])
   })
+
+  it("applies an owner's event effect on the hive at Terminar, and undo puts the hive back", async () => {
+    const db = await database()
+    await db.runAsync(
+      "insert into hives (id, organization_id, apiary_id, name, qr_code, queen_year, _on_server) values ('h-1', 'o', 'a', 'C-01', 'X', 2024, 1)",
+    )
+    const draft = await draftWithNote(db)
+    const queen = {
+      id: 'q-1',
+      type: 'queen_change',
+      details: { queen_year: 2026 },
+      at: iso,
+      hivePatches: [{ hiveId: 'h-1', patch: { queen_year: 2026 } }],
+    }
+    const outcome = await finishDraft(db, { ...draft, events: [queen] }, 'u-1', now)
+    if (!outcome.ok) throw new Error('not saved')
+    expect(await db.getFirstAsync('select queen_year from hives')).toEqual({ queen_year: 2026 })
+    await undoFinish(db, outcome.finished)
+    expect(await db.getFirstAsync('select queen_year from hives')).toEqual({ queen_year: 2024 })
+  })
 })

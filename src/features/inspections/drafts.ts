@@ -13,7 +13,14 @@ export type DraftNote = {
 }
 
 /** Another event recorded during the inspection (a dictated feeding, M8); `id` is its future row. */
-export type DraftEvent = { id: string; type: string; details: Record<string, unknown>; at: string }
+export type DraftEvent = {
+  id: string
+  type: string
+  details: Record<string, unknown>
+  at: string
+  /** Hive updates an owner's event implies (M10), applied at Terminar with the inspection. */
+  hivePatches?: { hiveId: string; patch: Record<string, unknown> }[]
+}
 
 export type Draft = {
   /** The inspection id (new or being edited), so photos (M9) can link to it. */

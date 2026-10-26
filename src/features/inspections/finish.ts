@@ -1,6 +1,6 @@
 import type { Db } from '@/db/db'
 import { fromLocal, type LocalRow, type ServerRow } from '@/db/mapping'
-import { saveRows } from '@/db/write'
+import { patchedHives, saveRows } from '@/db/write'
 import { removeLocal } from '@/features/sync/discard'
 import { fieldErrors } from '@/lib/form'
 import { type Draft, writeDraft } from './drafts'
@@ -8,8 +8,11 @@ import { inspectionSchema } from './schema'
 
 type Write = { table: 'inspections' | 'hive_events'; row: ServerRow }
 
-/** What Deshacer needs: the draft, and for an edit the rows as they were before Terminar. */
-export type Finished = { draft: Draft; before: Write[] | null }
+/**
+ * What Deshacer needs: the draft, for an edit the rows as they were before Terminar, and the hives
+ * as they were before its events' effects (M10).
+ */
+export type Finished = { draft: Draft; before: Write[] | null; hivesBefore?: Write[] }
 
 export type FinishOutcome =
   | { ok: true; finished: Finished }
@@ -120,12 +123,22 @@ export async function finishDraft(
         ]
       : null
 
+  // Effects of events recorded during the inspection (an owner's queen change, transfer…).
+  const patches = draft.events.flatMap((e) => e.hivePatches ?? [])
+  const hivesBefore: Write[] = (
+    await patchedHives(
+      db,
+      patches.map((p) => ({ ...p, patch: {} })),
+    )
+  ).map((row) => ({ table: 'hives', row }))
+  const hives: Write[] = (await patchedHives(db, patches)).map((row) => ({ table: 'hives', row }))
+
   await saveRows(
     db,
-    [{ table: 'inspections', row: inspection }, ...children, ...removed],
+    [...hives, { table: 'inspections', row: inspection }, ...children, ...removed],
     deleteDraft(draft.id),
   )
-  return { ok: true, finished: { draft, before } }
+  return { ok: true, finished: { draft, before, hivesBefore } }
 }
 
 /**
@@ -133,8 +146,15 @@ export async function finishDraft(
  * is removed with its notes; one it already has is soft-deleted (notes follow, B4). The draft comes
  * back with the same ids either way, so finishing again re-upserts the same rows.
  */
-export async function undoFinish(db: Db, { draft, before }: Finished): Promise<void> {
-  const putBack = (tx: Db) => writeDraft(tx, draft)
+export async function undoFinish(
+  db: Db,
+  { draft, before, hivesBefore = [] }: Finished,
+): Promise<void> {
+  // The hives go back too: their changes came from this inspection's events.
+  const putBack = async (tx: Db) => {
+    await writeDraft(tx, draft)
+  }
+  if (hivesBefore.length) await saveRows(db, hivesBefore)
   if (before) {
     // Notes and events added by the edit did not exist before it: they go too.
     const added = [...draft.notes, ...draft.events].filter(

@@ -103,3 +103,16 @@ export async function applyServerRows(
     )
   }
 }
+
+/** Hives as they would be after `patches` (an event's effects); a hive not on the phone is skipped. */
+export async function patchedHives(
+  db: Db,
+  patches: readonly { hiveId: string; patch: Record<string, unknown> }[],
+): Promise<ServerRow<'hives'>[]> {
+  const rows: ServerRow<'hives'>[] = []
+  for (const { hiveId, patch } of patches) {
+    const row = await db.getFirstAsync<LocalRow>('select * from hives where id = ?', [hiveId])
+    if (row) rows.push({ ...fromLocal('hives', row), ...patch } as ServerRow<'hives'>)
+  }
+  return rows
+}
