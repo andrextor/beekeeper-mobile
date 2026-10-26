@@ -1,7 +1,7 @@
 import { useKeepAwake } from 'expo-keep-awake'
 import { CircleCheck, Plus, StickyNote, TriangleAlert } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { Pressable, ScrollView, type ScrollViewInstance, Text, View } from 'react-native'
 
 import { ActionGrid } from '@/components/field/ActionGrid'
 import { FieldHeader } from '@/components/field/FieldHeader'
@@ -61,7 +61,7 @@ export function FieldInspection({
   const [problems, setProblems] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
-  const scroll = useRef<ScrollView>(null)
+  const scroll = useRef<ScrollViewInstance>(null)
   const positions = useRef<Partial<Record<SectionKey, number>>>({})
 
   // Autosave: the draft follows every change 300 ms later, and is flushed when the screen goes.
