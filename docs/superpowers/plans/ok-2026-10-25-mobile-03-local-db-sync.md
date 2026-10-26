@@ -26,7 +26,7 @@ Backend local stack running, signed in as `owner@landak.test`.
 2. **Airplane mode** → dev panel "Crear colmena de prueba" → toast "Guardado en este dispositivo"; Pendientes shows "Sin conexión — 2 guardados en este dispositivo".
 3. Kill the app (swipe it away), reopen still in airplane mode → the 2 records are still pending.
 4. Airplane mode off → within a few seconds Pendientes shows "Sincronizado"; in Studio (`beekeeper`) the apiary and hive exist **once**.
-5. Turn on "Forzar error", create another test hive, wait: "Intento 2 · próximo en 30 s"; turn it off → it syncs.
+5. Turn on "Forzar error", create another test hive, wait: "Intento 1 · se reintenta en un momento", then "Intento 2"…; turn it off → it syncs.
 6. In Studio, as another session, rename the test hive → pull-to-refresh in Pendientes → the new name shows locally.
 7. Create a test hive with a name that already exists (dev panel field) → "Requiere atención" with the Spanish reason → "Descartar cambio" removes it.
 8. **Second organization:** sign in as `reviewer@landak.test`, let it sync; in Studio (impersonating `other@landak.test`, `a000-…03`) `select * from create_invite('00000000-0000-4000-b000-000000000002', 'reviewer');`; on the phone accept the code → after the next sync the dev panel shows "Apiario Ajeno" rows and their own cursors, Finca Landak's cursors unchanged.
