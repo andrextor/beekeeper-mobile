@@ -81,7 +81,7 @@ Negation: a clause containing `no`, `sin`, `ningun(a)`, `nada de`, `falta(n)` be
 | `next_inspection_on` | "revisar/volver en <n> dias" → today+n; "en <n> semanas" → +7n; "la proxima semana" → +7; "en quince dias" → +15; "en un mes" → +30 | high |
 | `attention_level` | "urgente", "grave", "emergencia", "ya mismo", "de inmediato" → `urgent`; "pronto", "pendiente", "hay que" → `soon` (urgent wins) | medium |
 | `feeding_event` | past tense "alimente", "le di jarabe/azucar/fondant", "se alimento" → proposes a `feeding` event (`feed` from the word, `amount`/`unit` if "<n> litros/kilos") | medium |
-| `planned_actions` | future/imperative "alimentar", "hay que alimentar", "poner alza", "quitar alza", "cambiar reina", "tratar", "cosechar", "dividir" → `feed`, `add_super`, `remove_super`, `change_queen`, `treat`, `harvest`, `split` (B4 `planned_actions`) + `attention_level = soon` if not set; unmatched imperative → `other` and the phrase appended to `notes` | medium |
+| `planned_actions` | future/imperative "alimentar", "hay que alimentar", "poner alza", "quitar alza", "cambiar reina", "tratar", "cosechar", "dividir" → `feed`, `add_super`, `remove_super`, `change_queen`, `treat`, `harvest`, `split` (B4 `planned_actions`) + `attention_level = soon` if not set (an unmatched imperative stays in the transcript only: guessing `other` added noise) | medium |
 | `hive_mismatch` | "colmena <name/number>" not matching the open hive → warning "Mencionaste la colmena 12 pero estás en C-01" (never switches hive) | — |
 
 Anything not matched stays only in the transcript.
@@ -91,6 +91,7 @@ Anything not matched stays only in the transcript.
 - Top: the transcript with each matched span highlighted (`honey` background, `deep` text).
 - List: one 72-dp row per proposal: label + proposed value ("Cuadros de cría: 3"), confidence shown as a word for `medium` ("revisar"), and three big actions **Aceptar** (`check`) · **Cambiar** (opens that field's field-mode control in a sheet) · **Quitar** (`x`).
 - "Aceptar todo" (96 dp) at the bottom; "Volver a dictar".
+- **Cambiar** (as built): the proposal is not applied and, after Aceptar todo, field mode opens that field's section so the person sets it with its own control (one control per field, no duplicate sheet).
 - A proposal that conflicts with a value already set in the draft shows both ("Antes: Suficientes → Ahora: Pocas").
 - Accepted proposals are merged **into the draft only** (M7), `source` becomes `voice`, `transcript` is appended (several dictations in one inspection are joined with a newline). The column holds ≤ 10000 characters: past ~9000 the sheet says "Queda poco espacio para dictar en esta revisión" and at 10000 it stops listening; the transcript is never cut silently. The inspection is saved only by Terminar (M7). Nothing is auto-saved from an inference.
 - A `feeding_event` accepted here is stored in the draft and written at Terminar as a `hive_events` `feeding` row in the same transaction (M7 finish extended). Drafts gain an `events` column (local migration `0004_draft_events.ts`, JSON array like `notes`); Deshacer treats these events like the notes (removed if never sent, soft-deleted with the inspection otherwise).

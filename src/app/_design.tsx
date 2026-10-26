@@ -215,7 +215,10 @@ function Gallery() {
       <DictationSheet
         visible={dictation}
         listening={listening}
-        transcript={listening ? 'Reina vista, cuatro cuadros de cría' : ''}
+        finalText={listening ? 'Reina vista,' : ''}
+        interim={listening ? 'cuatro cuadros de cría' : ''}
+        editing={null}
+        onEdit={noop}
         onToggleListening={() => setListening((on) => !on)}
         onUse={() => setDictation(false)}
         onClose={() => {
