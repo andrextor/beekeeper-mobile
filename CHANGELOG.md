@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-26
+
+### Added
+
+- Field mode (**Nueva revisión**): Colonia, Cría y reservas, Sanidad and Trabajo by taps only (scales, Sí / No / No revisado, steppers, chips), every field unset until chosen; varroa with live load; planned actions; next inspection in 7 / 14 / 21 days or a day count; the screen stays awake.
+- Notes: **Nota 1**, **Nota 2** and **Nota +** tiles (filled ones show a check and their first words), saved as `note` events of the inspection; the inspection's own notes in a text sheet.
+- The draft saves itself on every change and survives a locked phone or a killed app; reopening says "Continuando la revisión de las …". The hive screen and Pendientes list unfinished inspections with **Continuar** and **Descartar** (undo).
+- **Terminar** validates every B4 rule first (problems listed with "Ir al campo"), then saves the inspection, its notes and the draft's removal in one transaction; **Deshacer** removes an unsent inspection, soft-deletes a sent one, or restores an edit, and brings the draft back.
+- **Editar revisión** opens the saved inspection in field mode for its author or an owner; an edit keeps the note ids.
+
+### Changed
+
+- Calendar-day helpers moved to `src/lib/dates.ts`; `saveRows` takes an extra step that commits with the rows.
+
+### Fixed
+
+- Hive screen: the last inspection is read directly, so 30 newer events no longer hide it; no server request before the hive's finca is known; while the history comes from the server, what this phone saved but has not sent still shows.
+- Timestamps pulled before 0.6.0 are rewritten to the one local text format (local migration 0003).
+
 ## [0.6.0] - 2026-10-26
 
 ### Added
