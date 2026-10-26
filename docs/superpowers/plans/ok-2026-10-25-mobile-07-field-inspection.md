@@ -1,6 +1,6 @@
 # M7 · Inspection field mode — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-07-field-inspection-design.md` · Branch: `feat/m7-field-inspection` · Status: **awaiting OK** (reviewed 2026-10-26 after M6)
+Spec: `docs/superpowers/specs/2026-10-25-mobile-07-field-inspection-design.md` · Branch: `feat/m7-field-inspection` · Status: **approved** (Iván, 2026-10-26)
 
 No new dependencies: `expo-keep-awake` and `expo-haptics` came with M1.
 

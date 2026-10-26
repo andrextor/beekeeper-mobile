@@ -1,6 +1,6 @@
 # M7 · Inspection field mode (manual) and quick notes — spec
 
-Date: 2026-10-25 · Branch: `feat/m7-field-inspection` · Status: **awaiting OK** (reviewed 2026-10-26 after M6) · Version: 0.7.0
+Date: 2026-10-25 · Branch: `feat/m7-field-inspection` · Status: **approved** (Iván, 2026-10-26) · Version: 0.7.0
 
 ## Problem
 
