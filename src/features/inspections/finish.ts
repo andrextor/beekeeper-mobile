@@ -76,25 +76,38 @@ export async function finishDraft(
     })),
     ...draft.events,
   ]
-  const children = drafted.map((child): Write => {
+  const unchanged = (child: (typeof drafted)[number]) => {
     const old = saved.children.find((c) => c.id === child.id)
-    return {
-      table: 'hive_events',
-      row: {
-        id: child.id,
-        organization_id: draft.organization_id,
-        hive_id: draft.hive_id,
-        inspection_id: draft.id,
-        type: child.type,
-        occurred_at: child.at,
-        details: child.details as ServerRow<'hive_events'>['details'],
-        created_by: old?.created_by ?? userId,
-        created_at: old?.created_at ?? at,
-        updated_at: at,
-        deleted_at: null,
-      },
-    }
-  })
+    return (
+      old !== undefined &&
+      old.deleted_at === null &&
+      old.type === child.type &&
+      old.occurred_at === child.at &&
+      JSON.stringify(old.details) === JSON.stringify(child.details)
+    )
+  }
+  // An edit rewrites only the notes and events it changed: the rest are not pushed again.
+  const children = drafted
+    .filter((child) => !unchanged(child))
+    .map((child): Write => {
+      const old = saved.children.find((c) => c.id === child.id)
+      return {
+        table: 'hive_events',
+        row: {
+          id: child.id,
+          organization_id: draft.organization_id,
+          hive_id: draft.hive_id,
+          inspection_id: draft.id,
+          type: child.type,
+          occurred_at: child.at,
+          details: child.details as ServerRow<'hive_events'>['details'],
+          created_by: old?.created_by ?? userId,
+          created_at: old?.created_at ?? at,
+          updated_at: at,
+          deleted_at: null,
+        },
+      }
+    })
   const removed = saved.children
     .filter((c) => c.deleted_at === null && !drafted.some((d) => d.id === c.id))
     .map((c): Write => ({ table: 'hive_events', row: { ...c, deleted_at: at } }))

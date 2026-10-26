@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
 
 import { Button } from '@/components/ui/Button'
-import type { Proposal } from '@/features/voice/parser'
+import { listFields, type Proposal } from '@/features/voice/parser'
 import { cx } from '@/lib/cx'
 import { eventSummary } from '@/lib/event-summary'
 import { formatCalendarDate } from '@/lib/format'
@@ -133,7 +133,7 @@ export function ConfirmProposals({
       ) : null}
       {proposals.map((p, i) => {
         const before =
-          p.field in current && !['pests', 'disease_signs', 'planned_actions'].includes(p.field)
+          p.field in current && !(listFields as readonly string[]).includes(p.field)
             ? current[p.field as keyof InspectionDraft]
             : null
         const choice = choices[i]

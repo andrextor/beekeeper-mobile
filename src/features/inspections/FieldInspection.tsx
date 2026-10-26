@@ -107,7 +107,10 @@ export function FieldInspection({
     const current = latest.current.notes
     changeNotes(
       current.some((n) => n.slot === slot)
-        ? current.map((n) => (n.slot === slot ? { ...n, text, source } : n))
+        ? current.map((n) =>
+            // A dictated note corrected by hand is still a dictated note.
+            n.slot === slot ? { ...n, text, source: n.source === 'voice' ? 'voice' : source } : n,
+          )
         : [...current, { id: uuid(), slot, text, source, at: new Date().toISOString() }],
     )
     setSheet(null)

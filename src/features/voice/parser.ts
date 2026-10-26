@@ -22,8 +22,9 @@ export type ScalarField =
   | 'next_inspection_on'
   | 'attention_level'
 
-/** Columns that add values to a list. */
-export type ListField = 'pests' | 'disease_signs' | 'planned_actions'
+/** Columns that add values to a list (one runtime list for the parser, confirmation and apply). */
+export const listFields = ['pests', 'disease_signs', 'planned_actions'] as const
+export type ListField = (typeof listFields)[number]
 
 export type FeedingDetails = { feed: string; amount?: number; unit?: 'l' | 'kg' | 'g' }
 
@@ -43,7 +44,12 @@ export type Proposal = Found & {
 
 type Context = { text: string; clauseStart: number; today: string; hiveName: string }
 type Made = (Found & { confidence?: 'high' | 'medium' }) | null
-type Rule = { re: RegExp; make: (m: RegExpExecArray, at: number, ctx: Context) => Made | Made[] }
+type Rule = {
+  re: RegExp
+  make: (m: RegExpExecArray, at: number, ctx: Context) => Made | Made[]
+  /** Reads words other rules also read (a feeding's sentence holds pests or stores too). */
+  shared?: boolean
+}
 
 const N = numberSource
 const negation = /\b(?:no|sin|ningun|ninguna|nada de|falta|faltan)\b/
@@ -312,6 +318,7 @@ const rules: Rule[] = [
   },
   // Feeding done (past tense) proposes an event; feeding to do is a planned action below.
   {
+    shared: true,
     re: /\b(?:le di|alimente|se alimento)\b[^.,;]*/g,
     make: (m) => {
       const phrase = m[0]
@@ -352,7 +359,7 @@ const rules: Rule[] = [
   },
 ]
 
-const clauseBreak = /[.,;]|\by luego\b|\btambien\b/g
+const clauseBreak = /[.,;]|\by luego\b|\btambien\b|\bpero\b/g
 
 function clauses(text: string): [number, number][] {
   const ranges: [number, number][] = []
@@ -367,8 +374,8 @@ function clauses(text: string): [number, number][] {
 
 const overlaps = (a: [number, number], b: [number, number]) => a[0] < b[1] && b[0] < a[1]
 
-const scalar = (p: Proposal): p is Proposal & { field: ScalarField } =>
-  !['pests', 'disease_signs', 'planned_actions', 'feeding_event', 'hive_mismatch'].includes(p.field)
+const notScalar: readonly string[] = [...listFields, 'feeding_event', 'hive_mismatch']
+const scalar = (p: Proposal): p is Proposal & { field: ScalarField } => !notScalar.includes(p.field)
 
 /**
  * Spoken Spanish → proposed fields (spec M8 → Parser). Pure and deterministic; nothing is saved
@@ -388,11 +395,11 @@ export function parseInspection(
       rule.re.lastIndex = 0
       for (const m of clause.matchAll(rule.re)) {
         const span: [number, number] = [clauseStart + m.index, clauseStart + m.index + m[0].length]
-        if (used.some((u) => overlaps(u, span))) continue
+        if (!rule.shared && used.some((u) => overlaps(u, span))) continue
         const made = [rule.make(m as RegExpExecArray, span[0], ctx)].flat()
         const kept = made.filter((p): p is Found & { confidence?: 'high' | 'medium' } => p !== null)
         if (kept.length === 0) continue
-        used.push(span)
+        if (!rule.shared) used.push(span)
         for (const p of kept) {
           found.push({
             ...p,

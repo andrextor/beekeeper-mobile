@@ -65,7 +65,7 @@ export function NoteSheet({ title, visible, initial, max, onSave, onDelete, onCl
       ) : null}
       <DictationFlow
         visible={dictating}
-        room={max - text.length}
+        room={max - text.length - 1}
         onClose={() => setDictating(false)}
         onDone={(spoken) => {
           setDictating(false)

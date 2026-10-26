@@ -43,7 +43,13 @@ export function DictationFlow({ visible, room, onDone, onClose }: Props) {
       interim={dictation.interim}
       editing={editing}
       onEdit={setEditing}
-      onToggleListening={() => (dictation.listening ? dictation.stop() : void dictation.start())}
+      onToggleListening={() =>
+        dictation.listening
+          ? dictation.stop()
+          : dictation.preparing
+            ? undefined
+            : void dictation.start()
+      }
       onUse={() => {
         const text = (editing ?? dictation.finalText).trim()
         dictation.reset()

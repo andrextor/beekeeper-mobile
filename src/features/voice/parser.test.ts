@@ -137,6 +137,20 @@ describe('parseInspection', () => {
     expect(frames?.span).toEqual([5, 29])
   })
 
+  it('keeps a feeding even when its sentence also names stores or pests', () => {
+    expect(read('Le di jarabe porque hay poca miel')).toEqual([
+      ['feeding_event', { feed: 'sugar_syrup' }],
+      ['stores', 'low'],
+    ])
+  })
+
+  it('does not carry a "no" across "pero"', () => {
+    expect(read('No vi la reina pero hay huevos')).toEqual([
+      ['queen_seen', 'no'],
+      ['eggs_seen', 'yes'],
+    ])
+  })
+
   it('keeps "viento fuerte" as weather, not colony strength', () => {
     expect(read('Viento fuerte')).toEqual([['weather', 'windy']])
   })

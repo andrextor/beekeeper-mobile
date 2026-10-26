@@ -40,6 +40,8 @@ export function useDictation(room: number) {
   const text = useRef('')
 
   const begin = (lang: string, onDevice: boolean) => {
+    owner.current = true
+    startRoom.current = room
     session.current = { restarts: 0, silentEnds: 0, userStopped: false, lang, onDevice }
     setError(null)
     setListening(true)
@@ -52,15 +54,23 @@ export function useDictation(room: number) {
   }
 
   useSpeechRecognitionEvent('result', (event) => {
+    if (!owner.current) return
     const words = event.results[0]?.transcript ?? ''
     if (!event.isFinal) return setInterim(words)
+    // What does not fit stops the dictation; the text is never cut later without saying so.
+    const free = room - text.current.length - (text.current ? 1 : 0)
+    if (words.length > free) {
+      setError('No cabe más texto aquí. Usa lo dictado hasta ahora.')
+      stop()
+      return
+    }
     text.current = join(text.current, words)
     setFinalText(text.current)
     setInterim('')
     session.current.silentEnds = 0
-    if (text.current.length >= room) stop()
   })
   useSpeechRecognitionEvent('error', (event) => {
+    if (!owner.current) return
     if (event.error === 'no-speech') {
       session.current.silentEnds += 1
       return
@@ -70,6 +80,7 @@ export function useDictation(room: number) {
     setError(errors[event.error] ?? 'El dictado se detuvo. Toca el micrófono para seguir.')
   })
   useSpeechRecognitionEvent('end', () => {
+    if (!owner.current) return
     if (shouldRestart(session.current, session.current.userStopped) && text.current.length < room) {
       session.current.restarts += 1
       ExpoSpeechRecognitionModule.start(
@@ -77,15 +88,18 @@ export function useDictation(room: number) {
       )
       return
     }
+    owner.current = false
     setListening(false)
     setInterim('')
   })
 
   const start = async () => {
     if (preparing) return
+    const mine = ++generation.current
     setPreparing(true)
     try {
       const next = await prepareRecognition(ExpoSpeechRecognitionModule, online)
+      if (mine !== generation.current) return
       setPlan(next)
       if (next.kind === 'ready') begin(next.lang, next.onDevice)
     } catch {
@@ -102,8 +116,8 @@ export function useDictation(room: number) {
     finalText,
     interim,
     error,
-    /** Few characters left in this inspection's transcript. */
-    nearlyFull: room - finalText.length < 1000,
+    /** Under a tenth of the room this dictation started with is left. */
+    nearlyFull: room - finalText.length < Math.min(1000, startRoom.current / 10),
     start,
     stop,
     /** Without signal and no pack detected (Android ≤ 12 cannot tell): try on-device anyway. */
@@ -116,12 +130,12 @@ export function useDictation(room: number) {
         setError('Descárgalo en Ajustes › Google › Voz › Reconocimiento sin conexión › Español.')
       }
     },
-    setText: (value: string) => {
-      text.current = value
-      setFinalText(value)
-    },
     reset: () => {
-      if (!session.current.userStopped) stop()
+      generation.current += 1
+      if (owner.current && !session.current.userStopped) stop()
+      // Late events of the closed session are not this sheet's any more.
+      owner.current = false
+      setListening(false)
       text.current = ''
       setFinalText('')
       setInterim('')
