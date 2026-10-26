@@ -1,6 +1,6 @@
 # M10 · Events: feeding, treatment, harvest, queen change, split, swarm, merge, transfer, loss — spec
 
-Date: 2026-10-25 · Branch: `feat/m10-events` · Status: **awaiting OK** · Version: 0.10.0
+Date: 2026-10-25 · Branch: `feat/m10-events` · Status: **awaiting OK** (reviewed 2026-10-26 after M9) · Version: 0.10.0
 
 ## Problem
 
@@ -36,15 +36,15 @@ Every event: `occurred_at` (default now, big "Hoy / Ayer / Elegir fecha" buttons
 | `transfer` | Updates `hives.apiary_id` | Event only + "Avisa al propietario…" (the hive stays in its apiary until the owner moves it) |
 | `loss` | Offered: "¿Marcar la colmena como Muerta / Fugada / Inactiva?" (choice in the form, not a dialog) → `hives.status` | Event only + "Avisa al propietario…" |
 | `merge` | Offered: set the merged hive's `status = 'merged'` | Event only |
-| `split`, `swarm` (captured) | "Crear la nueva colmena" navigates to `hive/new?apiaryId=&origin=split|swarm_capture&returnTo=event` (M4 form prefilled: same apiary, `colony_origin`, `colony_started_on = today`; a new QR code as usual); on save it returns the new hive's id, which goes into `new_hive_id`. A route, not an import: features do not import each other | Event without `new_hive_id`; banner "El propietario debe registrar la nueva colmena." |
+| `split`, `swarm` (captured) | "Crear la nueva colmena" navigates to `hive/new?apiaryId=&origin=split|swarm_capture&returnTo=event` (M4 form prefilled: same apiary, `colony_origin`, `colony_started_on = today`; a new QR code as usual); on save it hands the new hive's id back through a one-value slot in `src/lib/hand-back.ts` that the event form reads when it regains focus, and it goes into `new_hive_id`. A route, not an import: features do not import each other | Event without `new_hive_id`; banner "El propietario debe registrar la nueva colmena." |
 
 The event row and the hive update are written in one SQLite transaction and queued as two outbox entries, pushed in M3's rank order (hive, then event; neither depends on the other). Server-side they are two upserts (not atomic); if the hive update fails (e.g. the user lost the owner role) it shows **Requiere atención** and the event is still kept (`api.md` → Events).
 
 ### Entry points
 
 - Hive detail (M6): "Registrar actividad" button → type picker (2-column grid of 96-dp tiles with icon + label, same look as the field action grid).
-- Field mode (M7): a **"Actividad"** tile in the action grid → same picker, the event gets the current `inspection_id`, returns to field mode on save.
-- Timeline (M6): events render with their icon and the one-line summary from `src/lib/event-summary.ts` (M6; mirrors the admin's `event-summary.ts`).
+- Field mode (M7): an **"Actividad"** tile in the action grid → same picker; the event goes into the **draft** (M8's `inspection_drafts.events`, like a dictated feeding) and is written at **Terminar** with the inspection, because the inspection row does not exist before (a saved event pointing at it would only earn `parent_mismatch`). Its hive effect (owner) travels with it in the draft and is applied in Terminar's same transaction; Deshacer of Terminar reverts both with the rest of the inspection. Returns to field mode on save.
+- Timeline (M6): events already render with their icon and the summary from `src/lib/event-summary.ts`; this module makes an event row tappable (it opens the edit form) for its author or an owner.
 
 ### Edit and delete
 
