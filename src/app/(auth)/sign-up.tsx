@@ -53,6 +53,7 @@ export default function SignUpScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         textContentType="emailAddress"
+        placeholder="nombre@correo.com"
       />
       <PasswordField
         label="Contraseña"

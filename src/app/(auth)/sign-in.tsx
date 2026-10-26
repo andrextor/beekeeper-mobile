@@ -71,6 +71,7 @@ export default function SignInScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         textContentType="emailAddress"
+        placeholder="nombre@correo.com"
       />
       <PasswordField
         label="Contraseña"
