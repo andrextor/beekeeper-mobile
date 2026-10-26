@@ -13,7 +13,6 @@ const dateTimeFormat = new Intl.DateTimeFormat(locale, {
   hour: 'numeric',
   minute: '2-digit',
 })
-const relativeFormat = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
 const numberFormat = new Intl.NumberFormat(locale)
 
 const isValid = (date: Date) => !Number.isNaN(date.getTime())
@@ -41,15 +40,31 @@ function isWithinWeek(iso: string, now: Date): boolean {
   return Math.abs(new Date(iso).getTime() - now.getTime()) < 7 * dayMs
 }
 
+const units = {
+  minute: ['minuto', 'minutos'],
+  hour: ['hora', 'horas'],
+  day: ['día', 'días'],
+} as const
+
+// Hermes (the app's JS engine) has no Intl.RelativeTimeFormat, so the Spanish is spelled out here.
+function relative(value: number, unit: keyof typeof units): string {
+  if (unit === 'minute' && value === 0) return 'ahora'
+  if (unit === 'day' && value === -1) return 'ayer'
+  if (unit === 'day' && value === 1) return 'mañana'
+  const n = Math.abs(value)
+  const word = units[unit][n === 1 ? 0 : 1]
+  return value < 0 ? `hace ${n} ${word}` : `dentro de ${n} ${word}`
+}
+
 /** "hace 3 horas", "ayer", "hace 5 días" under a week; the absolute date after that. */
 export function formatRelative(iso: string, now: Date = new Date()): string {
   if (!isWithinWeek(iso, now)) return formatDate(iso)
   const diffMs = new Date(iso).getTime() - now.getTime()
   const minutes = Math.round(diffMs / 60_000)
-  if (Math.abs(minutes) < 60) return relativeFormat.format(minutes, 'minute')
+  if (Math.abs(minutes) < 60) return relative(minutes, 'minute')
   const hours = Math.round(diffMs / 3_600_000)
-  if (Math.abs(hours) < 24) return relativeFormat.format(hours, 'hour')
-  return relativeFormat.format(Math.round(diffMs / dayMs), 'day')
+  if (Math.abs(hours) < 24) return relative(hours, 'hour')
+  return relative(Math.round(diffMs / dayMs), 'day')
 }
 
 /** "Última revisión hace 3 días" under a week, "Última revisión el 14 oct 2026" after. */
