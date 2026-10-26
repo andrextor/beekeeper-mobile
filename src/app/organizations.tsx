@@ -1,6 +1,6 @@
 import { router } from 'expo-router'
-import { Check, Hexagon, KeyRound, Plus } from 'lucide-react-native'
-import { Text, View } from 'react-native'
+import { Hexagon, KeyRound, Plus } from 'lucide-react-native'
+import { Text } from 'react-native'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -9,7 +9,6 @@ import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
 import { useSession } from '@/features/auth/session'
 import { roleLabels } from '@/lib/labels'
-import { color } from '@/lib/theme'
 
 export default function OrganizationsScreen() {
   const { state, setActiveOrganization } = useSession()
@@ -31,16 +30,9 @@ export default function OrganizationsScreen() {
             key={m.organization_id}
             icon={Hexagon}
             title={m.organization_name}
+            subtitle={m.organization_id === state.activeOrganizationId ? 'Finca actual' : undefined}
             trailing={
-              <View className="flex-row items-center gap-2">
-                <Badge
-                  label={roleLabels[m.role]}
-                  tone={m.role === 'owner' ? 'primary' : 'neutral'}
-                />
-                {m.organization_id === state.activeOrganizationId ? (
-                  <Check accessibilityLabel="Finca actual" color={color.primary} size={24} />
-                ) : null}
-              </View>
+              <Badge label={roleLabels[m.role]} tone={m.role === 'owner' ? 'primary' : 'neutral'} />
             }
             onPress={() => choose(m.organization_id)}
           />
