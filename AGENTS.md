@@ -72,7 +72,7 @@ pnpm android     # dev build on a connected phone / emulator
 
 ## Changelog and versions
 
-`CHANGELOG.md` (Keep a Changelog, SemVer). Every PR is a release: last commit `chore(release): x.y.z` bumps `package.json` `version` and `app.json` `expo.version` together; `android.versionCode` goes up by one on every APK build.
+`CHANGELOG.md` (Keep a Changelog, SemVer). Every PR is a release: last commit `chore(release): x.y.z` bumps `package.json` `version` and `app.json` `expo.version` together; `android.versionCode` goes up by one on every APK build. Merging to `main` tags `vX.Y.Z` and publishes the GitHub release by itself (`.github/workflows/release.yml`) when the version has no tag yet and `CHANGELOG.md` has its `## [x.y.z]` section; never tag by hand.
 
 ## Git
 
