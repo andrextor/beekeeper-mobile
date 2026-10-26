@@ -1,6 +1,6 @@
 # M7 · Inspection field mode (manual) and quick notes — spec
 
-Date: 2026-10-25 · Branch: `feat/m7-field-inspection` · Status: **awaiting OK** · Version: 0.7.0
+Date: 2026-10-25 · Branch: `feat/m7-field-inspection` · Status: **approved** (Iván, 2026-10-26) · Version: 0.7.0
 
 ## Problem
 
@@ -28,7 +28,7 @@ The inspection is recorded with the hive open: gloves, veil, bees, sun, one free
 
 A tile whose note slot is filled shows a check badge and the first words; tapping again edits it.
 
-3. Structured fields, grouped in collapsible sections (all open by default, state remembered per user):
+3. Structured fields, grouped in collapsible sections (all open by default; a closed section stays closed for the rest of the app session, not stored):
 
 | Section | Field (B4 column) | Control | Values (Spanish label, from `lib/labels.ts` = `api.md` → Inspections; the 1–5 scale words are app-only) |
 |---------|-------------------|---------|------------------------|
@@ -49,6 +49,7 @@ A tile whose note slot is filled shows a check badge and the first words; tappin
 | | `pests` | `ChipSelect` multi | Polilla de la cera · Escarabajo de la colmena · Hormigas · Avispas · Ratones · Otra |
 | | `disease_signs` | `ChipSelect` multi | Cría yesificada · Cría ensacada · Signos de loque · Alas deformes · Diarrea · Abejas muertas · Otro — section caption: "Signos observados, no es un diagnóstico" |
 | Trabajo | `attention_level` | `ChipSelect` single | Sin novedad · Pronto · Urgente |
+| | `planned_actions` | `ChipSelect` multi | Alimentar · Tratar · Cambiar reina · Poner alza · Quitar alza · Cosechar · Dividir · Unir · Trasladar · Revisar reina · Otra (feeds Inicio → Tareas, M6) |
 | | `next_inspection_on` | `ChipSelect` single + `StepperField` | En 7 días · En 14 días · En 21 días · Otro (stepper of days 1–90) → date shown "mar 4 nov" |
 | | `weather` | `ChipSelect` single | Soleado · Nublado · Lluvia · Viento |
 | | `temperature_c` | `StepperField` −20..60 step 1 | — |
@@ -63,6 +64,9 @@ Every field starts **unset** (null). Tapping the selected chip again clears it. 
 `src/features/inspections/varroa.ts`: `varroaLoadPercent(count, sampleSize)` = `count / sampleSize × 100`, one decimal, `null` when either is missing or sample is 0. Shown live; not stored (derivable). Coherence mirrors B4: method and count both set or both null; sample size required for `alcohol_wash` / `sugar_roll`. If the user sets a count without a method, the method chips pulse and "Terminar" shows the missing method inline instead of failing on the server.
 
 ### Validation
+
+Problems found by Terminar are listed at the top with the field's name; "Ir al campo" scrolls to its section (positions from `onLayout`), opening it if closed.
+
 
 `src/features/inspections/schema.ts`: Zod schema mirroring every B4 check (ranges, enums, array subsets, varroa coherence, `inspected_at ≤ now + 1 day`, `notes` ≤ 4000, transcript ≤ 10000). It runs before saving, so the outbox never pushes a row the server would reject. The note text is checked ≤ 2000.
 
@@ -90,7 +94,7 @@ One **new** draft per hive per phone; an edit draft (`hive/[id]/inspect?inspecti
 
 - Autosave on every change (debounced 300 ms; one `update`).
 - Opening field mode on a hive with a draft resumes it with a toast "Continuando la revisión de las 9:40".
-- The hive screen (M6) shows "Revisión sin terminar" with Continuar / Descartar (undo toast) when a draft exists.
+- The hive screen (M6) shows "Revisión sin terminar" with Continuar / Descartar (undo toast) when a draft exists; "Nueva revisión" then continues it.
 - Drafts older than 7 days stay; the Pendientes tab lists them (never silently dropped).
 
 ### Notes
@@ -100,14 +104,14 @@ Note sheet (`src/features/inspections/NoteSheet.tsx`): big multi-line text field
 ### Terminar
 
 1. Zod validate; problems are listed inline at the top with "Ir al campo" links (no dialog).
-2. One local transaction (`saveLocal` from M3): insert `inspections` row + one `hive_events` note per filled slot + outbox entries + delete the draft.
+2. One local transaction: M3's `saveRows` (inspection row + one `hive_events` note per filled slot, with their outbox entries) and the draft delete run inside the same `db.transaction`; `saveRows` gains an optional `extra(db)` step for that, so the draft never outlives a saved inspection or the reverse.
 3. Success haptic, toast "Guardado en este dispositivo" (3 s) with **Deshacer**, return to the hive screen.
-4. Deshacer: if the outbox entries have not been pushed, remove the rows and entries and restore the draft; if already pushed, soft-delete the inspection (M3 cascades to its notes and photos locally, B4 on the server) and restore the draft with the same ids. Finishing it again upserts the inspection with `deleted_at = null` and re-upserts its notes and photos explicitly (B4: restoring an inspection does not restore its children).
+4. Deshacer (the M5 toast host keeps the undo toast on top for 3 s): if the inspection never reached the server (`_on_server = 0`), remove it and its notes with M3's local removal (`removeLocal` in `discard.ts`, exported) and restore the draft; if already pushed, soft-delete the inspection (M3 cascades to its notes and photos locally, B4 on the server) and restore the draft with the same ids. Finishing it again upserts the inspection with `deleted_at = null` and re-upserts its notes and photos explicitly (B4: restoring an inspection does not restore its children).
 5. An inspection with no field set and no notes still saves (the visit itself is information); Terminar label stays the same.
 
 ### Device behavior
 
-`expo-keep-awake` active while the screen is mounted; `expo-haptics` light impact on every control tap, success notification on save; back gesture/button keeps the draft (no "discard changes?" dialog).
+`expo-keep-awake` (installed in M1) active while the screen is mounted; `expo-haptics` light impact on every control tap, success notification on save; back gesture/button keeps the draft (no "discard changes?" dialog).
 
 ## Rejected alternatives
 

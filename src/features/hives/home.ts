@@ -1,10 +1,10 @@
 import type { Db } from '@/db/db'
 import { fromLocal, type LocalRow } from '@/db/mapping'
+import { daysBetween } from '@/lib/dates'
 import { eventSummary } from '@/lib/event-summary'
 import { plural } from '@/lib/format'
 import { inspectionSummary } from '@/lib/inspection-summary'
 import { label, plannedActionLabels } from '@/lib/labels'
-import { daysBetween } from './attention'
 import { byNewest } from './timeline'
 
 export type LatestInspection = {

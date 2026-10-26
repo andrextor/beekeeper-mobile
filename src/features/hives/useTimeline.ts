@@ -2,7 +2,7 @@ import { useNetworkState } from 'expo-network'
 import { useEffect, useState } from 'react'
 
 import { useLocalQuery, useLocalRead } from '@/db/useLocalQuery'
-import { localTimeline, type TimelineItem } from './timeline'
+import { byNewest, localTimeline, type TimelineItem } from './timeline'
 import { type RemoteCursor, remoteTimelinePage } from './timeline-remote'
 
 const pageSize = 30
@@ -21,16 +21,17 @@ export type Timeline = {
  * The phone's history once the finca's first download is done (works offline); until then, online,
  * the server's (`hive_timeline`), so a hive scanned right after signing in already shows its past.
  */
-export function useTimeline(hiveId: string, organizationId: string): Timeline {
+export function useTimeline(hiveId: string, organizationId: string | null): Timeline {
   const network = useNetworkState()
   const online = network.isConnected !== false && network.isInternetReachable !== false
   const done = useLocalQuery<{ n: number }>(
     'select count(*) as n from sync_state where organization_id = ? and initial_pull_done = 1',
-    [organizationId],
+    [organizationId ?? ''],
     ['sync_state'],
   )
   const downloaded = (done.rows[0]?.n ?? 0) >= syncedTables
-  const remote = !done.loading && !downloaded && online
+  // Unknown finca (the hive row is still loading): no server request on a guess.
+  const remote = organizationId !== null && !done.loading && !downloaded && online
 
   const [limit, setLimit] = useState(pageSize)
   const local = useLocalRead((db) => localTimeline(db, hiveId, limit), `${hiveId}:${limit}`, [
@@ -56,8 +57,11 @@ export function useTimeline(hiveId: string, organizationId: string): Timeline {
   }, [remote, hiveId])
 
   if (remote && !remoteFailed) {
+    // What this phone saved but the server does not have yet still shows, in its place.
+    const remoteIds = new Set(pages?.items.map((i) => i.id))
+    const unsent = (local.data ?? []).filter((i) => i.sync !== 'synced' && !remoteIds.has(i.id))
     return {
-      items: pages?.items ?? [],
+      items: [...(pages?.items ?? []), ...unsent].sort(byNewest),
       loading: pages === null,
       hasMore: pages?.next != null,
       loadMore: () => {
@@ -76,6 +80,9 @@ export function useTimeline(hiveId: string, organizationId: string): Timeline {
     loading: local.loading,
     hasMore: items.length >= limit,
     loadMore: () => setLimit((l) => l + pageSize),
-    notice: done.loading || downloaded ? null : 'Parte del historial aún no está en este teléfono.',
+    notice:
+      organizationId === null || done.loading || downloaded
+        ? null
+        : 'Parte del historial aún no está en este teléfono.',
   }
 }

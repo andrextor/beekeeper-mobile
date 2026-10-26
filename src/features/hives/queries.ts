@@ -70,24 +70,41 @@ export function useFincaHives(organizationId: string): FincaHive[] {
   ).rows
 }
 
-/** What the attention card needs: the latest inspection and treatments still running. */
-export function useHiveAttentionData(hiveId: string, today: string) {
-  const last = useLocalQuery<{ attention_level: string | null; next_inspection_on: string | null }>(
-    `select attention_level, next_inspection_on from inspections
-     where hive_id = ? and deleted_at is null order by inspected_at desc, id desc limit 1`,
+export type LatestInspection = { inspection: ServerRow<'inspections'>; author: string | null }
+
+/** The hive's latest live inspection (ties by the highest id, as B4) with its author's name. */
+export function useLatestInspection(hiveId: string): {
+  latest: LatestInspection | null
+  loading: boolean
+} {
+  const { rows, loading } = useLocalQuery<LocalRow>(
+    `select i.*, coalesce(nullif(p.display_name, ''), p.email) as author
+     from inspections i left join profiles_cache p on p.id = i.created_by
+     where i.hive_id = ? and i.deleted_at is null
+     order by i.inspected_at desc, i.id desc limit 1`,
     [hiveId],
-    ['inspections'],
-  ).rows[0]
-  const treatments = useLocalQuery<{ details: string }>(
+    ['inspections', 'profiles_cache'],
+  )
+  const row = rows[0]
+  return {
+    latest: row
+      ? {
+          inspection: fromLocal('inspections', row),
+          author: typeof row.author === 'string' ? row.author : null,
+        }
+      : null,
+    loading,
+  }
+}
+
+/** Treatments still running today: part of the attention card. */
+export function useActiveTreatments(hiveId: string, today: string): { details: unknown }[] {
+  return useLocalQuery<{ details: string }>(
     `select details from hive_events where hive_id = ? and type = 'treatment' and deleted_at is null
      and json_extract(details, '$.ends_on') >= ? order by occurred_at desc limit 5`,
     [hiveId, today],
     ['hive_events'],
-  ).rows
-  return {
-    last: last ?? null,
-    treatments: treatments.map((t) => ({ details: JSON.parse(t.details) as unknown })),
-  }
+  ).rows.map((t) => ({ details: JSON.parse(t.details) as unknown }))
 }
 
 /** The hive's own changes still in the outbox (its row and everything recorded on it). */
