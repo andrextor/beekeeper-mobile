@@ -23,7 +23,7 @@ export function ListItem({ title, subtitle, icon: Icon, trailing, onPress }: Pro
       {Icon && <Icon color={color.text} size={iconSize.standard} />}
       <View className="flex-1 gap-0.5">
         <Text className="font-sans-semibold text-body text-text">{title}</Text>
-        {subtitle && <Text className="font-sans text-caption text-muted">{subtitle}</Text>}
+        {subtitle ? <Text className="font-sans text-caption text-muted">{subtitle}</Text> : null}
       </View>
       {trailing}
       {onPress && <ChevronRight color={color.muted} size={iconSize.standard} />}

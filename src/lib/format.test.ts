@@ -4,6 +4,7 @@ import {
   formatCalendarDate,
   formatColonyAge,
   formatDate,
+  formatLastInspection,
   formatNumber,
   formatRelative,
 } from './format'
@@ -70,5 +71,22 @@ describe('formatAmount', () => {
     expect(formatAmount(1.5, 'kg')).toBe('1,5 kg')
     expect(formatAmount(2, 'l')).toBe('2 l')
     expect(formatAmount(34, '°C')).toBe('34 °C')
+  })
+})
+
+describe('formatLastInspection', () => {
+  it('reads as Spanish both under and over a week', () => {
+    expect(formatLastInspection('2026-10-23T15:00:00Z', now)).toBe('Última revisión hace 3 días')
+    expect(formatLastInspection('2026-10-14T15:00:00Z', now)).toBe(
+      `Última revisión el ${formatDate('2026-10-14T15:00:00Z')}`,
+    )
+    expect(formatLastInspection(null, now)).toBe('Sin revisiones')
+  })
+})
+
+describe('malformed timestamps', () => {
+  it('show as is instead of throwing', () => {
+    expect(formatDate('')).toBe('')
+    expect(formatRelative('ayer?', now)).toBe('ayer?')
   })
 })

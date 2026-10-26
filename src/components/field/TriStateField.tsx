@@ -1,8 +1,9 @@
 import { Pressable, Text, View } from 'react-native'
 
 import { cx } from '@/lib/cx'
-import { tapHaptic } from '@/lib/haptics'
+import { withTap } from '@/lib/haptics'
 import { observedLabels } from '@/lib/labels'
+import { choiceBox } from './choice'
 import { FieldLabel } from './FieldLabel'
 
 export type Observed = keyof typeof observedLabels
@@ -27,13 +28,10 @@ export function TriStateField({ label, value, onChange }: Props) {
               key={option}
               accessibilityRole="radio"
               accessibilityState={{ selected }}
-              onPress={() => {
-                tapHaptic()
-                onChange(selected ? null : option)
-              }}
+              onPress={withTap(() => onChange(selected ? null : option))}
               className={cx(
                 'min-h-field flex-1 items-center justify-center rounded-button border-2 px-1 active:opacity-80',
-                selected ? 'border-deep bg-accent' : 'border-border bg-surface',
+                choiceBox(selected),
               )}
             >
               <Text className="text-center font-sans-semibold text-body text-text">

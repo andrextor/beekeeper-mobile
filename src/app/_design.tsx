@@ -77,7 +77,7 @@ function Gallery() {
         sync="saved"
         onBack={() => router.back()}
       />
-      <Screen field>
+      <Screen field topInset={false}>
         <Section title="Field · acciones">
           <ActionGrid
             actions={[

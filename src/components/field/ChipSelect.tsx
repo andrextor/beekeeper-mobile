@@ -2,8 +2,9 @@ import { Check } from 'lucide-react-native'
 import { Pressable, Text, View } from 'react-native'
 
 import { cx } from '@/lib/cx'
-import { tapHaptic } from '@/lib/haptics'
+import { withTap } from '@/lib/haptics'
 import { color } from '@/lib/theme'
+import { choiceBox } from './choice'
 import { FieldLabel } from './FieldLabel'
 
 type Props = {
@@ -17,7 +18,6 @@ type Props = {
 
 export function ChipSelect({ label, options, value, onChange, multiple = false }: Props) {
   const toggle = (option: string) => {
-    tapHaptic()
     const on = value.includes(option)
     if (multiple) onChange(on ? value.filter((v) => v !== option) : [...value, option])
     else onChange(on ? [] : [option])
@@ -38,10 +38,10 @@ export function ChipSelect({ label, options, value, onChange, multiple = false }
               key={option}
               accessibilityRole={multiple ? 'checkbox' : 'radio'}
               accessibilityState={multiple ? { checked: selected } : { selected }}
-              onPress={() => toggle(option)}
+              onPress={withTap(() => toggle(option))}
               className={cx(
                 'min-h-16 flex-row items-center gap-2 rounded-full border-2 px-5 active:opacity-80',
-                selected ? 'border-deep bg-accent' : 'border-border bg-surface',
+                choiceBox(selected),
               )}
             >
               {selected && <Check color={color.onAccent} size={22} strokeWidth={2.75} />}

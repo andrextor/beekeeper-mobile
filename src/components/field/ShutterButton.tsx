@@ -1,7 +1,7 @@
 import { Pressable, View } from 'react-native'
 
 import { cx } from '@/lib/cx'
-import { tapHaptic } from '@/lib/haptics'
+import { withTap } from '@/lib/haptics'
 
 export function ShutterButton({ onPress, disabled }: { onPress: () => void; disabled?: boolean }) {
   return (
@@ -10,10 +10,7 @@ export function ShutterButton({ onPress, disabled }: { onPress: () => void; disa
       accessibilityLabel="Tomar foto"
       accessibilityState={{ disabled }}
       disabled={disabled}
-      onPress={() => {
-        tapHaptic()
-        onPress()
-      }}
+      onPress={withTap(onPress)}
       className={cx(
         'size-tile items-center justify-center self-center rounded-full border-4 border-white bg-deep/30 active:opacity-80',
         disabled && 'opacity-40',

@@ -10,13 +10,15 @@ type Props = {
   scroll?: boolean
   /** Field mode uses pure white for maximum contrast. */
   field?: boolean
+  /** False under a header that already pads the status bar (FieldHeader). */
+  topInset?: boolean
 }
 
-export function Screen({ children, scroll = true, field = false }: Props) {
+export function Screen({ children, scroll = true, field = false, topInset = true }: Props) {
   const insets = useSafeAreaInsets()
   return (
     <View
-      style={{ paddingTop: insets.top }}
+      style={{ paddingTop: topInset ? insets.top : 0 }}
       className={cx('flex-1', field ? 'bg-bg' : 'bg-bg-soft')}
     >
       {scroll ? (

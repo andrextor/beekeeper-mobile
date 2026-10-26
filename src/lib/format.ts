@@ -16,8 +16,12 @@ const dateTimeFormat = new Intl.DateTimeFormat(locale, {
 const relativeFormat = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
 const numberFormat = new Intl.NumberFormat(locale)
 
+const isValid = (date: Date) => !Number.isNaN(date.getTime())
+
+/** A malformed timestamp shows as is instead of throwing during render. */
 export function formatDate(iso: string): string {
-  return dateFormat.format(new Date(iso))
+  const date = new Date(iso)
+  return isValid(date) ? dateFormat.format(date) : iso
 }
 
 /** A calendar date ("2026-11-01") read as a local day, so it never shifts to the day before. Other text shows as is. */
@@ -25,17 +29,22 @@ export function formatCalendarDate(date: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
   if (!match) return date
   const parsed = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
-  return Number.isNaN(parsed.getTime()) ? date : dateFormat.format(parsed)
+  return isValid(parsed) ? dateFormat.format(parsed) : date
 }
 
 export function formatDateTime(iso: string): string {
-  return dateTimeFormat.format(new Date(iso))
+  const date = new Date(iso)
+  return isValid(date) ? dateTimeFormat.format(date) : iso
+}
+
+function isWithinWeek(iso: string, now: Date): boolean {
+  return Math.abs(new Date(iso).getTime() - now.getTime()) < 7 * dayMs
 }
 
 /** "hace 3 horas", "ayer", "hace 5 días" under a week; the absolute date after that. */
 export function formatRelative(iso: string, now: Date = new Date()): string {
+  if (!isWithinWeek(iso, now)) return formatDate(iso)
   const diffMs = new Date(iso).getTime() - now.getTime()
-  if (Math.abs(diffMs) >= 7 * dayMs) return formatDate(iso)
   const minutes = Math.round(diffMs / 60_000)
   if (Math.abs(minutes) < 60) return relativeFormat.format(minutes, 'minute')
   const hours = Math.round(diffMs / 3_600_000)
@@ -43,8 +52,11 @@ export function formatRelative(iso: string, now: Date = new Date()): string {
   return relativeFormat.format(Math.round(diffMs / dayMs), 'day')
 }
 
-export function formatLastInspection(iso: string | null): string {
-  return iso ? `Última revisión ${formatRelative(iso)}` : 'Sin revisiones'
+/** "Última revisión hace 3 días" under a week, "Última revisión el 14 oct 2026" after. */
+export function formatLastInspection(iso: string | null, now: Date = new Date()): string {
+  if (!iso) return 'Sin revisiones'
+  const when = formatRelative(iso, now)
+  return isWithinWeek(iso, now) ? `Última revisión ${when}` : `Última revisión el ${when}`
 }
 
 export function formatNumber(value: number): string {

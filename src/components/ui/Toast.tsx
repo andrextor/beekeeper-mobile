@@ -1,5 +1,5 @@
 import { CircleCheck, TriangleAlert } from 'lucide-react-native'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -18,12 +18,14 @@ type Props = {
 /** Controlled: render it with a message to show it; it calls onHide after durationMs. */
 export function Toast({ message, tone = 'success', onUndo, onHide, durationMs = 3000 }: Props) {
   const insets = useSafeAreaInsets()
+  const hide = useRef(onHide)
+  hide.current = onHide
 
   useEffect(() => {
     if (!message) return
-    const timer = setTimeout(onHide, durationMs)
+    const timer = setTimeout(() => hide.current(), durationMs)
     return () => clearTimeout(timer)
-  }, [message, onHide, durationMs])
+  }, [message, durationMs])
 
   if (!message) return null
   const Icon = tone === 'success' ? CircleCheck : TriangleAlert

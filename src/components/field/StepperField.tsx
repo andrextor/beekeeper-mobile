@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native'
 
 import { cx } from '@/lib/cx'
 import { formatNumber } from '@/lib/format'
-import { tapHaptic } from '@/lib/haptics'
+import { withTap } from '@/lib/haptics'
 import { color, iconSize, iconStroke } from '@/lib/theme'
 import { FieldLabel } from './FieldLabel'
 
@@ -17,27 +17,21 @@ type Props = {
   unit?: string
 }
 
-/** − value + with 72-dp buttons; the first + from "not recorded" lands on min. */
+/** − value + with 72-dp buttons; + from "not recorded" lands on min, − from min goes back to it. */
 export function StepperField({ label, value, onChange, min, max, step = 1, unit }: Props) {
-  const change = (delta: number) => {
-    tapHaptic()
-    if (value === null) return onChange(min)
-    onChange(Math.min(max, Math.max(min, value + delta)))
-  }
+  const more = withTap(() => onChange(value === null ? min : Math.min(max, value + step)))
+  const less = withTap(() =>
+    onChange(value === null || value <= min ? null : Math.max(min, value - step)),
+  )
   const shown = value === null ? '—' : `${formatNumber(value)}${unit ? ` ${unit}` : ''}`
-  const lessDisabled = value === null || value <= min
+  const lessDisabled = value === null
   const moreDisabled = value !== null && value >= max
 
   return (
     <View className="gap-3">
       <FieldLabel label={label} />
       <View className="flex-row items-center gap-3">
-        <StepButton
-          label={`Menos ${label}`}
-          disabled={lessDisabled}
-          onPress={() => change(-step)}
-          plus={false}
-        />
+        <StepButton label={`Menos ${label}`} disabled={lessDisabled} onPress={less} plus={false} />
         <Text
           accessibilityLabel={`${label}: ${value === null ? 'sin dato' : shown}`}
           accessibilityLiveRegion="polite"
@@ -45,12 +39,7 @@ export function StepperField({ label, value, onChange, min, max, step = 1, unit 
         >
           {shown}
         </Text>
-        <StepButton
-          label={`Más ${label}`}
-          disabled={moreDisabled}
-          onPress={() => change(step)}
-          plus
-        />
+        <StepButton label={`Más ${label}`} disabled={moreDisabled} onPress={more} plus />
       </View>
     </View>
   )

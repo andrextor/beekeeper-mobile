@@ -4,7 +4,7 @@ import { Pressable, Text, View } from 'react-native'
 import { Button } from '@/components/ui/Button'
 import { Sheet } from '@/components/ui/Sheet'
 import { cx } from '@/lib/cx'
-import { tapHaptic } from '@/lib/haptics'
+import { withTap } from '@/lib/haptics'
 import { color, iconSize, iconStroke } from '@/lib/theme'
 
 type Props = {
@@ -31,10 +31,7 @@ export function DictationSheet({
         accessibilityRole="button"
         accessibilityLabel={listening ? 'Detener dictado' : 'Empezar a dictar'}
         accessibilityState={{ busy: listening }}
-        onPress={() => {
-          tapHaptic()
-          onToggleListening()
-        }}
+        onPress={withTap(onToggleListening)}
         className={cx(
           'size-tile items-center justify-center self-center rounded-full active:opacity-80',
           listening ? 'bg-danger' : 'bg-accent',

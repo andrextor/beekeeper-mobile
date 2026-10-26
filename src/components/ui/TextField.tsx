@@ -25,9 +25,9 @@ export function TextField({ label, hint, error, ...input }: Props) {
       />
       {error ? (
         <Text className="font-sans-semibold text-caption text-danger">{error}</Text>
-      ) : (
-        hint && <Text className="font-sans text-caption text-muted">{hint}</Text>
-      )}
+      ) : hint ? (
+        <Text className="font-sans text-caption text-muted">{hint}</Text>
+      ) : null}
     </View>
   )
 }

@@ -8,10 +8,12 @@ export function ActionGrid({ actions }: { actions: FieldAction[] }) {
   for (let i = 0; i < actions.length; i += 2) rows.push(actions.slice(i, i + 2))
   return (
     <View className="gap-3">
-      {rows.map((row) => (
-        <View key={row.map((a) => a.label).join('|')} className="flex-row gap-3">
-          {row.map((action) => (
-            <ActionTile key={action.label} {...action} />
+      {rows.map((row, r) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: static list, labels may repeat
+        <View key={r} className="flex-row gap-3">
+          {row.map((action, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static list, labels may repeat
+            <ActionTile key={i} {...action} />
           ))}
           {row.length === 1 && <View className="flex-1" />}
         </View>
