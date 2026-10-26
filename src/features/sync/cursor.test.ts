@@ -7,9 +7,9 @@ import type { Membership } from './members'
 import {
   type After,
   epoch,
+  type PullTable,
   pageSize,
   pull,
-  type PullTable,
   type Row,
   type Source,
   withOverlap,

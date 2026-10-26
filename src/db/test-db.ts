@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { DatabaseSync } from 'node:sqlite'
 
-import { type Db, serialized, type SqlValue } from './db'
+import { type Db, type SqlValue, serialized } from './db'
 
 /** In-memory database for Jest: same SQL engine as the phone, behind the app's `Db` subset. */
 export function openTestDb(): Db {

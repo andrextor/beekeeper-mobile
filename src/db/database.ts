@@ -1,7 +1,7 @@
 import { deleteDatabaseAsync, openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite'
 
 import { registerWipe } from '@/lib/wipe'
-import { type Db, serialized, type SqlValue } from './db'
+import { type Db, type SqlValue, serialized } from './db'
 import { migrate } from './migrate'
 
 const name = 'landak.db'
