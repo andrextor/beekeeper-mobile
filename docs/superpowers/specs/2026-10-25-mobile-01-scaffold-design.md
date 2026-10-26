@@ -1,6 +1,6 @@
 # M1 · Scaffold and design system — spec
 
-Date: 2026-10-25 · Branch: `feat/m1-scaffold` · Status: **awaiting OK** · Version: 0.1.0
+Date: 2026-10-25 · Branch: `feat/m1-scaffold` · Status: **approved** (Iván, 2026-10-26) · Version: 0.1.0
 
 ## Problem
 
