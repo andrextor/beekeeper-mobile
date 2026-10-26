@@ -5,7 +5,7 @@ import { migrations } from './migrations'
 import { openTestDb } from './test-db'
 
 // One hash per released step. Add a line for a new step; never change or remove one.
-const released = ['19624680adc7fa65', '89f1de37293cb6e9', '21c9498d604f6974']
+const released = ['19624680adc7fa65', '89f1de37293cb6e9', '21c9498d604f6974', 'd6c752c1455b2b3d']
 
 const hash = (sql: string) => createHash('sha256').update(sql).digest('hex').slice(0, 16)
 

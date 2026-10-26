@@ -12,6 +12,9 @@ export type DraftNote = {
   at: string
 }
 
+/** Another event recorded during the inspection (a dictated feeding, M8); `id` is its future row. */
+export type DraftEvent = { id: string; type: string; details: Record<string, unknown>; at: string }
+
 export type Draft = {
   /** The inspection id (new or being edited), so photos (M9) can link to it. */
   id: string
@@ -20,14 +23,16 @@ export type Draft = {
   is_edit: boolean
   fields: InspectionDraft
   notes: DraftNote[]
+  events: DraftEvent[]
   created_at: string
   updated_at: string
 }
 
-type DraftRow = Omit<Draft, 'is_edit' | 'fields' | 'notes'> & {
+type DraftRow = Omit<Draft, 'is_edit' | 'fields' | 'notes' | 'events'> & {
   is_edit: number
   payload: string
   notes: string
+  events: string
 }
 
 const toDraft = (row: DraftRow): Draft => ({
@@ -37,6 +42,7 @@ const toDraft = (row: DraftRow): Draft => ({
   is_edit: row.is_edit === 1,
   fields: JSON.parse(row.payload) as InspectionDraft,
   notes: JSON.parse(row.notes) as DraftNote[],
+  events: JSON.parse(row.events) as DraftEvent[],
   created_at: row.created_at,
   updated_at: row.updated_at,
 })
@@ -53,8 +59,8 @@ export async function writeDraft(
 ): Promise<void> {
   await db.runAsync(
     `insert or ${conflict} into inspection_drafts
-         (id, organization_id, hive_id, is_edit, payload, notes, created_at, updated_at)
-       values (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, organization_id, hive_id, is_edit, payload, notes, events, created_at, updated_at)
+       values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       draft.id,
       draft.organization_id,
@@ -62,6 +68,7 @@ export async function writeDraft(
       draft.is_edit ? 1 : 0,
       JSON.stringify(draft.fields),
       JSON.stringify(draft.notes),
+      JSON.stringify(draft.events),
       draft.created_at,
       draft.updated_at,
     ],
@@ -100,6 +107,7 @@ export async function openDraft(
     is_edit: false,
     fields: emptyInspection(input.now),
     notes: [],
+    events: [],
     created_at: input.now,
     updated_at: input.now,
   }
@@ -127,22 +135,34 @@ export async function openEditDraft(
   const fields = Object.fromEntries(
     Object.keys(base).map((key) => [key, saved[key as keyof typeof saved] ?? null]),
   ) as unknown as InspectionDraft
-  const events = await db.getAllAsync<LocalRow>(
-    `select * from hive_events where inspection_id = ? and type = 'note' and deleted_at is null
-     order by occurred_at`,
-    [inspectionId],
-  )
-  const notes = events.map((e, index): DraftNote => {
-    const event = fromLocal('hive_events', e)
-    const details = isRecord(event.details) ? event.details : {}
-    return {
-      id: event.id,
-      slot: typeof details.slot === 'number' ? details.slot : index + 1,
-      text: typeof details.text === 'string' ? details.text : '',
-      source: details.source === 'voice' ? 'voice' : 'text',
-      at: event.occurred_at,
-    }
-  })
+  const linked = (
+    await db.getAllAsync<LocalRow>(
+      'select * from hive_events where inspection_id = ? and deleted_at is null order by occurred_at',
+      [inspectionId],
+    )
+  ).map((e) => fromLocal('hive_events', e))
+  const notes = linked
+    .filter((event) => event.type === 'note')
+    .map((event, index): DraftNote => {
+      const details = isRecord(event.details) ? event.details : {}
+      return {
+        id: event.id,
+        slot: typeof details.slot === 'number' ? details.slot : index + 1,
+        text: typeof details.text === 'string' ? details.text : '',
+        source: details.source === 'voice' ? 'voice' : 'text',
+        at: event.occurred_at,
+      }
+    })
+  const events = linked
+    .filter((event) => event.type !== 'note')
+    .map(
+      (event): DraftEvent => ({
+        id: event.id,
+        type: event.type,
+        details: isRecord(event.details) ? event.details : {},
+        at: event.occurred_at,
+      }),
+    )
   const draft: Draft = {
     id: saved.id,
     organization_id: saved.organization_id,
@@ -150,6 +170,7 @@ export async function openEditDraft(
     is_edit: true,
     fields,
     notes,
+    events,
     created_at: now,
     updated_at: now,
   }
@@ -163,11 +184,18 @@ export async function updateDraft(
   id: string,
   fields: InspectionDraft,
   notes: readonly DraftNote[],
+  events: readonly DraftEvent[] = [],
 ): Promise<void> {
   await db.transaction(async () => {
     await db.runAsync(
-      'update inspection_drafts set payload = ?, notes = ?, updated_at = ? where id = ?',
-      [JSON.stringify(fields), JSON.stringify(notes), new Date().toISOString(), id],
+      'update inspection_drafts set payload = ?, notes = ?, events = ?, updated_at = ? where id = ?',
+      [
+        JSON.stringify(fields),
+        JSON.stringify(notes),
+        JSON.stringify(events),
+        new Date().toISOString(),
+        id,
+      ],
     )
   })
 }

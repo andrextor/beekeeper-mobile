@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-26
+
+### Added
+
+- **Dictar** in field mode and inside every note: Spanish speech recognition on the phone when the offline pack is installed (es-CO first), online otherwise; before listening without signal the app offers **Descargar** the pack or **Intentar igual**; microphone denied or recognition missing never blocks the inspection.
+- Live text while speaking, **Corregir texto** before using it; Android's pauses restart the recognizer at most 20 times and stop after 3 silences.
+- A rule-based Spanish field parser (numbers in words, negation by clause, last mention wins): queen, eggs, larvae, queen cells, frames, brood pattern, stores, strength, temperament, pests, signs, varroa, weather, temperature, next inspection, attention, planned actions, a feeding done, and a warning when another hive is named. 50 spec cases tested.
+- **Lo que entendimos**: the transcript with matched phrases highlighted and one row per proposal (**Aceptar** / **Cambiar** / **Quitar**, "Antes: …", "Revisar" for guesses), **Aceptar todo**, **Volver a dictar**. Accepted values go into the draft only; the inspection becomes "Por voz" and keeps the transcript as recognized.
+- A dictated feeding is saved as a `feeding` event with the inspection at **Terminar** (draft column `events`, local migration 0004).
+
+### Changed
+
+- `inspections` may use `voice` (AGENTS.md), never the reverse.
+
 ## [0.7.0] - 2026-10-26
 
 ### Added

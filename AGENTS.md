@@ -19,7 +19,7 @@ A module that needs a backend change stops and asks for a spec in `beekeeper` fi
 | Path | Content |
 |------|---------|
 | `src/app/` | Expo Router routes only (screens, layouts) |
-| `src/features/<context>/` | Domain code by context (`auth`, `apiaries`, `hives`, `qr`, `inspections`, `voice`, `photos`, `events`, `members`, `sync`); pure logic in `.ts` with a `.test.ts` next to it. Imports `components/`, `lib/`, `db/`, never another feature except `sync` |
+| `src/features/<context>/` | Domain code by context (`auth`, `apiaries`, `hives`, `qr`, `inspections`, `voice`, `photos`, `events`, `members`, `sync`); pure logic in `.ts` with a `.test.ts` next to it. Imports `components/`, `lib/`, `db/`, never another feature except `sync`; `inspections` also uses `voice` (dictation is part of field mode), and `voice` never imports `inspections` |
 | `src/components/` | Design-system components (`ui/`) and field-mode components (`field/`) |
 | `src/db/` | Local SQLite: schema, migrations, typed queries, `supabase.types.ts` (generated from `beekeeper`) |
 | `src/lib/` | Infrastructure: Supabase client, network status, ids, formatting, labels |

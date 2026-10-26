@@ -1,16 +1,16 @@
 # M8 · Voice — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-08-voice-design.md` · Branch: `feat/m8-voice` · Status: **awaiting OK**
+Spec: `docs/superpowers/specs/2026-10-25-mobile-08-voice-design.md` · Branch: `feat/m8-voice` · Status: **approved** (Iván, 2026-10-26)
 
-New dependency (approval asked here): `expo-speech-recognition` (config plugin in `app.json`, needs a new dev build; not available in Expo Go).
+New dependency (approval asked here): `expo-speech-recognition` (native, config plugin in `app.json`; joins the single development build of the final phone pass, Iván 2026-10-26).
 
-1. **Numbers and normalization** — `src/features/voice/normalize.ts` (accents, case, spaces, char map for spans), `numbers.ts` (Spanish words 0–99) + tests.
+1. **Numbers** — normalization reuses `fold` from `src/lib/text.ts` (length-preserving, so spans need no char map); `src/features/voice/numbers.ts` (Spanish words 0–99) + tests.
 2. **Parser** — `src/features/voice/parser.ts` (clauses, negation, rules from the spec table, conflict resolution) + `parser.test.ts` with the cases below (table-driven; each case asserts the proposals and their spans' phrases).
 3. **Recognition** — `src/features/voice/recognition.ts` (availability, permission, locale choice, on-device flag, restart cap 20, stop after 3 `no-speech`), `useDictation.ts` hook (state: idle / listening / stopped / error, interim + final text) + tests with a mocked module (locale choice order, offline without pack → `needs_offline_pack`, restart cap).
 4. **Offline pack guide** — `src/features/voice/OfflinePackBanner.tsx` (Descargar on Android 13+, guide otherwise).
-5. **Dictation sheet** — `src/components/field/DictationSheet.tsx`; Note sheet (M7) gets the Dictar button (`source: 'voice'`).
+5. **Dictation sheet** — extend M1's `src/components/field/DictationSheet.tsx` (interim vs final text, Corregir texto, Interpretar de nuevo); Note sheet (M7) gets the Dictar button (`source: 'voice'`).
 6. **Confirmation** — `src/features/voice/ConfirmProposals.tsx`, `applyProposals(draft, accepted)` in `src/features/voice/apply.ts` (merge into draft, `source = 'voice'`, transcript append, pending notes, feeding event in draft) + test.
-7. **Wire field mode** — Dictar tile visible (M7 `FieldInspection.tsx`), `finish.ts` writes a draft `feeding` proposal as a `hive_events` row in the same transaction + test.
+7. **Wire field mode** — local migration `src/db/migrations/0004_draft_events.ts` (`inspection_drafts.events`), Dictar tile visible (M7 `FieldInspection.tsx`), `finish.ts` writes the draft's `feeding` events as `hive_events` rows in the same transaction and its undo handles them like notes + tests.
 8. **Release** — `chore(release): 0.8.0`. Check: `pnpm ci:check`.
 
 ### Parser test cases (`parser.test.ts`, `today = 2026-11-01`, open hive `C-01`)
@@ -70,6 +70,8 @@ New dependency (approval asked here): `expo-speech-recognition` (config plugin i
 | 50 | "Todo bien hoy" | `[]` (stays in transcript only) |
 
 ## How Iván tests it
+
+Run in the final phone pass, on the single development build (Iván, 2026-10-26).
 
 On a real Android phone with the new dev build:
 

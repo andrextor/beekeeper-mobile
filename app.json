@@ -2,7 +2,7 @@
   "expo": {
     "name": "Landak Apiario",
     "slug": "landak-apiario",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "landak",
@@ -39,7 +39,8 @@
           "cameraPermission": "La cámara lee el código QR de cada colmena.",
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "expo-speech-recognition"
     ],
     "experiments": {
       "typedRoutes": true,

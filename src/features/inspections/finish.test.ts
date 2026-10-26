@@ -21,7 +21,7 @@ async function draftWithNote(db: Db): Promise<Draft> {
   const fields = { ...draft.fields, population_strength: 4 }
   const notes = [{ id: 'n-1', slot: 1, text: 'Falta una alza', source: 'text' as const, at: iso }]
   await updateDraft(db, draft.id, fields, notes)
-  return { ...draft, fields, notes }
+  return { ...draft, fields, notes, events: [] }
 }
 
 const count = async (db: Db, sql: string) => (await db.getFirstAsync<{ n: number }>(sql))?.n
@@ -152,5 +152,24 @@ describe('finishDraft', () => {
     if (!edit) throw new Error('no edit draft')
     await db.runAsync("update inspections set deleted_at = '2026-10-26T16:00:00.000Z'")
     expect((await finishDraft(db, edit.draft, 'u-1', now)).ok).toBe(false)
+  })
+
+  it('writes a dictated feeding with the inspection, and undo takes it away', async () => {
+    const db = await database()
+    const draft = await draftWithNote(db)
+    const feeding = {
+      id: 'f-1',
+      type: 'feeding',
+      details: { feed: 'sugar_syrup', amount: 2, unit: 'l' },
+      at: iso,
+    }
+    const outcome = await finishDraft(db, { ...draft, events: [feeding] }, 'u-1', now)
+    if (!outcome.ok) throw new Error('not saved')
+    expect(
+      await db.getFirstAsync("select type, inspection_id from hive_events where id = 'f-1'"),
+    ).toEqual({ type: 'feeding', inspection_id: 'i-1' })
+    await undoFinish(db, outcome.finished)
+    expect(await count(db, "select count(*) as n from hive_events where id = 'f-1'")).toBe(0)
+    expect((await findNewDraft(db, 'h-1'))?.events).toEqual([feeding])
   })
 })
