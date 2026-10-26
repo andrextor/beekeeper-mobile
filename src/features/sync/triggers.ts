@@ -6,6 +6,7 @@ import { getDb } from '@/db/database'
 import { onLocalWrite } from '@/db/write'
 import { messageFor } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
+import { registerWipe } from '@/lib/wipe'
 import { singleFlight } from './engine'
 import { pull } from './pull'
 import { pushOutbox } from './push'
@@ -19,6 +20,8 @@ function setStatus(next: Partial<RunStatus>) {
   status = { ...status, ...next }
   for (const watch of watchers) watch()
 }
+
+registerWipe(async () => setStatus({ error: null }))
 
 export const runStatus = {
   get: (): RunStatus => status,
