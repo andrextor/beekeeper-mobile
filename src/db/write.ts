@@ -1,5 +1,12 @@
 import type { Db } from './db'
-import { fromLocal, type LocalRow, type ServerRow, type SyncedTable, toLocal, toPayload } from './mapping'
+import {
+  fromLocal,
+  type LocalRow,
+  type ServerRow,
+  type SyncedTable,
+  toLocal,
+  toPayload,
+} from './mapping'
 
 type Listener = (table: SyncedTable) => void
 
@@ -50,4 +57,32 @@ export async function saveRow(db: Db, table: SyncedTable, row: ServerRow): Promi
     }
   })
   for (const listener of listeners) listener(table)
+}
+
+/**
+ * Rows the server returned (pull pages, push answers): `_on_server = 1`. A row with a local edit
+ * still in the outbox keeps its values until that edit is pushed, unless `overwriteDirty`.
+ */
+export async function applyServerRows(
+  db: Db,
+  table: SyncedTable,
+  rows: Record<string, unknown>[],
+  overwriteDirty = false,
+): Promise<void> {
+  for (const row of rows) {
+    const local = toLocal(table, row)
+    const cols = Object.keys(local)
+    const sets = cols.map((c) =>
+      overwriteDirty
+        ? `${c} = excluded.${c}`
+        : `${c} = case when ${table}._dirty = 0 then excluded.${c} else ${table}.${c} end`,
+    )
+    if (overwriteDirty) sets.push('_dirty = 0')
+    await db.runAsync(
+      `insert into ${table} (${cols.join(', ')}, _dirty, _on_server)
+       values (${cols.map(() => '?').join(', ')}, 0, 1)
+       on conflict (id) do update set ${sets.join(', ')}, _on_server = 1`,
+      cols.map((c) => local[c] ?? null),
+    )
+  }
 }

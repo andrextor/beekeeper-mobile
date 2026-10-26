@@ -31,6 +31,10 @@ describe('test database', () => {
         }),
       ),
     )
-    expect(await db.getAllAsync('select n from t order by n')).toEqual([{ n: 1 }, { n: 2 }, { n: 3 }])
+    expect(await db.getAllAsync('select n from t order by n')).toEqual([
+      { n: 1 },
+      { n: 2 },
+      { n: 3 },
+    ])
   })
 })

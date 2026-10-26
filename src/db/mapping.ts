@@ -7,7 +7,14 @@ export type SyncedTable = (typeof syncedTables)[number]
 export type ServerRow<T extends SyncedTable = SyncedTable> = Tables<T>
 export type LocalRow = Record<string, SqlValue>
 
-const common = ['id', 'organization_id', 'created_by', 'created_at', 'updated_at', 'deleted_at'] as const
+const common = [
+  'id',
+  'organization_id',
+  'created_by',
+  'created_at',
+  'updated_at',
+  'deleted_at',
+] as const
 
 export const columns: { [T in SyncedTable]: readonly (keyof Tables<T> & string)[] } = {
   apiaries: [
@@ -114,7 +121,10 @@ export function fromLocal<T extends SyncedTable>(table: T, row: LocalRow): Serve
 }
 
 /** What the outbox upserts: the server columns the client owns. */
-export function toPayload(table: SyncedTable, row: Record<string, unknown>): Record<string, unknown> {
+export function toPayload(
+  table: SyncedTable,
+  row: Record<string, unknown>,
+): Record<string, unknown> {
   return Object.fromEntries(
     columns[table].filter((c) => !serverOwned.has(c)).map((c) => [c, row[c] ?? null]),
   )
