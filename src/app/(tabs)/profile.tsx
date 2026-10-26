@@ -4,6 +4,7 @@ import { LogOut, Palette } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 
+import { ChipSelect } from '@/components/field/ChipSelect'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { FormError } from '@/components/ui/FormError'
@@ -11,9 +12,12 @@ import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { TextField } from '@/components/ui/TextField'
 import { Toast } from '@/components/ui/Toast'
+import { getDb } from '@/db/database'
+import { useLocalQuery } from '@/db/useLocalQuery'
 import { updateDisplayName } from '@/features/auth/organizations'
 import { RoleBadge } from '@/features/auth/RoleBadge'
 import { signOut, useSession } from '@/features/auth/session'
+import { mobileDataSetting, writeSetting } from '@/features/sync/network-policy'
 import { pendingCount } from '@/features/sync/pending'
 import { syncNow } from '@/features/sync/triggers'
 import { isNetworkError, messageFor } from '@/lib/errors'
@@ -34,6 +38,12 @@ export default function ProfileScreen() {
   const userId = state.status === 'signedIn' ? state.session.user.id : null
 
   const edited = useRef(false)
+  const mobileData =
+    useLocalQuery<{ value: string }>(
+      'select value from settings where key = ?',
+      [mobileDataSetting],
+      ['settings'],
+    ).rows[0]?.value === '1'
 
   useEffect(() => {
     if (!userId) return
@@ -118,6 +128,21 @@ export default function ProfileScreen() {
             label="Cambiar de finca"
             onPress={() => router.push('/organizations')}
           />
+        </Card>
+        <Card className="gap-3">
+          <ChipSelect
+            label="Subir fotos con datos móviles"
+            options={{ yes: 'Sí', no: 'Solo con Wi-Fi' }}
+            value={[mobileData ? 'yes' : 'no']}
+            onChange={(v) =>
+              void getDb().then((db) =>
+                writeSetting(db, mobileDataSetting, v[0] === 'yes' ? '1' : '0'),
+              )
+            }
+          />
+          <Text className="font-sans text-caption text-muted">
+            Las revisiones y notas se sincronizan con cualquier conexión; las fotos pesan más.
+          </Text>
         </Card>
         <Button
           variant="danger"

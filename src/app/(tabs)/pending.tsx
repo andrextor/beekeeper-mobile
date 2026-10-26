@@ -1,3 +1,4 @@
+import { NetworkStateType, useNetworkState } from 'expo-network'
 import { router } from 'expo-router'
 import { RefreshCw } from 'lucide-react-native'
 import { useRef, useState } from 'react'
@@ -10,9 +11,11 @@ import { SyncChip } from '@/components/ui/SyncChip'
 import { Toast } from '@/components/ui/Toast'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
+import { useLocalQuery } from '@/db/useLocalQuery'
 import { useSession } from '@/features/auth/session'
 import { DraftCard, useDrafts } from '@/features/inspections/DraftCard'
 import { discardChange } from '@/features/sync/discard'
+import { allowMobileDataOnce } from '@/features/sync/network-policy'
 import { PendingList } from '@/features/sync/PendingList'
 import { entryTitle, type PendingEntry, usePendingEntries } from '@/features/sync/pending'
 import { relabelHive } from '@/features/sync/relabel'
@@ -34,6 +37,15 @@ function StatusChip({ status }: { status: SyncStatus }) {
 
 function Header({ status }: { status: SyncStatus }) {
   const { state } = useSession()
+  const onWifi = useNetworkState().type === NetworkStateType.WIFI
+  const waitingPhotos =
+    useLocalQuery<{ n: number }>(
+      `select count(*) as n from photos p join outbox o on o.table_name = 'photos' and o.row_id = p.id
+       where p._on_server = 0 and o.state = 'pending' and p.deleted_at is null
+         and (p.inspection_id is null or exists (select 1 from inspections i where i.id = p.inspection_id))`,
+      [],
+      ['photos', 'outbox'],
+    ).rows[0]?.n ?? 0
   const drafts = useDrafts({
     organizationId: state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : '',
   })
@@ -50,6 +62,21 @@ function Header({ status }: { status: SyncStatus }) {
         onPress={() => void syncNow()}
       />
       <FormError message={status.error} />
+      {waitingPhotos > 0 && !onWifi ? (
+        <View className="gap-2 rounded-card border-2 border-accent p-3">
+          <Text className="font-sans-semibold text-body text-text">
+            {`${plural(waitingPhotos, 'foto esperando', 'fotos esperando')} Wi-Fi`}
+          </Text>
+          <Button
+            variant="secondary"
+            label="Subir ahora con datos"
+            onPress={() => {
+              allowMobileDataOnce()
+              void syncNow()
+            }}
+          />
+        </View>
+      ) : null}
       <Text className="font-sans text-caption text-muted">
         {status.lastSyncAt
           ? `Última sincronización ${formatRelative(status.lastSyncAt)}`

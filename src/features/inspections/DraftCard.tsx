@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/Button'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { useLocalQuery } from '@/db/useLocalQuery'
+import { removeLocal } from '@/features/sync/discard'
+import { exclusive } from '@/features/sync/triggers'
 import { messageFor } from '@/lib/errors'
 import { formatTime } from '@/lib/format'
 import { color, iconSize } from '@/lib/theme'
@@ -34,6 +36,20 @@ export function useDrafts(scope: { hiveId: string } | { organizationId: string }
   ).rows
 }
 
+/** A discarded draft's photos (never sent: their inspection never existed) go with their files. */
+async function dropDraftPhotos(inspectionId: string): Promise<void> {
+  const db = await getDb()
+  await exclusive(() =>
+    db.transaction(async () => {
+      const photos = await db.getAllAsync<{ id: string }>(
+        'select id from photos where inspection_id = ? and _on_server = 0',
+        [inspectionId],
+      )
+      for (const p of photos) await removeLocal(db, 'photos', p.id)
+    }),
+  )
+}
+
 /** "Descartar" with Deshacer: the draft comes back exactly as it was. */
 export async function discardWithUndo(id: string): Promise<void> {
   const db = await getDb()
@@ -41,6 +57,8 @@ export async function discardWithUndo(id: string): Promise<void> {
   if (!draft) return
   await discardDraft(db, id)
   showToast('Revisión descartada', {
+    // An edit's photos belong to an inspection that exists: they stay (and upload).
+    onExpire: draft.is_edit ? undefined : () => void dropDraftPhotos(id),
     onUndo: () =>
       void restoreDraft(db, draft).catch((e: unknown) =>
         showToast(`No se pudo deshacer: ${messageFor(e)}`, { tone: 'danger' }),

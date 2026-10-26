@@ -2,6 +2,7 @@ import { getDb } from '@/db/database'
 import type { Db } from '@/db/db'
 import type { SyncedTable } from '@/db/mapping'
 import { applyServerRows } from '@/db/write'
+import { deletePhotoFiles } from '@/lib/photo-files'
 import type { PendingEntry } from './pending'
 import { fetchServerRow } from './server'
 
@@ -21,13 +22,28 @@ const children: Record<SyncedTable, [SyncedTable, string][]> = {
 }
 
 /** A record that never reached the server goes with everything recorded under it (also local only). */
-export async function removeLocal(db: Db, table: SyncedTable, id: string): Promise<void> {
+export async function removeLocal(
+  db: Db,
+  table: SyncedTable,
+  id: string,
+  /** Terminar's undo keeps the photos: they wait again with the restored draft (M9). */
+  options: { keepPhotos?: boolean } = {},
+): Promise<void> {
   for (const [child, column] of children[table]) {
+    if (child === 'photos' && options.keepPhotos) continue
     const rows = await db.getAllAsync<{ id: string }>(
       `select id from ${child} where ${column} = ? and _on_server = 0`,
       [id],
     )
-    for (const row of rows) await removeLocal(db, child, row.id)
+    for (const row of rows) await removeLocal(db, child, row.id, options)
+  }
+  if (table === 'photos') {
+    const files = await db.getFirstAsync<{
+      local_main_uri: string | null
+      local_thumb_uri: string | null
+    }>('select local_main_uri, local_thumb_uri from photos where id = ?', [id])
+    // ponytail: files go before the transaction commits; a rollback would leave a row without them.
+    deletePhotoFiles(files?.local_main_uri, files?.local_thumb_uri)
   }
   await db.runAsync('delete from outbox where table_name = ? and row_id = ?', [table, id])
   await db.runAsync(`delete from ${table} where id = ?`, [id])

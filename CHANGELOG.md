@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-26
+
+### Added
+
+- Photos: in-app camera with a 96-dp shutter for bursts (no confirmation, a counter and a strip of the shots; tap one to remove it with undo), flash, **Desde la galería** (up to 10). Opened from field mode's **Foto** tile (linked to the inspection) or the hive screen.
+- Every photo is resized on the phone to 1600 px plus a 320-px thumbnail, kept in the app's documents and queued in one transaction with its row; the original is never uploaded.
+- Upload by the sync engine: main file → thumbnail → row, resumed from the last step, retried on network errors; Storage refusals shown in Spanish under **Requiere atención**. Photos of an inspection still being recorded wait for **Terminar**; a photo removed before upload leaves no trace; discarding a draft removes its photos.
+- Photos upload on Wi-Fi only unless Perfil → **Subir fotos con datos móviles**; Pendientes shows the photos waiting for Wi-Fi with **Subir ahora con datos**.
+- Hive screen **Fotos** (thumbnails, all photos grid, take a photo), photos in the inspection read view, full-screen viewer with previous / next, caption and delete with undo (author or owner). Thumbnails come from the phone or signed URLs (1 h, in memory only).
+- Main files of synced photos unseen for 30 days, or the oldest past 500 MB, are removed from the phone after each full sync; thumbnails stay. Signing out erases the photos folder.
+
 ## [0.8.0] - 2026-10-26
 
 ### Added

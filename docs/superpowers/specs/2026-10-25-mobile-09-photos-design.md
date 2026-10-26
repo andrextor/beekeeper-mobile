@@ -1,6 +1,6 @@
 # M9 · Photos: capture, resize, thumbnail, queue, upload, view — spec
 
-Date: 2026-10-25 · Branch: `feat/m9-photos` · Status: **awaiting OK** · Version: 0.9.0
+Date: 2026-10-25 · Branch: `feat/m9-photos` · Status: **approved** (Iván, 2026-10-26) · Version: 0.9.0
 
 ## Problem
 
@@ -32,7 +32,7 @@ If step 2 fails (out of storage), the toast says "No hay espacio en el teléfono
 ### Local `photos` row (mirror of B5 + local columns)
 
 Server columns: `id`, `organization_id`, `hive_id`, `inspection_id`, `storage_path` (`{organization_id}/{hive_id}/{id}.jpg`), `taken_at`, `width`, `height`, `bytes` (main file), `caption`, `created_by`, `created_at`, `updated_at`, `deleted_at`.
-Local only, added by migration `src/db/migrations/0003_photos_local.ts`: `local_main_uri`, `local_thumb_uri`, `upload_step` (`none` | `main` | `thumb` | `row`), `last_viewed_at`. The same migration creates `settings (key text primary key, value text not null)` (first key: `photos_on_mobile_data`). A photo is synced when `upload_step = 'row'` and it has no outbox entry; there is no separate sync-state column.
+Local only, added by migration `src/db/migrations/0005_photos_local.ts` (0003 and 0004 went to M6 and M8): `local_main_uri`, `local_thumb_uri`, `upload_step` (`none` | `main` | `thumb` | `row`), `last_viewed_at`. The same migration creates `settings (key text primary key, value text not null)` (first key: `photos_on_mobile_data`). A photo is synced when `upload_step = 'row'` and it has no outbox entry; there is no separate sync-state column.
 
 ### Upload job (in the sync engine's pusher, `src/features/sync/`)
 
@@ -46,7 +46,11 @@ Order per photo, resuming from `upload_step`:
 
 A photo soft-deleted (undo strip, or the M3 cascade of its inspection) while `upload_step = 'none'` never reached the server: its outbox entry and local files are dropped instead of uploading files for a deleted row.
 
-Photos upload **after** the inspection and event rows of the same batch (M3 rank), because `inspection_id` must exist server-side. Photos of a deleted hive are hidden like its other children.
+Photos upload **after** the inspection and event rows of the same batch (M3 rank), because `inspection_id` must exist server-side.
+
+### Photos of an unfinished inspection (with M7 drafts)
+
+A photo taken in field mode points at the draft's id, which is no inspection row until Terminar. The pusher's M3 wait rule gains one case: a photo whose `inspection_id` has **no local row** waits (no attempt counted) instead of earning `parent_mismatch`. Terminar makes the row and the photos follow. **Deshacer** of Terminar keeps the photos (M3's local removal skips `photos`; they wait again with the restored draft). **Descartar** a draft (after its undo window) removes its photos: rows, outbox entries and files. M3's local removal of a never-synced record also deletes the files of the photos it removes. Photos of a deleted hive are hidden like its other children.
 
 ### Network policy
 
@@ -56,7 +60,7 @@ Photos upload **after** the inspection and event rows of the same batch (M3 rank
 
 ### Viewing
 
-- Thumbnail grid on the hive detail (M6, new tab **Fotos**) and inside an expanded inspection.
+- Thumbnail strip on the hive screen (M6 has no tabs: a **Fotos** section above the history, "Ver todas" opens the grid `src/app/hive/[id]/photos.tsx`) and inside the inspection read view.
 - Source order: local file if present → signed URL. Signed URLs: one `createSignedUrls(paths, 3600)` call per screen page (≤ 100 paths, thumbnails only in grids), kept in memory with their expiry; re-signed at 50 min.
 - Full image: tap thumbnail → full-screen viewer with 56-dp close and next/previous buttons (no swipe required), caption, date, linked inspection; loads `<id>.jpg` (local or signed, on demand).
 - Photos pulled from the server (taken by someone else) store only the row; files are fetched on view and the thumbnail is cached to `photos/<id>.thumb.jpg`.
@@ -80,7 +84,7 @@ After a successful sync and at app start: keep every thumbnail; delete local **m
 
 ## Security constraints
 
-- Files live in the app's private document directory; signing out deletes `photos/` with the database (AGENTS.md).
+- Files live in the app's private document directory; signing out deletes `photos/` with the database (AGENTS.md): the photos module registers its own wipe (M2 `src/lib/wipe.ts`).
 - No public URLs; signed URLs expire in 1 h and are never persisted to SQLite.
 - The storage path always comes from the row's `organization_id` and `hive_id`, never from user input.
 

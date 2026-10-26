@@ -169,7 +169,7 @@ export async function undoFinish(db: Db, { draft, before }: Finished): Promise<v
   const inspection = fromLocal('inspections', row)
   if (row._on_server !== 1) {
     return db.transaction(async () => {
-      await removeLocal(db, 'inspections', draft.id)
+      await removeLocal(db, 'inspections', draft.id, { keepPhotos: true })
       await putBack(db)
     })
   }

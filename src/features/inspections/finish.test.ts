@@ -6,6 +6,7 @@ import { finishDraft, undoFinish } from './finish'
 
 jest.mock('@/lib/supabase', () => ({ supabase: {} }))
 jest.mock('@/db/database', () => ({ getDb: jest.fn() }))
+jest.mock('@/lib/photo-files', () => ({ deletePhotoFiles: jest.fn() }))
 
 const now = new Date('2026-10-26T15:00:00.000Z')
 const iso = now.toISOString()

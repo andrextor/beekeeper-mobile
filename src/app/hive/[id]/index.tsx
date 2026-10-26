@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router'
 import {
+  Camera,
   ChevronDown,
   ChevronUp,
   ClipboardCheck,
@@ -32,6 +33,8 @@ import { localDay } from '@/features/hives/schema'
 import { TimelineList } from '@/features/hives/TimelineList'
 import { useTimeline } from '@/features/hives/useTimeline'
 import { DraftCard, useDrafts } from '@/features/inspections/DraftCard'
+import { PhotoGrid } from '@/features/photos/PhotoGrid'
+import { usePhotos } from '@/features/photos/queries'
 import { hiveStatusLabels, label } from '@/lib/labels'
 
 export default function HiveScreen() {
@@ -46,6 +49,7 @@ export default function HiveScreen() {
   const timeline = useTimeline(id, hive?.organization_id ?? null)
   const [showFacts, setShowFacts] = useState(false)
   const drafts = useDrafts({ hiveId: id })
+  const photos = usePhotos({ hiveId: id }, 6)
   const newDraft = drafts.find((d) => !d.is_edit)
 
   if (!hive)
@@ -110,6 +114,29 @@ export default function HiveScreen() {
             onPress={() => router.push({ pathname: '/hive/[id]/edit', params: { id } })}
           />
         ) : null}
+        <View className="gap-3">
+          <Text accessibilityRole="header" className="font-display text-section text-text">
+            Fotos
+          </Text>
+          {photos.length ? (
+            <PhotoGrid
+              photos={photos}
+              onOpen={(photoId) =>
+                router.push({ pathname: '/photo/[id]', params: { id: photoId } })
+              }
+            />
+          ) : null}
+          <Button
+            variant="secondary"
+            icon={Camera}
+            label={photos.length ? 'Ver todas las fotos' : 'Tomar foto'}
+            onPress={() =>
+              photos.length
+                ? router.push({ pathname: '/hive/[id]/photos', params: { id } })
+                : router.push({ pathname: '/hive/[id]/camera', params: { id } })
+            }
+          />
+        </View>
         <TimelineList timeline={timeline} />
       </Screen>
       <View

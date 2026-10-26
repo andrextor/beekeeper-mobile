@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { AppState } from 'react-native'
 
 import { getDb } from '@/db/database'
-import { serialized } from '@/db/db'
+import { type Db, serialized } from '@/db/db'
 import { onLocalWrite } from '@/db/write'
 import { messageFor } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
@@ -38,6 +38,19 @@ export const runStatus = {
   },
 }
 
+type AfterSync = (db: Db) => Promise<void>
+const afterSyncTasks = new Set<AfterSync>()
+
+/** Local upkeep after each full sync (M9 photo eviction); a failure never fails the sync. */
+export function onFullSync(task: AfterSync): () => void {
+  afterSyncTasks.add(task)
+  return () => afterSyncTasks.delete(task)
+}
+
+async function afterFullSync(db: Db) {
+  for (const task of afterSyncTasks) await task(db).catch(() => {})
+}
+
 /** Sync runs and "Descartar cambio" never overlap, so a discarded change cannot be pushed mid-way. */
 export const exclusive = serialized((task) => task())
 
@@ -51,7 +64,10 @@ export const requestSync = singleFlight((mode) =>
     try {
       const db = await getDb()
       await pushOutbox(db)
-      if (mode === 'full') await pull(db)
+      if (mode === 'full') {
+        await pull(db)
+        await afterFullSync(db)
+      }
       setStatus({
         error: null,
         lastSyncAt: mode === 'full' ? new Date().toISOString() : status.lastSyncAt,
