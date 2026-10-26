@@ -1,13 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router'
 import { ClipboardCheck, Hexagon, Lock } from 'lucide-react-native'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
-import { useLocalQuery } from '@/db/useLocalQuery'
 import { useRole, useSession } from '@/features/auth/session'
-import { useHive } from '@/features/hives/queries'
+import { useHive, useLatestInspection } from '@/features/hives/queries'
 import { localDay } from '@/features/hives/schema'
 import { type Draft, openDraft, openEditDraft } from '@/features/inspections/drafts'
 import { FieldInspection } from '@/features/inspections/FieldInspection'
@@ -17,7 +16,12 @@ import { messageFor } from '@/lib/errors'
 import { formatLastInspection, formatTime } from '@/lib/format'
 import { uuid } from '@/lib/ids'
 
-type Opened = { kind: 'ready'; draft: Draft } | { kind: 'missing' } | { kind: 'forbidden' } | null
+type Opened =
+  | { kind: 'ready'; draft: Draft }
+  | { kind: 'missing' }
+  | { kind: 'forbidden' }
+  | { kind: 'failed'; message: string }
+  | null
 
 /** Field mode: opens (or resumes) the hive's draft, or an edit draft with `inspectionId`. */
 export default function InspectScreen() {
@@ -26,17 +30,15 @@ export default function InspectScreen() {
   const owner = useRole() === 'owner'
   const userId = state.status === 'signedIn' ? state.session.user.id : ''
   const { hive, loading } = useHive(id)
-  const last = useLocalQuery<{ inspected_at: string }>(
-    'select inspected_at from inspections where hive_id = ? and deleted_at is null order by inspected_at desc limit 1',
-    [id],
-    ['inspections'],
-  ).rows[0]
+  const { latest } = useLatestInspection(id)
+  // One open per screen: a re-render (role or session settling) must not open or toast twice.
+  const started = useRef(false)
   const [opened, setOpened] = useState<Opened>(null)
   const organizationId = hive?.organization_id
 
   useEffect(() => {
-    if (!organizationId || !userId) return
-    let alive = true
+    if (!organizationId || !userId || started.current) return
+    started.current = true
     void (async () => {
       const db = await getDb()
       const now = new Date().toISOString()
@@ -46,22 +48,17 @@ export default function InspectScreen() {
           'select created_by from inspections where id = ?',
           [inspectionId],
         )
-        if (saved && !owner && saved.created_by !== userId)
-          return alive && setOpened({ kind: 'forbidden' })
+        if (saved && !owner && saved.created_by !== userId) return setOpened({ kind: 'forbidden' })
       }
       const result = inspectionId
         ? await openEditDraft(db, inspectionId, now)
         : await openDraft(db, { id: uuid(), hiveId: id, organizationId, now })
-      if (!alive) return
       if (!result) return setOpened({ kind: 'missing' })
       setOpened({ kind: 'ready', draft: result.draft })
       if (result.resumed) {
         showToast(`Continuando la revisión de las ${formatTime(result.draft.created_at)}`)
       }
-    })()
-    return () => {
-      alive = false
-    }
+    })().catch((e: unknown) => setOpened({ kind: 'failed', message: messageFor(e) }))
   }, [id, inspectionId, organizationId, userId, owner])
 
   if (!hive)
@@ -74,6 +71,8 @@ export default function InspectScreen() {
       />
     )
   }
+  if (opened?.kind === 'failed')
+    return <NotAvailable icon={ClipboardCheck} title={opened.message} />
   if (opened?.kind === 'missing') {
     return <NotAvailable icon={ClipboardCheck} title="Esta revisión ya no está en el teléfono." />
   }
@@ -103,7 +102,7 @@ export default function InspectScreen() {
       draft={opened.draft}
       apiaryName={hive.apiary_name ?? ''}
       hiveName={hive.name}
-      lastInspection={formatLastInspection(last?.inspected_at ?? null)}
+      lastInspection={formatLastInspection(latest?.inspection.inspected_at ?? null)}
       userId={userId}
       today={localDay()}
       onBack={() => router.back()}

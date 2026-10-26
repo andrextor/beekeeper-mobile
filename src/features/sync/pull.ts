@@ -55,6 +55,8 @@ async function purge(db: Db, organizationId: string): Promise<void> {
     )
   }
   await db.runAsync('delete from sync_state where organization_id = ?', [organizationId])
+  // Unfinished inspections of a lost finca could only be refused by the server.
+  await db.runAsync('delete from inspection_drafts where organization_id = ?', [organizationId])
 }
 
 /** Memberships are hard-deleted on the server, so the whole list is compared on every run. */

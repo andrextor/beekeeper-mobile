@@ -10,6 +10,7 @@ import { SyncChip } from '@/components/ui/SyncChip'
 import { Toast } from '@/components/ui/Toast'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
+import { useSession } from '@/features/auth/session'
 import { DraftCard, useDrafts } from '@/features/inspections/DraftCard'
 import { discardChange } from '@/features/sync/discard'
 import { PendingList } from '@/features/sync/PendingList'
@@ -32,7 +33,10 @@ function StatusChip({ status }: { status: SyncStatus }) {
 }
 
 function Header({ status }: { status: SyncStatus }) {
-  const drafts = useDrafts()
+  const { state } = useSession()
+  const drafts = useDrafts({
+    organizationId: state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : '',
+  })
   return (
     <View className="gap-4">
       <Text accessibilityRole="header" className="font-display text-title text-text">

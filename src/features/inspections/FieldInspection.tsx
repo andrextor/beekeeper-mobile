@@ -5,7 +5,9 @@ import { Pressable, ScrollView, Text, View } from 'react-native'
 
 import { ActionGrid } from '@/components/field/ActionGrid'
 import { FieldHeader } from '@/components/field/FieldHeader'
+import { FormError } from '@/components/ui/FormError'
 import { getDb } from '@/db/database'
+import { messageFor } from '@/lib/errors'
 import { successHaptic } from '@/lib/haptics'
 import { uuid } from '@/lib/ids'
 import { color, iconSize } from '@/lib/theme'
@@ -58,44 +60,49 @@ export function FieldInspection({
   const [open, setOpen] = useState(sessionOpen)
   const [problems, setProblems] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
+  const [failure, setFailure] = useState<string | null>(null)
   const scroll = useRef<ScrollView>(null)
   const positions = useRef<Partial<Record<SectionKey, number>>>({})
 
   // Autosave: the draft follows every change 300 ms later, and is flushed when the screen goes.
-  const pending = useRef<{ fields: InspectionDraft; notes: DraftNote[] } | null>(null)
+  // The latest values live in refs so two changes in one tick never save a stale half.
+  const latest = useRef({ fields: draft.fields, notes: draft.notes })
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const flush = () => {
+  const dirty = useRef(false)
+  const flush = async () => {
     if (timer.current) clearTimeout(timer.current)
     timer.current = null
-    const next = pending.current
-    pending.current = null
-    if (next) void getDb().then((db) => updateDraft(db, draft.id, next.fields, next.notes))
+    if (!dirty.current) return
+    dirty.current = false
+    const { fields: f, notes: n } = latest.current
+    await updateDraft(await getDb(), draft.id, f, n)
   }
-  const schedule = (next: { fields: InspectionDraft; notes: DraftNote[] }) => {
-    pending.current = next
+  const schedule = () => {
+    dirty.current = true
     if (timer.current) clearTimeout(timer.current)
-    timer.current = setTimeout(flush, autosaveMs)
+    timer.current = setTimeout(() => void flush(), autosaveMs)
   }
   // biome-ignore lint/correctness/useExhaustiveDependencies: flush once on unmount only
-  useEffect(() => () => flush(), [])
+  useEffect(() => () => void flush(), [])
 
   const change = (patch: Partial<InspectionDraft>) => {
-    const next = { ...fields, ...patch }
-    setFields(next)
-    schedule({ fields: next, notes })
+    latest.current = { ...latest.current, fields: { ...latest.current.fields, ...patch } }
+    setFields(latest.current.fields)
+    schedule()
   }
   const changeNotes = (next: DraftNote[]) => {
+    latest.current = { ...latest.current, notes: next }
     setNotes(next)
-    schedule({ fields, notes: next })
+    schedule()
   }
 
   const noteIn = (slot: number) => notes.find((n) => n.slot === slot)
   const saveNote = (slot: number, text: string) => {
-    const existing = noteIn(slot)
+    const current = latest.current.notes
     changeNotes(
-      existing
-        ? notes.map((n) => (n.slot === slot ? { ...n, text } : n))
-        : [...notes, { id: uuid(), slot, text, source: 'text', at: new Date().toISOString() }],
+      current.some((n) => n.slot === slot)
+        ? current.map((n) => (n.slot === slot ? { ...n, text } : n))
+        : [...current, { id: uuid(), slot, text, source: 'text', at: new Date().toISOString() }],
     )
     setSheet(null)
   }
@@ -103,10 +110,12 @@ export function FieldInspection({
   const finish = async () => {
     if (saving) return
     setSaving(true)
-    if (timer.current) clearTimeout(timer.current)
-    pending.current = null
+    setFailure(null)
     try {
-      const outcome = await finishDraft(await getDb(), { ...draft, fields, notes }, userId)
+      // Whatever Terminar decides, the draft first holds every tap made before it.
+      await flush()
+      const { fields: f, notes: n } = latest.current
+      const outcome = await finishDraft(await getDb(), { ...draft, fields: f, notes: n }, userId)
       if (!outcome.ok) {
         setProblems(outcome.problems)
         scroll.current?.scrollTo({ y: 0, animated: true })
@@ -114,6 +123,9 @@ export function FieldInspection({
       }
       successHaptic()
       onFinished(outcome.finished)
+    } catch (e) {
+      setFailure(`No se pudo guardar la revisión: ${messageFor(e)} Sigue en este borrador.`)
+      scroll.current?.scrollTo({ y: 0, animated: true })
     } finally {
       setSaving(false)
     }
@@ -152,6 +164,7 @@ export function FieldInspection({
         contentContainerClassName="gap-8 p-4 pb-16"
         keyboardShouldPersistTaps="handled"
       >
+        <FormError message={failure} />
         {Object.keys(problems).length ? (
           <View accessibilityRole="alert" className="gap-3 rounded-card border-2 border-danger p-4">
             <View className="flex-row items-center gap-2">
@@ -238,7 +251,7 @@ export function FieldInspection({
         onDelete={
           sheetSlot && noteIn(sheetSlot)
             ? () => {
-                changeNotes(notes.filter((n) => n.slot !== sheetSlot))
+                changeNotes(latest.current.notes.filter((n) => n.slot !== sheetSlot))
                 setSheet(null)
               }
             : !sheetSlot && fields.notes

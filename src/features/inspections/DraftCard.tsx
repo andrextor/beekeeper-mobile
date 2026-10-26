@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { useLocalQuery } from '@/db/useLocalQuery'
+import { messageFor } from '@/lib/errors'
 import { formatTime } from '@/lib/format'
 import { color, iconSize } from '@/lib/theme'
 import { discardDraft, getDraft, restoreDraft } from './drafts'
@@ -23,11 +24,12 @@ const draftsSql = (
   from inspection_drafts d left join hives h on h.id = d.hive_id ${where}
   order by d.created_at limit 50`
 
-/** Unfinished inspections on this phone; never dropped silently (spec M7 → Drafts). */
-export function useDrafts(hiveId?: string): DraftSummary[] {
+/** Unfinished inspections of one hive, or of the active finca; never dropped silently (spec M7). */
+export function useDrafts(scope: { hiveId: string } | { organizationId: string }): DraftSummary[] {
+  const byHive = 'hiveId' in scope
   return useLocalQuery<DraftSummary>(
-    draftsSql(hiveId ? 'where d.hive_id = ?' : ''),
-    hiveId ? [hiveId] : [],
+    draftsSql(byHive ? 'where d.hive_id = ?' : 'where d.organization_id = ?'),
+    [byHive ? scope.hiveId : scope.organizationId],
     ['inspection_drafts', 'hives'],
   ).rows
 }
@@ -38,7 +40,12 @@ export async function discardWithUndo(id: string): Promise<void> {
   const draft = await getDraft(db, id)
   if (!draft) return
   await discardDraft(db, id)
-  showToast('Revisión descartada', { onUndo: () => void restoreDraft(db, draft) })
+  showToast('Revisión descartada', {
+    onUndo: () =>
+      void restoreDraft(db, draft).catch((e: unknown) =>
+        showToast(`No se pudo deshacer: ${messageFor(e)}`, { tone: 'danger' }),
+      ),
+  })
 }
 
 type Props = { draft: DraftSummary; showHive?: boolean; onContinue: () => void }
