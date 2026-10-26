@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-26
+
+### Added
+
+- Sign-up and sign-in with email + password; the session is encrypted on the phone (AES key in SecureStore) and survives weeks offline.
+- Onboarding: **Crear mi finca** or **Tengo un código** (an invite code typed or pasted from WhatsApp, the dash inserted automatically).
+- Finca switcher with each role, Perfil (email, your name, finca, version) and sign-out that erases the phone's data after a warning.
+- Spanish messages for every Auth, RPC, unique, check and permission error in `api.md` (`src/lib/errors.ts`, shared by later modules).
+- An account deactivated by the platform admin sees "Esta cuenta está desactivada."; signing in with another account erases what the previous one left on the phone.
+
 ## [0.1.0] - 2026-10-26
 
 ### Added

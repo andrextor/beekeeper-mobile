@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
+import { SessionProvider, useSession } from '@/features/auth/session'
 import { color } from '@/lib/theme'
 
 SplashScreen.preventAutoHideAsync()
@@ -24,7 +25,23 @@ export default function RootLayout() {
     PlusJakartaSans_600SemiBold,
     PlusJakartaSans_700Bold,
   })
-  const ready = loaded || error !== null
+  const fontsReady = loaded || error !== null
+
+  return (
+    <SafeAreaProvider>
+      <StatusBar style="dark" />
+      <SessionProvider>
+        <RootNavigator fontsReady={fontsReady} />
+      </SessionProvider>
+    </SafeAreaProvider>
+  )
+}
+
+/** The tabs layout redirects to the right entry screen; (auth) guards its own screens. */
+function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
+  const { state } = useSession()
+  const ready = fontsReady && state.status !== 'loading'
+  const hasFincas = state.status === 'signedIn' && state.memberships.length > 0
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync()
@@ -33,11 +50,13 @@ export default function RootLayout() {
   if (!ready) return null
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="dark" />
-      <Stack
-        screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bgSoft } }}
-      />
-    </SafeAreaProvider>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bgSoft } }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Protected guard={hasFincas}>
+        <Stack.Screen name="organizations" options={{ presentation: 'modal' }} />
+      </Stack.Protected>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="_design" />
+    </Stack>
   )
 }

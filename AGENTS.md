@@ -42,7 +42,7 @@ The beekeeper wears a suit, a veil and gloves, stands in strong sun, and often h
 - An organization is a **finca** in every Spanish text (same word as the admin; Iván, 2026-10-25); code keeps `organization`. An apiary (`apiario`) is a site inside a finca.
 - Comments only for non-obvious logic. TypeScript strict, no `any` (`unknown` + type guards or Zod).
 - Biome lints and formats (2 spaces, single quotes, no semicolons). Styling with NativeWind (Tailwind) classes on `DESIGN.md` tokens; no inline hex.
-- pnpm only (`node-linker=hoisted` in `.npmrc`, as Expo requires). No dependency added, removed or upgraded without approval; Expo modules are installed with `pnpm expo install` so versions match the SDK.
+- pnpm only (`nodeLinker: hoisted` in `pnpm-workspace.yaml`, as Expo requires; pnpm 12 ignores `node-linker` in `.npmrc`). No dependency added, removed or upgraded without approval; Expo modules are installed with `pnpm expo install` so versions match the SDK.
 - **The second copy is the extraction.**
 
 ## Security boundaries

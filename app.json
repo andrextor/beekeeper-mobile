@@ -2,7 +2,7 @@
   "expo": {
     "name": "Landak Apiario",
     "slug": "landak-apiario",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "landak",
@@ -28,11 +28,23 @@
           "imageWidth": 96
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "d89ae7ab-acdc-4c2c-b987-3064f1553a9e"
+      }
+    },
+    "owner": "andrextors-team"
   }
 }

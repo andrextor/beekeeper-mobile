@@ -33,7 +33,7 @@ The repo is empty. Every later module needs the app shell, the route tree, the d
 | Validation | `zod` |
 | Tests | `jest-expo` for pure logic (`*.test.ts` next to the file) |
 | Lint/format | Biome (same settings as `beekeeper`) |
-| Package manager | pnpm with `node-linker=hoisted` in `.npmrc` |
+| Package manager | pnpm with `nodeLinker: hoisted` in `pnpm-workspace.yaml` (pnpm 12 ignores it in `.npmrc`) |
 
 Local database, Supabase client and sync are M2/M3; this module adds none of them.
 

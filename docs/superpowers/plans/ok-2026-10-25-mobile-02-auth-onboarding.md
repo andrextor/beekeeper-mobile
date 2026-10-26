@@ -1,6 +1,6 @@
 # M2 · Sign-in and onboarding — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-02-auth-onboarding-design.md` · Branch: `feat/m2-auth-onboarding` · Status: **awaiting OK**
+Spec: `docs/superpowers/specs/2026-10-25-mobile-02-auth-onboarding-design.md` · Branch: `feat/m2-auth-onboarding` · Status: **approved** (Iván, 2026-10-26)
 
 New dependencies (approval asked here): `@supabase/supabase-js`, `expo-secure-store`, `@react-native-async-storage/async-storage`, `expo-crypto` (random bytes + UUIDs), `aes-js` (as in the Supabase docs' LargeSecureStore), `react-native-get-random-values` if `supabase-js` needs it on the chosen SDK.
 

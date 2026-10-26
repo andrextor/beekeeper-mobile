@@ -19,6 +19,14 @@ describe('formatRelative', () => {
     expect(formatRelative('2026-10-21T15:00:00Z', now)).toBe('hace 5 días')
   })
 
+  it('says now, the singular and the future in Spanish', () => {
+    expect(formatRelative('2026-10-26T15:00:10Z', now)).toBe('ahora')
+    expect(formatRelative('2026-10-26T14:59:00Z', now)).toBe('hace 1 minuto')
+    expect(formatRelative('2026-10-26T14:00:00Z', now)).toBe('hace 1 hora')
+    expect(formatRelative('2026-10-26T17:00:00Z', now)).toBe('dentro de 2 horas')
+    expect(formatRelative('2026-10-27T15:00:00Z', now)).toBe('mañana')
+  })
+
   it('switches to the absolute date from seven days on', () => {
     expect(formatRelative('2026-10-19T15:00:00Z', now)).toBe(formatDate('2026-10-19T15:00:00Z'))
   })

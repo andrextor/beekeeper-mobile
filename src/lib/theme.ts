@@ -15,6 +15,6 @@ export const color = {
   bgSoft: colors.stone['50'],
 } as const
 
-export const iconSize = { standard: 24, field: 36, scan: 56 } as const
+export const iconSize = { standard: 24, field: 36, scan: 56, state: 56, hero: 64 } as const
 
 export const iconStroke = { standard: 2, field: 2.25 } as const
