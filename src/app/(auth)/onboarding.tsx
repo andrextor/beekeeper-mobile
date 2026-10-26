@@ -1,0 +1,142 @@
+import { Redirect, router, useLocalSearchParams } from 'expo-router'
+import { Hexagon, KeyRound } from 'lucide-react-native'
+import { useState } from 'react'
+import { Pressable, Text, View } from 'react-native'
+
+import { Button } from '@/components/ui/Button'
+import { Screen } from '@/components/ui/Screen'
+import { TextField } from '@/components/ui/TextField'
+import { createOrganization, updateDisplayName } from '@/features/auth/organizations'
+import { useSession } from '@/features/auth/session'
+import { messageFor } from '@/lib/errors'
+import { uuid } from '@/lib/ids'
+import { color, iconSize } from '@/lib/theme'
+
+export default function OnboardingScreen() {
+  const { state, refreshMemberships, setActiveOrganization } = useSession()
+  const { add } = useLocalSearchParams<{ add?: string }>()
+  const [creating, setCreating] = useState(add === '1')
+
+  if (state.status !== 'signedIn') return null
+  // Someone who already has a finca lands here only to add another one.
+  if (state.memberships.length > 0 && add !== '1') {
+    return <Redirect href={state.activeOrganizationId ? '/' : '/organizations'} />
+  }
+
+  if (creating) {
+    return (
+      <CreateFinca
+        userId={state.session.user.id}
+        email={state.session.user.email ?? ''}
+        onCreated={async (id) => {
+          await refreshMemberships()
+          await setActiveOrganization(id)
+          router.replace('/apiaries')
+        }}
+      />
+    )
+  }
+
+  return (
+    <Screen>
+      <Text accessibilityRole="header" className="font-display text-title text-text">
+        Empecemos
+      </Text>
+      <Choice
+        icon={Hexagon}
+        title="Crear mi finca"
+        body="Soy el apicultor: registro mis apiarios y colmenas."
+        onPress={() => setCreating(true)}
+      />
+      <Choice
+        icon={KeyRound}
+        title="Tengo un código"
+        body="Alguien me invitó a su finca y me envió un código."
+        onPress={() => router.push('/join')}
+      />
+    </Screen>
+  )
+}
+
+function Choice({
+  icon: Icon,
+  title,
+  body,
+  onPress,
+}: {
+  icon: typeof Hexagon
+  title: string
+  body: string
+  onPress: () => void
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      className="min-h-tile flex-row items-center gap-4 rounded-card border-2 border-border bg-surface p-4 active:opacity-80"
+    >
+      <View className="size-target items-center justify-center rounded-full bg-accent">
+        <Icon color={color.onAccent} size={iconSize.standard} />
+      </View>
+      <View className="flex-1 gap-1">
+        <Text className="font-display text-section text-text">{title}</Text>
+        <Text className="font-sans text-body text-muted">{body}</Text>
+      </View>
+    </Pressable>
+  )
+}
+
+function CreateFinca({
+  userId,
+  email,
+  onCreated,
+}: {
+  userId: string
+  email: string
+  onCreated: (id: string) => Promise<void>
+}) {
+  const [id] = useState(uuid)
+  const [name, setName] = useState(`Finca de ${email.split('@')[0] ?? ''}`)
+  const [displayName, setDisplayName] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const trimmed = name.trim()
+  const submit = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      if (displayName.trim()) await updateDisplayName(userId, displayName.trim())
+      await onCreated(await createOrganization(id, trimmed))
+    } catch (e) {
+      setError(messageFor(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Screen>
+      <Text accessibilityRole="header" className="font-display text-title text-text">
+        Crea tu finca
+      </Text>
+      <Text className="font-sans text-body text-muted">
+        Es el nombre de tu explotación apícola. Podrás invitar revisores después.
+      </Text>
+      <TextField label="Nombre" value={name} onChangeText={setName} maxLength={120} />
+      <TextField
+        label="Tu nombre (opcional)"
+        value={displayName}
+        onChangeText={setDisplayName}
+        autoComplete="name"
+        maxLength={80}
+      />
+      {error ? (
+        <Text accessibilityRole="alert" className="font-sans-semibold text-body text-danger">
+          {error}
+        </Text>
+      ) : null}
+      <Button label="Crear mi finca" loading={busy} disabled={!trimmed} onPress={submit} />
+    </Screen>
+  )
+}
