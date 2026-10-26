@@ -15,6 +15,7 @@ import { updateDisplayName } from '@/features/auth/organizations'
 import { RoleBadge } from '@/features/auth/RoleBadge'
 import { signOut, useSession } from '@/features/auth/session'
 import { pendingCount } from '@/features/sync/pending'
+import { syncNow } from '@/features/sync/triggers'
 import { isNetworkError, messageFor } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
 
@@ -149,7 +150,14 @@ export default function ProfileScreen() {
         </Text>
         <FormError message={signOutError} />
         {signOutPending ? (
-          <Button label="Sincronizar primero" onPress={() => setSignOutPending(null)} />
+          <Button
+            label="Sincronizar primero"
+            onPress={() => {
+              setSignOutPending(null)
+              void syncNow()
+              router.navigate('/pending')
+            }}
+          />
         ) : (
           <Button variant="secondary" label="Cancelar" onPress={() => setSignOutPending(null)} />
         )}

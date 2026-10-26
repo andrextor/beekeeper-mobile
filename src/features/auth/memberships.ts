@@ -1,38 +1,34 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as SecureStore from 'expo-secure-store'
-import { z } from 'zod'
 
-import { supabase } from '@/lib/supabase'
+import {
+  fetchMemberships as fetchServerMemberships,
+  type Membership,
+  parseMemberships,
+} from '@/features/sync/members'
 import { registerWipe } from '@/lib/wipe'
 
-const membershipSchema = z.object({
-  organization_id: z.string(),
-  organization_name: z.string(),
-  role: z.enum(['owner', 'reviewer']),
-})
-const membershipsSchema = z.array(membershipSchema)
-
-export type Membership = z.infer<typeof membershipSchema>
-export type Role = Membership['role']
+export type { Membership, Role } from '@/features/sync/members'
 
 const cacheKey = 'memberships'
 const activeKey = 'active_organization_id'
 
 /** Server list, cached so the app opens offline with the last known fincas and roles. */
 export async function fetchMemberships(): Promise<Membership[]> {
-  const { data, error } = await supabase.rpc('my_memberships')
-  if (error) throw error
-  const memberships = membershipsSchema.parse(data)
-  await AsyncStorage.setItem(cacheKey, JSON.stringify(memberships))
+  const memberships = await fetchServerMemberships()
+  await cacheMemberships(memberships)
   return memberships
+}
+
+export async function cacheMemberships(memberships: Membership[]): Promise<void> {
+  await AsyncStorage.setItem(cacheKey, JSON.stringify(memberships))
 }
 
 export async function cachedMemberships(): Promise<Membership[]> {
   const raw = await AsyncStorage.getItem(cacheKey)
   if (!raw) return []
   try {
-    const parsed = membershipsSchema.safeParse(JSON.parse(raw))
-    return parsed.success ? parsed.data : []
+    return parseMemberships(JSON.parse(raw))
   } catch {
     return []
   }

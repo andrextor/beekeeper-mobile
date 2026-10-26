@@ -10,10 +10,12 @@ import {
   useState,
 } from 'react'
 
+import { onMembershipsPulled } from '@/features/sync/members'
 import { supabase } from '@/lib/supabase'
 import { wipeLocalData } from '@/lib/wipe'
 import {
   cachedMemberships,
+  cacheMemberships,
   fetchMemberships,
   type Membership,
   pickActive,
@@ -120,6 +122,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     })
     return () => data.subscription.unsubscribe()
   }, [enter])
+
+  // Every full sync reloads the memberships: a lost finca or a new role shows without a restart.
+  useEffect(
+    () =>
+      onMembershipsPulled((memberships) => {
+        void orElse(cacheMemberships(memberships), undefined)
+        setState((s) =>
+          s.status === 'signedIn'
+            ? {
+                ...s,
+                memberships,
+                activeOrganizationId: pickActive(memberships, s.activeOrganizationId),
+              }
+            : s,
+        )
+      }),
+    [],
+  )
 
   const refreshMemberships = useCallback(async (strict = false) => {
     const memberships = strict ? await fetchMemberships() : await loadMemberships()
