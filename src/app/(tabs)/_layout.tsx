@@ -15,7 +15,9 @@ import { color, iconSize, iconStroke } from '@/lib/theme'
 
 const tabIcon =
   (Icon: LucideIcon) =>
-  ({ color: tint }: { color: string }) => <Icon color={tint} size={iconSize.standard} />
+  ({ focused }: { focused: boolean }) => (
+    <Icon color={focused ? color.primary : color.muted} size={iconSize.standard} />
+  )
 
 /** DESIGN.md: the center tab is a 72-dp honey circle that rises above the bar. */
 function ScanTabButton({ onPress, accessibilityState }: BottomTabBarButtonProps) {
