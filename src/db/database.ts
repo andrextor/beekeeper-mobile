@@ -1,4 +1,10 @@
-import { deleteDatabaseAsync, openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite'
+import * as Sharing from 'expo-sharing'
+import {
+  defaultDatabaseDirectory,
+  deleteDatabaseAsync,
+  openDatabaseAsync,
+  type SQLiteDatabase,
+} from 'expo-sqlite'
 
 import { registerWipe } from '@/lib/wipe'
 import { type Db, type SqlValue, serialized } from './db'
@@ -23,8 +29,22 @@ async function open() {
       native.getFirstAsync<T>(sql, params),
     transaction: serialized((task) => native.withTransactionAsync(task)),
   }
-  await migrate(db)
+  try {
+    await migrate(db)
+  } catch (error) {
+    // The failed step rolled back; fold the WAL into the file so "Enviar respaldo" carries everything.
+    await native.execAsync('pragma wal_checkpoint(truncate)').catch(() => {})
+    await native.closeAsync().catch(() => {})
+    throw error
+  }
   return { native, db }
+}
+
+/** The database file itself, for Iván to recover when an update cannot migrate it. */
+export async function shareDatabase(): Promise<void> {
+  const dir = String(defaultDatabaseDirectory)
+  const uri = `${dir.startsWith('file://') ? dir : `file://${dir}`}/${name}`
+  await Sharing.shareAsync(uri, { mimeType: 'application/x-sqlite3', dialogTitle: 'Respaldo' })
 }
 
 /** The app's local database, opened and migrated once. */

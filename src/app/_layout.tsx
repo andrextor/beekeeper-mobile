@@ -9,10 +9,12 @@ import { useFonts } from 'expo-font'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
+import { DbError } from '@/components/ui/DbError'
 import { ToastHost } from '@/components/ui/ToastHost'
+import { getDb, shareDatabase } from '@/db/database'
 import { SessionProvider, useSession } from '@/features/auth/session'
 import { color } from '@/lib/theme'
 
@@ -44,12 +46,21 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
   const { state } = useSession()
   const ready = fontsReady && state.status !== 'loading'
   const hasFincas = state.status === 'signedIn' && state.memberships.length > 0
+  const [dbFailed, setDbFailed] = useState(false)
+
+  // A migration that fails after an update must stop the app here, not on every screen.
+  const openDb = useCallback(() => {
+    setDbFailed(false)
+    getDb().catch(() => setDbFailed(true))
+  }, [])
+  useEffect(openDb, [openDb])
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync()
   }, [ready])
 
   if (!ready) return null
+  if (dbFailed) return <DbError onShare={() => void shareDatabase()} onRetry={openDb} />
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bgSoft } }}>

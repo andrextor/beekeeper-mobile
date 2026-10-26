@@ -69,4 +69,49 @@ describe('local migrations', () => {
       created_at: null,
     })
   })
+
+  it('keeps unsent rows and an open draft through every step from version 1', async () => {
+    const db = openTestDb()
+    await migrate(db, migrations.slice(0, 1))
+    await db.execAsync(`
+      insert into apiaries (id, organization_id, name) values ('a', 'o', 'La Loma');
+      insert into hives (id, organization_id, apiary_id, name, qr_code) values ('h', 'o', 'a', 'C-01', 'K7M29QXA');
+      insert into inspections (id, organization_id, hive_id, inspected_at, source)
+        values ('i', 'o', 'h', '2026-10-20T10:00:00.000Z', 'manual');
+      insert into outbox (id, table_name, row_id, payload, created_at, next_attempt_at) values
+        ('1', 'apiaries', 'a', '{"organization_id":"o"}', '2026-10-20', '2026-10-20'),
+        ('2', 'hives', 'h', '{"organization_id":"o"}', '2026-10-20', '2026-10-20'),
+        ('3', 'inspections', 'i', '{"organization_id":"o"}', '2026-10-20', '2026-10-20');
+    `)
+    await migrate(db, migrations.slice(0, 2))
+    await db.runAsync(
+      `insert into inspection_drafts (id, organization_id, hive_id, payload, notes, created_at, updated_at)
+       values ('d', 'o', 'h', '{"queen_seen":true}', '[]', '2026-10-20', '2026-10-20')`,
+    )
+
+    for (let step = 3; step <= migrations.length; step++) {
+      await migrate(db, migrations.slice(0, step))
+    }
+
+    expect(await db.getFirstAsync('pragma user_version')).toEqual({
+      user_version: migrations.length,
+    })
+    expect(await db.getAllAsync('select id, name from apiaries')).toEqual([
+      { id: 'a', name: 'La Loma' },
+    ])
+    expect(await db.getAllAsync('select id, qr_code from hives')).toEqual([
+      { id: 'h', qr_code: 'K7M29QXA' },
+    ])
+    expect(await db.getAllAsync('select id, inspected_at from inspections')).toEqual([
+      { id: 'i', inspected_at: '2026-10-20T10:00:00.000Z' },
+    ])
+    expect(await db.getAllAsync('select id, state from outbox order by id')).toEqual([
+      { id: '1', state: 'pending' },
+      { id: '2', state: 'pending' },
+      { id: '3', state: 'pending' },
+    ])
+    expect(await db.getAllAsync('select id, payload from inspection_drafts')).toEqual([
+      { id: 'd', payload: '{"queen_seen":true}' },
+    ])
+  })
 })
