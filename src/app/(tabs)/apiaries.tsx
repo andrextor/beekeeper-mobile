@@ -62,7 +62,7 @@ export default function ApiariesScreen() {
             ) : null}
           </View>
         }
-        ListEmptyComponent={loading ? null : empty}
+        ListEmptyComponent={loading ? undefined : empty}
         renderItem={({ item }) => (
           <ApiaryListItem
             apiary={item}
