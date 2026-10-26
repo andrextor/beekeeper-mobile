@@ -30,24 +30,24 @@ A tile whose note slot is filled shows a check badge and the first words; tappin
 
 3. Structured fields, grouped in collapsible sections (all open by default, state remembered per user):
 
-| Section | Field (B4 column) | Control | Values (Spanish label) |
+| Section | Field (B4 column) | Control | Values (Spanish label, from `lib/labels.ts` = `api.md` → Inspections; the 1–5 scale words are app-only) |
 |---------|-------------------|---------|------------------------|
 | Colonia | `population_strength` | `ScaleField` 1–5 | 1 Muy débil · 2 Débil · 3 Normal · 4 Fuerte · 5 Muy fuerte |
-| | `temperament` | `ScaleField` 1–5 | 1 Muy mansa · 2 Mansa · 3 Normal · 4 Defensiva · 5 Muy defensiva |
+| | `temperament` | `ScaleField` 1–5 | 1 Mansa · 2 Tranquila · 3 Normal · 4 Defensiva · 5 Muy defensiva |
 | | `queen_seen` | `TriStateField` | Sí · No · No revisado |
 | | `eggs_seen` | `TriStateField` | Sí · No · No revisado |
 | | `larvae_seen` | `TriStateField` | Sí · No · No revisado |
-| | `queen_cells` | `ChipSelect` single | Ninguna · Enjambrazón · Reemplazo · No revisado |
+| | `queen_cells` | `ChipSelect` single | Ninguna · De enjambrazón · De reemplazo · No revisado |
 | Cría y reservas | `brood_frames` | `StepperField` 0–40 | — |
 | | `brood_pattern` | `ChipSelect` single | Compacta · Salteada · No revisado |
 | | `honey_frames` | `StepperField` 0–40 | — |
 | | `pollen_frames` | `StepperField` 0–40 | — |
-| | `stores` | `ChipSelect` single | Bajas · Normales · Altas · No revisado |
-| Sanidad | `varroa_method` | `ChipSelect` single | Lavado con alcohol · Azúcar glas · Lámina adhesiva · Visual |
+| | `stores` | `ChipSelect` single | Pocas · Suficientes · Abundantes · No revisado |
+| Sanidad | `varroa_method` | `ChipSelect` single | Lavado con alcohol · Azúcar glas · Bandeja adhesiva · Visual |
 | | `varroa_sample_size` | `StepperField` (step 50, default 300 for wash/roll; hidden for board/visual) | — |
 | | `varroa_count` | `StepperField` 0–999 | — + live "Carga: 2,3 %" when sample size set |
-| | `pests` | `ChipSelect` multi | Polilla de la cera · Pequeño escarabajo · Hormigas · Avispas · Ratones · Otra |
-| | `disease_signs` | `ChipSelect` multi | Cría yesada · Cría ensacada · Signos de loque · Alas deformes · Disentería · Abejas muertas · Otro — section caption: "Signos observados, no es un diagnóstico" |
+| | `pests` | `ChipSelect` multi | Polilla de la cera · Escarabajo de la colmena · Hormigas · Avispas · Ratones · Otra |
+| | `disease_signs` | `ChipSelect` multi | Cría yesificada · Cría ensacada · Signos de loque · Alas deformes · Diarrea · Abejas muertas · Otro — section caption: "Signos observados, no es un diagnóstico" |
 | Trabajo | `attention_level` | `ChipSelect` single | Sin novedad · Pronto · Urgente |
 | | `next_inspection_on` | `ChipSelect` single + `StepperField` | En 7 días · En 14 días · En 21 días · Otro (stepper of days 1–90) → date shown "mar 4 nov" |
 | | `weather` | `ChipSelect` single | Soleado · Nublado · Lluvia · Viento |
@@ -70,17 +70,23 @@ Every field starts **unset** (null). Tapping the selected chip again clears it. 
 
 Local-only table (SQLite migration in this module, never synced):
 
+Migration `src/db/migrations/0002_inspection_drafts.ts`:
+
 ```sql
 inspection_drafts (
-  id text primary key,          -- the future inspection id (uuid), so photos (M9) can link to it
+  id text primary key,          -- the inspection id (uuid), so photos (M9) can link to it
   organization_id text not null,
-  hive_id text not null unique, -- one open draft per hive per phone
+  hive_id text not null,
+  is_edit integer not null default 0, -- 1 = editing an inspection already saved
   payload text not null,        -- JSON of the inspection fields
-  notes text not null,          -- JSON array [{ slot, text, source }]
+  notes text not null,          -- JSON array [{ id, slot, text, source }]; note ids are kept so an edit updates the same events
   created_at text not null,
   updated_at text not null
-)
+);
+create unique index inspection_drafts_new_per_hive on inspection_drafts (hive_id) where is_edit = 0;
 ```
+
+One **new** draft per hive per phone; an edit draft (`hive/[id]/inspect?inspectionId=`) copies the saved row and its notes and can coexist with it. Terminar on an edit upserts the same ids; a removed note is soft-deleted.
 
 - Autosave on every change (debounced 300 ms; one `update`).
 - Opening field mode on a hive with a draft resumes it with a toast "Continuando la revisión de las 9:40".
@@ -96,7 +102,7 @@ Note sheet (`src/features/inspections/NoteSheet.tsx`): big multi-line text field
 1. Zod validate; problems are listed inline at the top with "Ir al campo" links (no dialog).
 2. One local transaction (`saveLocal` from M3): insert `inspections` row + one `hive_events` note per filled slot + outbox entries + delete the draft.
 3. Success haptic, toast "Guardado en este dispositivo" (3 s) with **Deshacer**, return to the hive screen.
-4. Deshacer: if the outbox entries have not been pushed, remove the rows and entries and restore the draft; if already pushed, set `deleted_at` on the inspection and its notes (soft delete, synced) and restore the draft.
+4. Deshacer: if the outbox entries have not been pushed, remove the rows and entries and restore the draft; if already pushed, soft-delete the inspection (M3 cascades to its notes and photos locally, B4 on the server) and restore the draft with the same ids. Finishing it again upserts the inspection with `deleted_at = null` and re-upserts its notes and photos explicitly (B4: restoring an inspection does not restore its children).
 5. An inspection with no field set and no notes still saves (the visit itself is information); Terminar label stays the same.
 
 ### Device behavior
@@ -112,8 +118,8 @@ Note sheet (`src/features/inspections/NoteSheet.tsx`): big multi-line text field
 
 ## Security constraints
 
-- Edits of a saved inspection (from M6's read view) are allowed to the author or an owner, mirroring B4 RLS; anything else would be refused by the server and marked "Requiere atención".
-- `created_by` / `inspected_by` are set from the session, never from a picker (B3 `force_author`, B4 `not_member`).
+- Edits of a saved inspection (from M6's read view) are allowed to the author (`created_by`) or an owner, mirroring B4 RLS; anything else would be refused by the server (`42501` on upsert) and marked "Requiere atención".
+- `created_by` is set by the server (`force_author`) and stripped from pushes; `inspected_by` is the session user, never from a picker; if that user left the organization before the push, B4 answers `not_member` (permanent, "Requiere atención").
 
 ## Field use
 

@@ -4,11 +4,11 @@ Date: 2026-10-25 · Branch: `feat/m6-hive-timeline` · Status: **awaiting OK** �
 
 ## Problem
 
-After scanning, the beekeeper needs in five seconds: what happened last time, whether something is pending, and one big button to start the inspection. The whole history must be readable offline.
+After scanning, the beekeeper needs in five seconds: what happened last time, whether something is pending, and one big button to start the inspection. The whole history must be readable offline. And on opening the app, Inicio must say which hives need a visit.
 
 ## Decisions
 
-### Screen `src/app/hive/[id].tsx`
+### Screen `src/app/hive/[id]/index.tsx` (M4 built the facts part)
 
 Top to bottom:
 
@@ -28,31 +28,47 @@ Owner extra actions in a header menu: Editar colmena (M4), Etiqueta QR / Cambiar
 
 `src/features/hives/timeline.ts`:
 
-- Two local queries per page, each `limit 30` with a `before` cursor (`inspected_at` / `occurred_at` < cursor), `deleted_at is null`: `inspections where hive_id = ?` and `hive_events where hive_id = ?` (note events linked to an inspection are grouped under it, not shown as separate items).
-- Merge by date desc, take 30, the last item's date is the next cursor. "Cargar más" button at the end (no infinite scroll: easier with gloves, bounded work).
+- Two local queries per page, each `limit 30` with a `(at, id)` cursor, `deleted_at is null`: `inspections where hive_id = ? and (inspected_at, id) < (?, ?)` and `hive_events where hive_id = ? and (occurred_at, id) < (?, ?)` (note events linked to an inspection are grouped under it, not shown as separate items).
+- Merge by `(at desc, id desc)`, take 30; the last item's `at` and `id` are the next cursor (same order and tie-break as `hive_timeline`: an event recorded during an inspection often shares its timestamp, so a date-only cursor would drop or repeat items). "Cargar más" button at the end (no infinite scroll: easier with gloves, bounded work).
 - Each item carries its sync state (pending / synced / requires attention) from the outbox.
 
-### Summary lines (`src/features/hives/summary.ts`, pure, tested)
+### Summary lines (`src/lib/inspection-summary.ts`, `src/lib/event-summary.ts`, pure, tested)
+
+**Ported from the admin** (`../beekeeper/admin/src/lib/inspection-summary.ts`, `event-summary.ts`, with their tests), same parts, order and labels, so the phone and the panel read the same line:
 
 | Kind | Example line |
 |------|--------------|
-| Inspection | "Fuerza 4 · Reina vista · 3 cuadros de cría · Reservas bajas" (order: strength, queen, brood frames, stores, then varroa %, pests count; max 4 parts; `not_checked` → "Reina no revisada"; null → omitted) |
-| `feeding` | "Alimentación · Jarabe 1:1 · 2 l" |
-| `treatment` | "Tratamiento · Ácido oxálico · goteo · retiro 0 días" |
-| `queen_change` | "Cambio de reina · 2026 · blanca" |
-| `harvest` | "Cosecha · Miel · 12 kg" |
-| `split` / `merge` / `transfer` / `swarm` / `loss` | "División", "Unión", "Traslado", "Enjambre capturado" / "Enjambre perdido", "Pérdida · Hambre" |
-| `note` (standalone) | first 80 characters of `details.text` |
-| `qr_relabel` | "Cambio de etiqueta QR" |
+| Inspection | "Fuerza 4 · Reina vista · 3 cuadros de cría · Reservas: Pocas" (then varroa, pests, signs; nulls and `not_checked` stores omitted; nothing recorded → "Sin datos registrados") |
+| `feeding` | "Alimentación · Jarabe de azúcar 1:1 · 2 l" |
+| `treatment` | "Tratamiento · Apivar · Tiras · Retiro: 0 días · Hasta el 30 nov 2026" |
+| `queen_change` | "Cambio de reina · Reina 2026 · Blanco … · Comprada · Planificado" |
+| `harvest` | "Cosecha · Miel · 12 kg · 2 alzas" |
+| `swarm` / others | "Enjambre · Capturado"; split, merge and transfer show only the type (ids are not resolved) |
+| `note` (standalone) | "Nota · <text>" (the row truncates visually at 2 lines) |
+| `qr_relabel` | "Cambio de etiqueta QR · V1C01A7K2M → …" |
 | unknown type / missing keys | "Evento" / the parts it can read; never throws |
 
-Labels come from `src/lib/labels.ts` (M4), which mirrors `../beekeeper/docs/api.md`. The admin keeps its own copy in another repo (accepted: two repos, one contract; both test every enum value).
+`inspectionFields()` (the read view's label/value list) is ported too.
 
-Tap an inspection → `src/app/inspection/[id].tsx` read view: every recorded field with its label, `not_checked` as "No revisado", nulls hidden, transcript in a quote block, notes, photos. Edit button only for the author or an owner (B4 RLS), opening field mode (M7) on a copy.
+Labels come from `src/lib/labels.ts` (M1), which mirrors `../beekeeper/docs/api.md`. The summaries live in `src/lib/inspection-summary.ts` and `src/lib/event-summary.ts` (same names as the admin's `admin/src/lib/`), because `features/hives`, `features/inspections` and `features/events` (M10) all render them and features do not import each other. The admin keeps its own copy in another repo (accepted: two repos, one contract; both test every enum value).
+
+Tap an inspection → `src/app/inspection/[id].tsx` read view: every recorded field with its label, `not_checked` as "No revisado", nulls hidden, transcript in a quote block, notes, photos. Edit button only for the author (`created_by`) or an owner (B4 RLS), opening field mode (M7) as `hive/[id]/inspect?inspectionId=`.
+
+Author names come from `profiles_cache`; a missing profile (a member who left; `author_name = null` from the RPC) shows "Antiguo miembro".
 
 ### Server fallback for history not on the phone yet
 
-The first sync of an organization pulls everything (M3), so history is normally local. Until the active organization's first full pull has finished (`sync_state.initial_pull_done = false`) and the phone is online, the timeline calls `rpc('hive_timeline', { p_hive_id, p_before, p_limit: 30 })` (B4) instead, with a banner "Mostrando historial del servidor mientras se descarga". Offline in that state → local items plus "Parte del historial aún no está en este teléfono".
+The first sync of an organization pulls everything (M3), so history is normally local. Until the active organization's first full pull has finished (`sync_state.initial_pull_done = 0` for any of its tables, M3) and the phone is online, the timeline calls `rpc('hive_timeline', { p_hive_id, p_before, p_before_id, p_limit: 30 })` (B4) instead, with a banner "Mostrando historial del servidor mientras se descarga". Offline in that state → local items plus "Parte del historial aún no está en este teléfono".
+
+### Inicio tab (`src/app/(tabs)/index.tsx`)
+
+Local only, active organization, hives with `status = 'active'` and `deleted_at is null` (a dead or sold hive needs no visit; children of deleted hives are hidden everywhere):
+
+1. **Para revisar**: hives whose latest inspection (B4 `hive_open_tasks` rule: latest non-deleted, ties by highest `id`) has `attention_level` `urgent` or `soon`, or `next_inspection_on` ≤ today. Urgent first, then most overdue. Item: hive name, apiary, reason ("Urgente", "Revisión atrasada 3 días"), 56 dp, opens the hive.
+2. **Tareas**: the same latest inspections' `planned_actions` grouped by action ("Alimentar · 4 colmenas"), tap → list of those hives. Older inspections' actions are history, not tasks.
+3. **Última actividad**: the 5 most recent inspections and events of the organization, with their summary line.
+
+Empty state: "Todo al día" with "Escanear colmena" (72 dp). `src/features/hives/home.ts` (pure: `hivesToVisit(latestInspections, today)`, `openTasks(latestInspections)`) + test. Bounded: one query for the latest inspection per hive (window function), limit 50 per section with "Ver todas".
 
 ## Rejected alternatives
 
@@ -75,7 +91,8 @@ The server fallback runs under RLS (`hive_timeline` is `security invoker`). Edit
 - `inspections` (B4): `hive_id`, `inspected_at`, `inspected_by`, `source`, `transcript`, `population_strength`, `queen_seen`, `brood_frames`, `stores`, `varroa_*`, `pests`, `attention_level`, `next_inspection_on`, `deleted_at`.
 - `hive_events` (B4): `type`, `occurred_at`, `inspection_id`, `details` shapes per type.
 - `hives` (B3) facts; `profiles.display_name` for authors (B2, readable for co-members).
-- RPC `hive_timeline(p_hive_id, p_before, p_limit)` (B4).
+- RPC `hive_timeline(p_hive_id, p_before, p_before_id, p_limit)` (B4), rows `{ kind, id, at, created_by, author_name, data }`.
+- View `hive_open_tasks` semantics (B4), computed locally for Inicio: the latest non-deleted inspection per hive, ties by highest `id`.
 
 ## Out of scope
 

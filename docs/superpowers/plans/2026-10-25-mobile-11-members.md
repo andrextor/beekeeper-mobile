@@ -5,9 +5,9 @@ Spec: `docs/superpowers/specs/2026-10-25-mobile-11-members-design.md` · Branch:
 No new dependencies (`Share` is part of React Native).
 
 1. **API + errors** — `src/features/members/api.ts` (typed wrappers for the five RPCs + members/invites selects), `src/features/members/errors.ts` + `errors.test.ts` (every `detail`, unknown → server message → generic).
-2. **Cache** — `src/db/migrations/00XX_members_cache.ts`, `src/features/members/cache.ts` (offline read-only list).
-3. **Members screen** — `src/app/profile/members.tsx`, `MemberRow.tsx`, `PendingInvites.tsx`, offline banner and disabled actions.
-4. **Invite** — `src/app/profile/invite.tsx` (label + role → `create_invite`), success view with the code, "Copiar código" and the `Share.share` message (`src/features/members/inviteMessage.ts` + test).
+2. **Cache** — `src/db/migrations/0004_org_members_cache.ts`, `src/features/members/cache.ts` (offline read-only list, replaced whole per organization) + test on the M3 test database.
+3. **Members screen** — `src/app/members.tsx`, `MemberRow.tsx` ("Desactivado" badge), `PendingInvites.tsx`, offline banner and disabled actions.
+4. **Invite** — `src/app/invite.tsx` (label + role → `create_invite`), success view with the code, "Copiar código" and the `Share.share` message (`src/features/members/inviteMessage.ts` + test).
 5. **Member actions** — `MemberActionsSheet.tsx` (change role, remove), confirmation sheet for removal.
 6. **Leave organization** — `src/features/members/leave.ts` (pending-outbox guard, local wipe for the organization, switch membership) + `leave.test.ts`.
 7. **Role refresh** — re-read `my_memberships()` after actions and on app focus; role-dependent UI reacts.
@@ -22,3 +22,5 @@ No new dependencies (`Share` is part of React Native).
 5. Airplane mode on the owner phone → list still visible, buttons disabled, offline message.
 6. Reviewer phone: create an inspection offline, then try "Salir" → blocked by the unsynced warning; sync, leave → the organization's data disappears from that phone.
 7. Owner: create another code and cancel it → gone from the list; typing it later → "El código no es válido…".
+8. Admin panel: change the helper's role in Finca Landak → on the helper's phone, after the next sync, the owner controls appear or disappear; Admin → Quitar de la finca → after the next sync the organization and its data are gone from the helper's phone.
+9. Once A7 is merged: Admin deactivates the helper → the owner's Personas shows "Desactivado" on that row.

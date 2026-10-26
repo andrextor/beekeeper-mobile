@@ -8,11 +8,11 @@ The beekeeper (owner) wants other people — a helper, a technician, a family me
 
 ## Decisions
 
-### Screens (Perfil → "Personas de <organización>")
+### Screens (Perfil → "Personas de <organización>": `src/app/members.tsx`; invite: `src/app/invite.tsx`)
 
 | Screen | Owner | Reviewer |
 |--------|-------|----------|
-| Members list (email, name, role badge, "Tú") | yes, each row opens actions | yes, read-only |
+| Members list (email, name, role badge, "Tú", "Desactivado" badge when `profiles.deactivated_at` is set, A7) | yes, each row opens actions | yes, read-only |
 | Pending invite codes (label, role, "vence el …") | yes, "Cancelar código" | hidden (RLS does not return them) |
 | "Invitar persona" button (72 dp, bottom) | yes | hidden |
 | "Salir de esta organización" | yes (refused if last owner) | yes |
@@ -48,13 +48,14 @@ All of this goes through B2 RPCs, which check roles at the moment of the call an
 
 - Members: `organization_members` select with embedded `profiles(email, display_name)` (FK `user_id → profiles`, readable via `private.co_member_ids()`), for the current organization.
 - Invites (owner): `organization_invites` (`id`, `label`, `role`, `expires_at`; never the code) where `organization_id = …` and `accepted_at is null and revoked_at is null and expires_at > now()`.
-- Cached in SQLite (`members_cache`) for the offline read-only view; refreshed on screen focus and after every action.
+- Cached in a local table `org_members_cache` (`organization_id`, `user_id`, `role`, `email`, `display_name`, `deactivated_at`; migration `src/db/migrations/0004_org_members_cache.ts`) for the offline read-only view; replaced whole per organization on screen focus and after every action. Not to be confused with M3's `members_cache`, which holds the current user's own memberships.
 
 ### Error mapping (`detail` → Spanish, `src/features/members/errors.ts`)
 
 | `detail` | Message |
 |----------|---------|
 | `not_owner` | Solo el propietario de la organización puede hacer esto. |
+| `organization_deleted` | Esta organización fue eliminada. |
 | `invalid_label` | El nombre puede tener hasta 80 caracteres. |
 | `invalid_role` | Elige Revisor o Propietario. |
 | `last_owner` | La organización debe tener al menos un propietario. |
@@ -68,7 +69,7 @@ The app shows the server's Spanish `message` when `detail` is unknown, the gener
 
 ### Role change while using the app
 
-After any membership change the app re-reads `my_memberships()`; if the current user's role changed (for example demoted to reviewer on another phone), the UI switches its role-based controls immediately, and outbox entries that now fail with RLS errors go to **Requiere atención** (M3 rules).
+After any membership change the app re-reads `my_memberships()`; if the current user's role changed (for example demoted to reviewer on another phone, or by the platform admin from the panel, A7), the UI switches its role-based controls immediately, and outbox entries that now fail with RLS errors go to **Requiere atención** (M3 rules).
 
 ## Rejected
 
@@ -86,7 +87,7 @@ Not a field screen: used at home or before a visit. Still 56-dp targets, big rol
 
 ## Backend contract used
 
-B2: `create_invite(p_organization_id, p_role, p_label) returns table (invite_id, code, expires_at)`, `revoke_invite(p_invite_id)`, `set_member_role(p_organization_id, p_user_id, p_role)`, `remove_member(p_organization_id, p_user_id)`, `my_memberships()`, `accept_invite(p_code)` (M2); tables `organization_members`, `organization_invites`, `profiles`; error `detail` codes listed above.
+B2: `create_invite(p_organization_id, p_role, p_label) returns table (invite_id, code, expires_at)`, `revoke_invite(p_invite_id)`, `set_member_role(p_organization_id, p_user_id, p_role)`, `remove_member(p_organization_id, p_user_id)`, `my_memberships()`, `accept_invite(p_code)` (M2); tables `organization_members`, `organization_invites` (columns listed explicitly: `select=*` is refused), `profiles` (incl. `deactivated_at`, A7); error `detail` codes listed above. The admin panel can change the same memberships (A7 `admin_set_member_role`, `admin_remove_member`, `admin_add_member`); the app only notices them through `my_memberships()`.
 
 ## Out of scope
 

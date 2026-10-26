@@ -17,7 +17,9 @@ The overview's hardest promise: an inspection recorded in airplane mode survives
 
 ### Local migrations
 
-`src/db/migrations.ts`: an ordered array of SQL strings. At startup, in one transaction: read `PRAGMA user_version`, run every step after it, set `user_version` to the array length. A step is never edited after release; a change is a new step. `expo-sqlite` does not run under Jest, so `migrations.test.ts` checks that the array is append-only (snapshot of step hashes: an edited or removed step fails the test); the real run on a device is covered by the manual test. This is what makes APK updates safe for local data (M12 checks it again).
+`src/db/migrations/`: one file per step (`0001_initial.ts`, `0002_inspection_drafts.ts`, …, each exporting a SQL string) and `index.ts` with the ordered array. Every later module that changes the local schema adds a file here (M7, M9, M11 do). At startup, in one transaction: read `PRAGMA user_version`, run every step after it, set `user_version` to the array length. A step is never edited after release; a change is a new step. This is what makes APK updates safe for local data (M12 checks it again).
+
+Tests: `expo-sqlite` does not run under Jest, but the SQL is plain SQLite, so `src/db/test-db.ts` wraps Node's built-in `node:sqlite` (Node 22.13+, no dependency) behind the small subset of the `expo-sqlite` API the app uses (`execAsync`, `runAsync`, `getAllAsync`, `getFirstAsync`, `withTransactionAsync`). `migrations.test.ts` runs every step on an empty database and checks the final tables; an append-only snapshot of step hashes fails if a released step is edited or removed. The same adapter backs every test that needs a database (M6 timeline, M7 finish, M12 fixtures). If `node:sqlite` cannot load under `jest-expo`, the plan's first task says so and asks for `better-sqlite3` as a dev dependency instead.
 
 ### Local tables
 
@@ -29,14 +31,19 @@ Mirrors of the server tables with the same column names and types mapped to SQLi
 | `hives` | `hives` (B3) | every column |
 | `inspections` | `inspections` (B4) | every column |
 | `hive_events` | `hive_events` (B4) | every column |
-| `photos` | `photos` (B5) | every column + `local_uri`, `thumb_local_uri`, `upload_state` (`none`, `main_done`, `thumb_done`) — local only, never pushed |
+| `photos` | `photos` (B5) | every column (M9 adds its local file columns in its own migration) |
 | `members_cache` | `my_memberships()` (B2) | `organization_id`, `organization_name`, `role` |
-| `profiles_cache` | `profiles` (B2) | `id`, `email`, `display_name`, `updated_at` (author names in the timeline offline) |
+| `profiles_cache` | `profiles` (B2) | `id`, `email`, `display_name`, `deactivated_at`, `updated_at` (author names in the timeline offline) |
 | `outbox` | — | see below |
-| `sync_state` | — | `table_name` PK, `cursor` (ISO), `last_pull_at`, `last_error` |
-| `drafts` | — | `id`, `kind` (`inspection`), `hive_id`, `payload` JSON, `updated_at` (M7) |
+| `sync_state` | — | PK (`organization_id`, `table_name`), `cursor` (ISO), `initial_pull_done` 0/1, `last_pull_at`, `last_error`; `profiles` uses `organization_id = ''` |
+
+Drafts are M7's own local table (`inspection_drafts`), not part of this module.
 
 Local-only columns on mirrored rows: `_dirty INTEGER` (1 while an outbox entry exists). Pulled rows never overwrite a row with `_dirty = 1` (the local edit wins until it is pushed; then the server's row comes back in the next pull).
+
+### Local cascade (mirror of B4)
+
+The server soft-deletes an inspection's linked `hive_events` and `photos` in the same write. `saveRow` does the same locally when it soft-deletes an inspection (children get `deleted_at`, `_dirty`, and an outbox entry), so screens agree before the next pull. Children of a soft-deleted **hive** are not touched (B5: history is kept); screens hide them by joining on `hives.deleted_at is null`.
 
 ### Outbox
 
@@ -58,27 +65,31 @@ outbox (
 ```
 
 - **Coalescing:** editing a row that already has a pending entry replaces its payload (one push per row, latest state).
-- **Order:** entries are pushed by `created_at`, but parents first by table rank (`apiaries` → `hives` → `inspections` → `hive_events` → `photos`), so a hive never arrives before its apiary.
+- **Order:** two phases. (1) Every entry whose payload has `deleted_at = null`, parents first by table rank (`apiaries` → `hives` → `inspections` → `hive_events` → `photos`), then `created_at`, so a hive never arrives before its apiary. (2) Every entry whose payload sets `deleted_at`, in **reverse** rank (children first). Reason: B3/B4 check the parent in a `BEFORE INSERT` trigger, which fires on every upsert, so a child pushed after its parent's deletion fails with `parent_mismatch`, and an apiary is refused (`apiary_not_empty`) while its hives are still live on the server. Deleting a hive that has inspections still in the outbox therefore uploads them first, then deletes the hive.
 - **Push:** `supabase.from(table).upsert(payload, { onConflict: 'id' })`, one row per request (simple, and a failure blames one row). Server-owned columns (`created_by`, `updated_at`, `created_at`) are stripped from the payload; the server sets them (B3 `force_author`, `set_updated_at`).
 - **Success:** delete the outbox entry, clear `_dirty`, write back the returned row (`select()` after upsert) so `updated_at` is the server's.
-- **Retryable failure** (network, timeout 15 s, 5xx, 401 after a failed refresh, 429): `attempts += 1`, `next_attempt_at = now + backoff[attempts]` with backoff 5 s → 30 s → 2 min → 10 min (cap, repeats every 10 min forever; the data is never dropped).
+- **Retryable failure** (network, timeout 15 s, 5xx, 401, 429; a 401 first tries one session refresh; a refresh refused for good ends the session as in M2 and pushing pauses until the same user signs in again): `attempts += 1`, `next_attempt_at = now + backoff[attempts]` with backoff 5 s → 30 s → 2 min → 10 min (cap, repeats every 10 min forever; the data is never dropped).
 - **Permanent failure** (PostgREST 4xx except 401/408/429, or Postgres `P0001` / check / unique violation): `state = 'failed_permanent'`, `last_error = messageFor(error)` (M2 `errors.ts`). The row shows **Requiere atención**; the user opens it from Pendientes and can edit the record (which re-queues it as `pending`) or discard the local change ("Descartar cambio" restores the last server version on the next pull; a record that never reached the server is soft-deleted locally after an undo window).
 - **Single flight:** one sync run at a time (module-level promise); a trigger during a run sets `rerun = true` and the run loops once more at the end. No overlapping runs, no infinite loop (the rerun flag is consumed once per run).
 - Photos are pushed by M9's uploader (file → thumbnail → row); M3 provides the outbox entry types and the ordering slot.
 
 ### Pull
 
-Per table in parent-first order, for all organizations in `members_cache`:
+`members_cache` is refreshed first, from `my_memberships()`, on every run. Then, **per organization in `members_cache`** and per table in parent-first order:
 
 ```text
-select * from <table> where updated_at > :cursor order by updated_at, id limit 500
+select * from <table>
+where organization_id = :org and updated_at > :cursor(org, table)
+order by updated_at, id limit 500
 ```
 
-repeated until a page has fewer than 500 rows (cap: 40 pages per table per run, then continue next run — no list walked whole). Each page is upserted locally in one transaction (skipping `_dirty` rows). New cursor = last row's `updated_at` minus 2 minutes (overlap for late commits; duplicates are harmless upserts). First sync uses cursor `1970-01-01`.
+repeated until a page has fewer than 500 rows (cap: 40 pages per table per run, then continue next run — no list walked whole). Each page is upserted locally in one transaction (skipping `_dirty` rows). New cursor = last row's `updated_at` minus 2 minutes (overlap for late commits; duplicates are harmless upserts). A new organization starts at cursor `1970-01-01`; when its last table finishes a short page, `initial_pull_done = 1` (M6 reads it).
 
-`members_cache` is replaced whole from `my_memberships()` on every run. If an organization disappeared (the user was removed), its local rows are deleted, except rows with pending outbox entries, which become `failed_permanent` with "Ya no tienes acceso a esta organización.".
+Why per organization: a cursor shared by all organizations would skip the whole history of an organization joined later (an invite code, or the admin adding the person, A7), because its rows are older than the cursor. The `organization_id` filter also keeps out rows RLS still returns for a soft-deleted organization (`my_memberships()` hides it, B2; RLS on its rows does not).
 
-`profiles_cache` pulls `profiles` by `updated_at` cursor like the domain tables.
+Memberships are hard-deleted and not in the cursor pull (`api.md` → Organizations): if an organization disappeared from `my_memberships()` (removed by an owner or the admin, left from another phone, or soft-deleted), its local rows and `sync_state` rows are deleted, except rows with pending outbox entries, which become `failed_permanent` with "Ya no tienes acceso a esta organización.". A changed `role` takes effect in the UI at once.
+
+`profiles_cache` pulls `profiles` (RLS: yourself and co-members) with its own cursor. When `members_cache` gains an organization, the `profiles` cursor is reset to `1970-01-01` (the new co-members' profiles are older than it; the table is tiny).
 
 ### Triggers
 
@@ -116,7 +127,7 @@ Nothing in field mode waits for the network: writes commit locally in millisecon
 
 ## Backend contract used
 
-B1 conventions (client UUIDs, server-owned `updated_at`, soft delete via `deleted_at`, pull query and 2-minute overlap, error `detail` codes); tables `apiaries`, `hives` (B3), `inspections`, `hive_events` (B4), `photos` (B5), `profiles` (B2) with their columns as specified there; RPC `my_memberships()` (B2).
+B1 conventions (client UUIDs, server-owned `updated_at`, soft delete via `deleted_at`, pull query and 2-minute overlap, push backoff, error `details` codes); tables `apiaries`, `hives` (B3), `inspections`, `hive_events` (B4), `photos` (B5), `profiles` (B2, plus `deactivated_at` from A7) with their columns as specified there; RPC `my_memberships()` (B2, excludes soft-deleted organizations); B4's server-side cascade of an inspection's soft delete; the `check_parent` / `apiary_not_empty` triggers that drive the push order.
 
 ## Out of scope
 

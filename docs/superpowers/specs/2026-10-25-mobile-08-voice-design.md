@@ -71,7 +71,7 @@ Negation: a clause containing `no`, `sin`, `ningun(a)`, `nada de`, `falta(n)` be
 | `brood_pattern` | "cria compacta", "postura compacta" → `compact`; "cria salteada", "cria saltada", "postura salteada" → `spotty` | high |
 | `stores` | "reservas bajas", "pocas reservas", "sin reservas", "poca miel" → `low`; "reservas buenas/normales/bien" → `ok`; "muchas reservas", "reservas altas", "llena de miel" → `high` | high |
 | `population_strength` | "fuerza <1-5>" → n (high); "muy fuerte" → 5, "fuerte" → 4, "normal" (with colonia/colmena) → 3, "debil" → 2, "muy debil" → 1 (medium) | as noted |
-| `temperament` | "muy mansa" → 1, "mansa/tranquila/calmada" → 2, "defensiva/brava/agresiva/picona" → 4, "muy brava/muy agresiva/muy defensiva" → 5 | medium |
+| `temperament` | "mansa/muy mansa" → 1, "tranquila/calmada" → 2, "defensiva/brava/agresiva/picona" → 4, "muy brava/muy agresiva/muy defensiva" → 5 (scale words of M7) | medium |
 | `pests` (adds) | "polilla" → `wax_moth`; "escarabajo" → `small_hive_beetle`; "hormigas" → `ants`; "avispas" → `wasps`; "raton(es)" → `mice`; negated → not added | high |
 | `disease_signs` (adds) | "cria yesada/momificada" → `chalkbrood`; "cria ensacada" → `sacbrood`; "loque", "olor a podrido", "cria hundida" → `foulbrood_signs`; "alas deformes/deformadas" → `deformed_wings`; "diarrea", "disenteria", "manchas de excremento" → `dysentery`; "abejas muertas" → `dead_bees` | medium (signs, never a diagnosis) |
 | `varroa_count` + `varroa_method` | "<n> varroas en (el) lavado/alcohol" → count + `alcohol_wash`; "... azucar" → `sugar_roll`; "... lamina/carton/bandeja" → `sticky_board` | high; sample size is never guessed |
@@ -90,8 +90,8 @@ Anything not matched stays only in the transcript.
 - Top: the transcript with each matched span highlighted (`honey` background, `deep` text).
 - List: one 72-dp row per proposal: label + proposed value ("Cuadros de cría: 3"), confidence shown as a word for `medium` ("revisar"), and three big actions **Aceptar** (`check`) · **Cambiar** (opens that field's field-mode control in a sheet) · **Quitar** (`x`).
 - "Aceptar todo" (96 dp) at the bottom; "Volver a dictar".
-- A proposal that conflicts with a value already set in the draft shows both ("Antes: Normales → Ahora: Bajas").
-- Accepted proposals are merged **into the draft only** (M7), `source` becomes `voice`, `transcript` is appended (several dictations in one inspection are joined with a newline). The inspection is saved only by Terminar (M7). Nothing is auto-saved from an inference.
+- A proposal that conflicts with a value already set in the draft shows both ("Antes: Suficientes → Ahora: Pocas").
+- Accepted proposals are merged **into the draft only** (M7), `source` becomes `voice`, `transcript` is appended (several dictations in one inspection are joined with a newline). The column holds ≤ 10000 characters: past ~9000 the sheet says "Queda poco espacio para dictar en esta revisión" and at 10000 it stops listening; the transcript is never cut silently. The inspection is saved only by Terminar (M7). Nothing is auto-saved from an inference.
 - A `feeding_event` accepted here is stored in the draft and written at Terminar as a `hive_events` `feeding` row in the same transaction (M7 finish extended).
 
 ## Rejected alternatives

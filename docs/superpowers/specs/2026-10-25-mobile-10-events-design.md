@@ -10,19 +10,19 @@ Besides inspections, the beekeeper records what they *did* to a hive: fed it, tr
 
 ### Event types and forms
 
-One form per type, all built from field controls (`ChipSelect`, `StepperField`, `TriStateField`, big date button); keyboard only behind "Escribir". Shapes are exactly B4's `details`; Zod schemas in `src/features/events/schemas.ts` mirror `../beekeeper/docs/api.md` (one `z.object` per type, `.strict()` off so unknown server keys survive a pull).
+One form per type, all built from field controls (`ChipSelect`, `StepperField`, `TriStateField`, big date button); keyboard only behind "Escribir". Shapes are exactly B4's `details`; Zod schemas in `src/features/events/schemas.ts` mirror `../beekeeper/docs/api.md`, labels from `src/lib/labels.ts` (one `z.object` per type, `.strict()` off so unknown server keys survive a pull).
 
 | Type | Label | Icon | Form fields → `details` |
 |------|-------|------|-------------------------|
-| `feeding` | Alimentación | `droplet` | feed (chips: Jarabe, Fondant, Torta de polen, Miel, Otro) → `feed`; amount stepper (0.5 steps) → `amount`; unit chips l / kg / g → `unit`; ratio chips 1:1 / 2:1 (only for syrup) → `ratio` |
-| `treatment` | Tratamiento | `syringe` | product (text + last 5 used as chips) → `product` (required); active ingredient → `active_ingredient`; dose (text) → `dose`; method chips Tira / Goteo / Vapor / Espolvoreo / Otro → `method`; withdrawal days stepper → `withdrawal_days`; end date → `ends_on` |
-| `queen_change` | Cambio de reina | `crown` | year stepper (default current year) → `queen_year`; color (suggested from year, B3 code) → `queen_color`; origin chips → `queen_origin`; reason chips Fallando / Agresiva / Perdida / Planificado → `reason` |
+| `feeding` | Alimentación | `droplet` | feed (chips: Jarabe de azúcar, Fondant, Torta proteica, Miel, Otro alimento) → `feed`; amount stepper (0.5 steps) → `amount`; unit chips l / kg / g → `unit`; ratio chips 1:1 / 2:1 (only for syrup) → `ratio` |
+| `treatment` | Tratamiento | `syringe` | product (text + last 5 used as chips) → `product` (required); active ingredient → `active_ingredient`; dose (text) → `dose`; method chips Tiras / Goteo / Vapor / Espolvoreo / Otro método → `method`; withdrawal days stepper → `withdrawal_days`; end date → `ends_on` |
+| `queen_change` | Cambio de reina | `crown` | year stepper (default current year) → `queen_year`; color (suggested from year, B3 code) → `queen_color`; origin chips → `queen_origin`; reason chips Reina fallando / Colmena agresiva / Reina perdida / Planificado → `reason` |
 | `harvest` | Cosecha | `package` | product chips Miel / Polen / Propóleo / Cera → `product` (required); kg stepper (0.5 steps) → `kg` (required); supers taken stepper → `supers_taken` |
 | `split` | División | `git-fork` | "Crear la nueva colmena ahora" (owner) → `new_hive_id` |
 | `swarm` | Enjambre | `wind` | Captured Sí/No → `captured` (required); if captured and owner: "Crear la colmena del enjambre" → `new_hive_id` |
 | `merge` | Unión | `merge` | pick the hive merged into this one (list of the apiary's active hives) → `merged_hive_id` |
 | `transfer` | Traslado | `truck` | destination apiary (big list) → `to_apiary_id`; `from_apiary_id` filled automatically |
-| `loss` | Pérdida | `skull` | cause chips Hambre / Plagas / Enfermedad / Fuga / Pesticida / Desconocida → `cause` |
+| `loss` | Pérdida | `skull` | cause chips Hambre / Plagas / Enfermedad / Fuga / Pesticida / Causa desconocida → `cause` |
 | `note` | Nota | `sticky-note` | already built in M7 (field-mode notes); here only the "Nota" entry from hive detail |
 | `qr_relabel` | Cambio de etiqueta | `qr-code` | **system-only**, written by M5 re-label; not offered in the picker |
 
@@ -36,15 +36,15 @@ Every event: `occurred_at` (default now, big "Hoy / Ayer / Elegir fecha" buttons
 | `transfer` | Updates `hives.apiary_id` | Event only + "Avisa al propietario…" (the hive stays in its apiary until the owner moves it) |
 | `loss` | Offered: "¿Marcar la colmena como Muerta / Fugada / Inactiva?" (choice in the form, not a dialog) → `hives.status` | Event only + "Avisa al propietario…" |
 | `merge` | Offered: set the merged hive's `status = 'merged'` | Event only |
-| `split`, `swarm` (captured) | "Crear la nueva colmena" opens the M4 hive form prefilled (same apiary, `colony_origin = 'split'` / `'swarm_capture'`, `colony_started_on = today`) then the M5 QR assignment; the new hive's id goes into `new_hive_id` | Event without `new_hive_id`; banner "El propietario debe registrar la nueva colmena." |
+| `split`, `swarm` (captured) | "Crear la nueva colmena" navigates to `hive/new?apiaryId=&origin=split|swarm_capture&returnTo=event` (M4 form prefilled: same apiary, `colony_origin`, `colony_started_on = today`; a new QR code as usual); on save it returns the new hive's id, which goes into `new_hive_id`. A route, not an import: features do not import each other | Event without `new_hive_id`; banner "El propietario debe registrar la nueva colmena." |
 
-The event row and the hive update are written in one SQLite transaction and queued as two outbox entries (event first, hive second). Server-side they are two upserts (not atomic); if the hive update fails (e.g. the user lost the owner role) it shows **Requiere atención** and the event is still kept.
+The event row and the hive update are written in one SQLite transaction and queued as two outbox entries, pushed in M3's rank order (hive, then event; neither depends on the other). Server-side they are two upserts (not atomic); if the hive update fails (e.g. the user lost the owner role) it shows **Requiere atención** and the event is still kept (`api.md` → Events).
 
 ### Entry points
 
 - Hive detail (M6): "Registrar actividad" button → type picker (2-column grid of 96-dp tiles with icon + label, same look as the field action grid).
 - Field mode (M7): a **"Actividad"** tile in the action grid → same picker, the event gets the current `inspection_id`, returns to field mode on save.
-- Timeline (M6): events render with their icon and the one-line summary (`src/features/events/summary.ts`, Spanish, mirrors the admin's `event-summary.ts`).
+- Timeline (M6): events render with their icon and the one-line summary from `src/lib/event-summary.ts` (M6; mirrors the admin's `event-summary.ts`).
 
 ### Edit and delete
 

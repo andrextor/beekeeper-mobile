@@ -4,13 +4,14 @@ Spec: `docs/superpowers/specs/2026-10-25-mobile-06-hive-timeline-design.md` · B
 
 No new dependencies.
 
-1. **Summaries** — `src/features/hives/summary.ts` (`inspectionSummary`, `eventSummary`) + `summary.test.ts` (every event type in `docs/api.md`, missing keys, unknown type, `not_checked`, max 4 parts).
+1. **Summaries** — port `../beekeeper/admin/src/lib/inspection-summary.ts` (`inspectionSummary`, `inspectionFields`) and `event-summary.ts` (`eventSummary`) to `src/lib/` with their tests, adapting only the row types to the local ones (every event type in `docs/api.md`, missing keys, unknown type, `not_checked`).
 2. **Attention** — `src/features/hives/attention.ts` (`hiveAttention(lastInspection, events, today)` → items: urgent/soon, overdue days, active treatment) + test (due today, overdue, treatment ending today counts as active).
-3. **Timeline query** — `src/features/hives/timeline.ts` (two local queries, merge, cursor, notes grouped under their inspection, sync state per item) + test with an in-memory SQLite (`expo-sqlite` mock from M3 tests).
-4. **Server fallback** — `src/features/hives/timeline-remote.ts` (`hive_timeline` RPC mapped to the same item type) and the switch on `initial_pull_done` + connectivity.
-5. **Hive screen** — `src/app/hive/[id].tsx`, `src/features/hives/{HiveHeader,AttentionCard,LastInspectionCard,HiveFacts,TimelineList,TimelineItem}.tsx`, fixed "Nueva revisión" button (navigates to M7's route; until M7 lands it opens a placeholder).
+3. **Timeline query** — `src/features/hives/timeline.ts` (two local queries, merge, `(at, id)` cursor, notes grouped under their inspection, sync state per item) + test on the M3 test database (`src/db/test-db.ts`): an event and an inspection with the same timestamp across a page boundary appear once each.
+4. **Server fallback** — `src/features/hives/timeline-remote.ts` (`hive_timeline` RPC with `p_before` + `p_before_id`, mapped to the same item type; `author_name = null` → "Antiguo miembro") and the switch on `initial_pull_done` + connectivity.
+5. **Hive screen** — `src/app/hive/[id]/index.tsx` (extends M4), `src/features/hives/{HiveHeader,AttentionCard,LastInspectionCard,HiveFacts,TimelineList,TimelineItem}.tsx`, fixed "Nueva revisión" button (navigates to M7's route; until M7 lands it opens a placeholder).
 6. **Inspection read view** — `src/app/inspection/[id].tsx`, `src/features/inspections/InspectionDetail.tsx`.
-7. **Release** — `chore(release): 0.6.0`. Check: `pnpm ci:check`.
+7. **Inicio** — `src/features/hives/home.ts` (`hivesToVisit`, `openTasks`) + `home.test.ts` (latest inspection only, tie by id, overdue today, deleted or non-active hive hidden); `src/app/(tabs)/index.tsx` with the three sections and the empty state.
+8. **Release** — `chore(release): 0.6.0`. Check: `pnpm ci:check`.
 
 ## How Iván tests it
 
@@ -21,3 +22,4 @@ No new dependencies.
 5. Fresh install signed in as the reviewer, turn on data, open C-01 before the first sync finishes → banner "Mostrando historial del servidor…"; after sync it disappears.
 6. Create 35 events on a test hive (seed script or SQL) → "Cargar más" loads the rest; no duplicates.
 7. With gloves: tap "Nueva revisión" and "Cargar más" on the first try.
+8. Inicio as owner: C-01 appears under Tareas "Alimentar" (seed: latest inspection `{feed}`); C-03 (dead) or a deleted hive never appears. Delete a hive in Studio, sync → it disappears from Inicio and its history is hidden.

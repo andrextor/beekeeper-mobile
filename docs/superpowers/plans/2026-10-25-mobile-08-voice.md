@@ -38,7 +38,8 @@ New dependency (approval asked here): `expo-speech-recognition` (config plugin i
 | 19 | "Colmena muy débil" | `population_strength = 1` (medium) |
 | 20 | "Fuerza 7" | nothing (out of range) |
 | 21 | "Muy brava" | `temperament = 5` |
-| 22 | "Estaba mansa" | `temperament = 2` |
+| 22 | "Estaba mansa" | `temperament = 1` |
+| 22b | "Estaba tranquila" | `temperament = 2` |
 | 23 | "Hay celdas reales" | `queen_cells = swarm` |
 | 24 | "No hay realeras" | `queen_cells = none` |
 | 25 | "Celdas de reemplazo" | `queen_cells = supersedure` |

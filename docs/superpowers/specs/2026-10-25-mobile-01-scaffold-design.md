@@ -55,12 +55,16 @@ app.json            name "Landak Apiario", slug "landak-apiario", scheme "landak
 
 ### Route tree (whole app; screens arrive in their modules)
 
+This table is canonical: every later spec and plan uses exactly these paths. A module that needs a new route adds a row here in the same branch.
+
 | Route | Screen | Module |
 |-------|--------|--------|
 | `_layout.tsx` | Root: fonts, providers, auth redirect | M1 (redirect in M2) |
-| `(auth)/sign-in.tsx` | Correo | M2 |
-| `(auth)/code.tsx` | Código de 6 dígitos | M2 |
-| `(auth)/onboarding.tsx` | Crea tu organización | M2 |
+| `(auth)/welcome.tsx` | Crear cuenta / Ya tengo cuenta | M2 |
+| `(auth)/sign-up.tsx` | Correo + contraseña (nueva cuenta) | M2 |
+| `(auth)/sign-in.tsx` | Correo + contraseña | M2 |
+| `(auth)/onboarding.tsx` | Crear mi apiario / Tengo un código | M2 |
+| `(auth)/join.tsx` | Código de invitación `XXXX-XXXX` | M2 |
 | `(tabs)/_layout.tsx` | Bottom tabs | M1 |
 | `(tabs)/index.tsx` | Inicio: last activity, hives needing attention | M1 placeholder → M6 |
 | `(tabs)/apiaries.tsx` | Apiarios list | M4 |
@@ -69,21 +73,24 @@ app.json            name "Landak Apiario", slug "landak-apiario", scheme "landak
 | `(tabs)/profile.tsx` | Perfil, organización, cerrar sesión | M2 |
 | `organizations.tsx` | Cambiar de organización (modal) | M2 |
 | `apiary/new.tsx`, `apiary/[id]/index.tsx`, `apiary/[id]/edit.tsx` | Apiary | M4 |
-| `hive/new.tsx` (`?apiaryId=`), `hive/[id]/index.tsx`, `hive/[id]/edit.tsx` | Hive facts | M4 |
-| `hive/[id]/timeline.tsx` | Historial (or a section of `index`) | M6 |
-| `hive/[id]/inspect.tsx` | Field mode | M7 |
-| `hive/[id]/inspection/[inspectionId].tsx` | Inspection detail / confirm voice fields | M7/M8 |
-| `hive/[id]/event/new.tsx` (`?type=`) | New event | M10 |
-| `hive/[id]/photos.tsx` | Fotos | M9 |
+| `hive/new.tsx` (`?apiaryId=&origin=&returnTo=`), `hive/[id]/edit.tsx` | Hive form | M4 (prefill params M10) |
+| `hive/[id]/index.tsx` | Hive screen: facts (M4), attention, timeline, photos strip (M6/M9) | M4 → M6 |
+| `hive/[id]/inspect.tsx` (`?inspectionId=` to edit) | Field mode | M7 |
+| `inspection/[id].tsx` | Inspection read view | M6 |
+| `hive/[id]/event/new.tsx` (`?type=&inspectionId=`), `hive/[id]/event/[eventId].tsx` | New / edit event | M10 |
+| `hive/[id]/camera.tsx` (`?inspectionId=`) | Camera | M9 |
+| `photo/[id].tsx` | Photo viewer | M9 |
 | `hive/[id]/label.tsx` | QR label | M5 |
-| `members.tsx` | Personas e invitaciones | M11 |
+| `h/[code].tsx` | Deep link `landak://h/<code>` → lookup → hive | M5 |
+| `members.tsx`, `invite.tsx` | Personas; invitar (code + share) | M11 |
+| `db-error.tsx` | "No pudimos actualizar los datos" | M12 |
 | `_design.tsx` | Component gallery, **dev builds only** (`__DEV__` guard, removed from release by a redirect) | M1 |
 
 Tabs (DESIGN.md): Inicio `house` · Apiarios `map-pin` · **Escanear** (72-dp `honey` circle, `scan-qr-code` 56) · Pendientes `cloud-upload` (badge in M3) · Perfil `user-round`.
 
 ### Components built in this module
 
-All of `DESIGN.md` → Components: `ui/` (`Button`, `IconButton`, `TextField`, `Card`, `ListItem`, `Badge`, `SyncChip`, `EmptyState`, `ErrorState`, `Toast` with undo, `Sheet`, `Screen`) and `field/` (`ActionTile`, `ActionGrid`, `ScaleField`, `TriStateField`, `StepperField`, `ChipSelect`, `DictationSheet` shell without speech, `ShutterButton`, `FieldHeader`). Each is shown in `_design.tsx` with every state. `lib/format.ts` (dates relative < 7 days, numbers, units, `es-CO`) and `lib/labels.ts` (every enum label from `../beekeeper/docs/api.md`, identical to the admin's) with tests.
+All of `DESIGN.md` → Components: `ui/` (`Button`, `IconButton`, `TextField`, `Card`, `ListItem`, `Badge`, `SyncChip`, `EmptyState`, `ErrorState`, `Toast` with undo, `Sheet`, `Screen`) and `field/` (`ActionTile`, `ActionGrid`, `ScaleField`, `TriStateField`, `StepperField`, `ChipSelect`, `DictationSheet` shell without speech, `ShutterButton`, `FieldHeader`). Each is shown in `_design.tsx` with every state. `lib/format.ts` (dates relative < 7 days, numbers, units, `es-CO`) and `lib/labels.ts` (every enum label from `../beekeeper/docs/api.md`, copied verbatim from its tables and identical to the admin's `admin/src/lib/labels.ts`, plus the app-only 1–5 scale words for `population_strength` and `temperament`, which the contract describes only by their ends) with tests. Later specs quote labels from this file; if a spec and `api.md` disagree, `api.md` wins.
 
 ### CI
 

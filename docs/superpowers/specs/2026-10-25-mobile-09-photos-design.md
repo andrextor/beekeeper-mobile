@@ -24,7 +24,7 @@ During an inspection the beekeeper photographs frames, brood, queen cells and pe
 1. Generate `id` (uuid v4).
 2. `expo-image-manipulator`: resize long side to **1600 px**, JPEG **0.7** → `photos/<id>.jpg`; resize to **320 px**, JPEG 0.7 → `photos/<id>.thumb.jpg`. Both written to `FileSystem.documentDirectory` (not cache: Android may wipe the cache dir).
 3. Delete the camera's temporary original.
-4. One SQLite transaction: insert the local `photos` row (`sync_state = 'local'`) + outbox entry `{ kind: 'photo_upload', id }`.
+4. One SQLite transaction (`saveRow`, M3): insert the local `photos` row (`upload_step = 'none'`) + its outbox entry (`table_name = 'photos'`, `row_id = id`).
 5. Toast "Guardado en este dispositivo".
 
 If step 2 fails (out of storage), the toast says "No hay espacio en el teléfono para guardar la foto." and nothing is queued.
@@ -32,7 +32,7 @@ If step 2 fails (out of storage), the toast says "No hay espacio en el teléfono
 ### Local `photos` row (mirror of B5 + local columns)
 
 Server columns: `id`, `organization_id`, `hive_id`, `inspection_id`, `storage_path` (`{organization_id}/{hive_id}/{id}.jpg`), `taken_at`, `width`, `height`, `bytes` (main file), `caption`, `created_by`, `created_at`, `updated_at`, `deleted_at`.
-Local only: `local_main_uri`, `local_thumb_uri`, `upload_step` (`none` | `main` | `thumb` | `row`), `last_viewed_at`.
+Local only, added by migration `src/db/migrations/0003_photos_local.ts`: `local_main_uri`, `local_thumb_uri`, `upload_step` (`none` | `main` | `thumb` | `row`), `last_viewed_at`. The same migration creates `settings (key text primary key, value text not null)` (first key: `photos_on_mobile_data`). A photo is synced when `upload_step = 'row'` and it has no outbox entry; there is no separate sync-state column.
 
 ### Upload job (in the sync engine's pusher, `src/features/sync/`)
 
@@ -40,11 +40,13 @@ Order per photo, resuming from `upload_step`:
 
 1. `storage.from('hive-photos').upload(storage_path, main, { contentType: 'image/jpeg', upsert: true })` → `upload_step = 'main'`.
 2. Same for `<id>.thumb.jpg` → `upload_step = 'thumb'`.
-3. Upsert the `photos` row by `id` → `upload_step = 'row'`, `sync_state = 'synced'`.
+3. Upsert the `photos` row by `id` → `upload_step = 'row'`, outbox entry deleted (M3 success path).
 
-`upsert: true` makes a retried upload overwrite instead of failing (B5 update policy: `owner_id = auth.uid()`). The row is written last, so the server never has a row without a file. Backoff and "requires attention" follow the B1 rules; a 4xx from Storage (`403` path refused, `413` too large) marks the photo **Requiere atención** with the reason.
+`upsert: true` makes a retried upload overwrite instead of failing (B5 update policy: `owner_id = auth.uid()`). The row is written last, so the server never has a row without a file. Once the row exists the files cannot be replaced (Storage `403`), which is why a later edit of the photo (caption, delete) pushes the row only. Backoff and "requires attention" follow the B1 rules; a 4xx from Storage (`403`: the hive was deleted or the user left the organization while the photo was queued; `413` too large) and `parent_mismatch` on the row mark the photo **Requiere atención** with the reason; network, `5xx` and `429` are retried.
 
-Photos upload **after** the inspection and event rows of the same batch, because `inspection_id` must exist server-side.
+A photo soft-deleted (undo strip, or the M3 cascade of its inspection) while `upload_step = 'none'` never reached the server: its outbox entry and local files are dropped instead of uploading files for a deleted row.
+
+Photos upload **after** the inspection and event rows of the same batch (M3 rank), because `inspection_id` must exist server-side. Photos of a deleted hive are hidden like its other children.
 
 ### Network policy
 
@@ -66,7 +68,7 @@ Photos upload **after** the inspection and event rows of the same batch, because
 
 ### Local cache eviction
 
-After a successful sync and at app start: keep every thumbnail; delete local **main** files of synced photos with `last_viewed_at` (or `taken_at`) older than **30 days**, or the oldest ones first while the `photos/` folder is over **500 MB**. Never evict a photo whose `sync_state ≠ 'synced'`.
+After a successful sync and at app start: keep every thumbnail; delete local **main** files of synced photos with `last_viewed_at` (or `taken_at`) older than **30 days**, or the oldest ones first while the `photos/` folder is over **500 MB**. Never evict a photo that is not synced (`upload_step ≠ 'row'` or an outbox entry exists).
 `ponytail:` size-by-folder scan on each run, fine up to a few thousand files; keep a running total in `settings` if it gets slow.
 
 ## Rejected

@@ -4,12 +4,12 @@ Spec: `docs/superpowers/specs/2026-10-25-mobile-09-photos-design.md` · Branch: 
 
 New dependencies (approval asked here, installed with `pnpm expo install`): `expo-camera` (already present from M5 for QR — reused), `expo-image-picker`, `expo-image-manipulator`, `expo-file-system` (if not already present).
 
-1. **Local schema** — `src/db/migrations/00XX_photos_local.ts`: local columns `local_main_uri`, `local_thumb_uri`, `upload_step`, `last_viewed_at` on `photos`; `settings` key `photos_on_mobile_data`.
-   Check: migration test from the previous `user_version`.
+1. **Local schema** — `src/db/migrations/0003_photos_local.ts`: local columns `local_main_uri`, `local_thumb_uri`, `upload_step`, `last_viewed_at` on `photos`; `settings` table, key `photos_on_mobile_data`.
+   Check: migration test on the M3 test database from `user_version` 2.
 2. **Processing** — `src/features/photos/process.ts` (`processPhoto(uri, ctx) → { id, mainUri, thumbUri, width, height, bytes }`), `src/features/photos/save.ts` (transaction: row + outbox), `process.test.ts` (path naming, dimensions math).
 3. **Camera screen** — `src/app/hive/[id]/camera.tsx`, `src/components/field/ShutterButton.tsx` (if not already in M1), `src/features/photos/CameraStrip.tsx`, permission explainer screen `src/features/photos/CameraPermission.tsx`.
 4. **Gallery import** — `src/features/photos/pickFromGallery.ts`; "Desde la galería" button on the camera screen.
-5. **Upload job** — `src/features/sync/push-photos.ts` (resumable by `upload_step`, `upsert: true`, ordering after rows), `push-photos.test.ts` (resumes at each step, 4xx → attention).
+5. **Upload job** — `src/features/sync/push-photos.ts` (resumable by `upload_step`, `upsert: true`, ordering after rows), `push-photos.test.ts` (resumes at each step, `403` and `parent_mismatch` → attention, `5xx` retried, a photo deleted before upload drops its files and entry).
 6. **Network policy** — `src/features/sync/network-policy.ts` (`canUploadPhotos(state, setting)`) + test; Perfil toggle "Subir fotos con datos móviles"; Pendientes "N fotos esperando Wi-Fi" + "Subir ahora con datos".
 7. **Viewing** — `src/features/photos/useSignedUrls.ts` (batched, 50-min refresh), `PhotoGrid.tsx`, `PhotoViewer.tsx` (`src/app/photo/[id].tsx`), Fotos tab on hive detail, thumbnails in expanded inspections.
 8. **Caption and delete** — caption editor in the viewer, soft delete with undo.

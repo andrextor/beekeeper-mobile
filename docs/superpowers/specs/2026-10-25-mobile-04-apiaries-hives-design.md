@@ -40,24 +40,24 @@ An owner registers their sites ("Vallecito 1") and the hives in each, with the f
 
 `hive/new?apiaryId=`, `hive/[id]/edit`:
 
-| Field | Control | Values → Spanish label (from `lib/labels.ts`) |
+| Field | Control | Values → Spanish label (from `lib/labels.ts`, verbatim `api.md` → Hives) |
 |-------|---------|------------------------------------------------|
-| Nombre * | TextField, suggested next name ("C-13" after the highest `C-n`) | 1..40, unique per organization |
-| Apiario * | picker of the organization's apiaries | moving = transfer; the app also writes a `transfer` event in M10 |
-| Tipo | ChipSelect | `langstroth` Langstroth · `dadant` Dadant · `top_bar` Kenyana / barra superior · `warre` Warré · `nucleus` Núcleo · `rustic` Rústica · `other` Otra |
+| Nombre * | TextField, suggested next name ("C-13" after the highest `C-n` in the chosen apiary) | 1..40, unique **per apiary** among non-deleted, case-insensitive (C-01 can exist in every apiary) |
+| Apiario * | picker of the organization's apiaries | moving = transfer (the name must be free in the destination apiary); the app also writes a `transfer` event in M10 |
+| Tipo | ChipSelect | `langstroth` Langstroth · `dadant` Dadant · `top_bar` Kenyana (barras) · `warre` Warré · `nucleus` Núcleo · `rustic` Rústica · `other` Otra |
 | Cámaras de cría | StepperField 0..5 | |
 | Alzas | StepperField 0..10 | |
-| Origen de la colonia | ChipSelect | `swarm_capture` Captura de enjambre · `split` División · `package` Paquete · `nucleus_purchase` Núcleo comprado · `colony_purchase` Colonia comprada · `unknown` Desconocido |
+| Origen de la colonia | ChipSelect | `swarm_capture` Captura de enjambre · `split` División · `package` Paquete de abejas · `nucleus_purchase` Núcleo comprado · `colony_purchase` Colmena comprada · `unknown` Desconocido |
 | Inicio de la colonia | date picker (native) | ≤ today; shows "Edad: 1 año y 3 meses" live |
 | Raza | TextField with suggestions "Africanizada", "Italiana", "Carniola" | ≤ 60 |
 | Año de la reina | StepperField (current year default when the section is opened) | 2000..2100 |
-| Color de marca | 5 color circles + "Sin marca" | `white` Blanco · `yellow` Amarillo · `red` Rojo · `green` Verde · `blue` Azul; **suggested from the year** (last digit 1/6 white, 2/7 yellow, 3/8 red, 4/9 green, 5/0 blue) with the hint "Color internacional para 2026: blanco"; the user can override |
+| Color de marca | 5 color circles + "Sin marca" (`null`) | `white` Blanco · `yellow` Amarillo · `red` Rojo · `green` Verde · `blue` Azul (the circle shows the short name; the year hint is in `api.md`'s long label); **suggested from the year** (last digit 1/6 white, 2/7 yellow, 3/8 red, 4/9 green, 5/0 blue) with the hint "Color internacional para 2026: blanco"; the user can override |
 | Reina marcada | TriStateField Sí / No / No sé | `true` / `false` / `null` |
-| Origen de la reina | ChipSelect | `own_rearing` Cría propia · `purchased` Comprada · `natural` Natural · `unknown` Desconocido |
+| Origen de la reina | ChipSelect | `own_rearing` Cría propia · `purchased` Comprada · `natural` Natural (reemplazo) · `unknown` Desconocido |
 | Estado | ChipSelect (edit only; new = `active`) | `active` Activa · `inactive` Inactiva · `dead` Muerta · `absconded` Fugada · `merged` Unida · `sold` Vendida |
 | Notas | multiline | ≤ 2000 |
 
-- `qr_code` is generated on create (M5 provides `newQrCode()`; until then this module includes the generator, 10 chars Crockford base32 from `expo-crypto` random bytes) and is not editable here (re-label is M5).
+- `qr_code` is generated on create by `newQrCode()` in `src/lib/qr-code.ts` (10 chars Crockford base32 from `expo-crypto` random bytes, the final generator, not a stub). It lives in `lib/` because both `features/hives` and `features/qr` (M5) need it and features do not import each other. Not editable here (re-label is M5).
 - Validation with Zod schemas in `src/features/hives/schema.ts` / `src/features/apiaries/schema.ts`, mirroring every B3 rule, so a permanent push failure is rare.
 - Save → `saveRow` (M3) → toast "Guardado en este dispositivo" → back to the detail.
 
@@ -67,7 +67,7 @@ An owner registers their sites ("Vallecito 1") and the hives in each, with the f
 
 ### Server rejections
 
-`duplicate_name`, `qr_taken`, `parent_mismatch`, `apiary_not_empty`, `not_owner` arrive as permanent outbox failures (M3) and show in Pendientes with their Spanish messages; tapping "Revisar" opens the edit form with the field highlighted. `qr_taken`: the app regenerates the code and re-queues automatically (no user action).
+`duplicate_name` (`23505` on `apiaries_org_name_key` / `hives_apiary_name_key`), `parent_mismatch`, `apiary_not_empty` and an RLS refusal (`42501`, e.g. the user was demoted to reviewer with an edit still queued) arrive as permanent outbox failures (M3) and show in Pendientes with their Spanish messages (`src/lib/errors.ts`); tapping "Revisar" opens the edit form with the field highlighted. `qr_taken` (`23505` on `hives_qr_code_key`) on a **new** hive: the pusher regenerates the code, updates the local row and re-queues it automatically, no user action (`api.md` → Errors). If a label had already been printed offline it no longer matches: the regeneration also writes a `qr_relabel` event, so the timeline shows "Cambio de etiqueta QR" and the owner reprints (odds ≈ 1 in 10^15 per code; accepted).
 
 ### Helpers
 
@@ -83,7 +83,7 @@ The UI hides owner actions for reviewers, but RLS (B3) is what refuses them; a r
 
 ## Backend contract used (B3)
 
-Tables `apiaries` (`name`, `farm_name`, `place`, `latitude`, `longitude`, `altitude_m`, `flora_notes`, `water_source`, `notes`) and `hives` (`apiary_id`, `name`, `qr_code`, `hive_type`, `brood_boxes`, `supers`, `colony_origin`, `colony_started_on`, `bee_race`, `queen_year`, `queen_marked`, `queen_color`, `queen_origin`, `status`, `notes`) with the common columns; error details `duplicate_name`, `qr_taken`, `parent_mismatch`, `apiary_not_empty`, `not_owner`.
+Tables `apiaries` (`name`, `farm_name`, `place`, `latitude`, `longitude`, `altitude_m`, `flora_notes`, `water_source`, `notes`) and `hives` (`apiary_id`, `name`, `qr_code`, `hive_type`, `brood_boxes`, `supers`, `colony_origin`, `colony_started_on`, `bee_race`, `queen_year`, `queen_marked`, `queen_color`, `queen_origin`, `status`, `notes`) with the common columns; errors `duplicate_name`, `qr_taken` (via the `23505` constraint table), `parent_mismatch`, `apiary_not_empty`, `future_date`, `immutable_column`, RLS `42501`; owner-only writes.
 
 ## Out of scope
 

@@ -15,11 +15,11 @@ In the apiary the beekeeper must reach the right hive in one gesture: point the 
 | Alphabet | Crockford base32 `0123456789ABCDEFGHJKMNPQRSTVWXYZ` (no I, L, O, U) |
 | Length | 10 characters (32^10 ≈ 1.1 × 10^15) |
 | Generation | `expo-crypto` `getRandomBytes(10)`, each byte `& 31` → alphabet index (32 divides 256: no modulo bias) |
-| When | When a hive is created. `qr_code` is required by B3, so M4 already creates hives with `newQrCode()`; if M4 shipped a stub generator, M5 replaces it with this one (same signature, codes already issued stay valid as long as they match the regex) |
-| Collision | Server unique index answers `qr_taken` (`detail`); the outbox marks the row "Requiere atención" and the fix action "Generar otro código" regenerates and re-queues |
+| When | When a hive is created. `qr_code` is required by B3, so M4 already ships `newQrCode()` in `src/lib/qr-code.ts`; this module adds the reading helpers to the same file |
+| Collision | `23505` on `hives_qr_code_key` → `qr_taken`. On a new hive the pusher regenerates silently (M4). On a **re-label** it is a permanent failure with "Ese código QR ya está en uso en otra colmena." and the Pendientes fix action "Generar otro código" (the scanned label belongs to another hive, possibly of another organization) |
 | Normalization on read | Uppercase; `O→0`, `I→1`, `L→1` (Crockford decoding rules); strip spaces and dashes |
 
-`src/features/qr/code.ts`: `newQrCode()`, `normalizeQrCode(input)`, `isQrCode(s)` (regex `^[0-9A-HJKMNP-TV-Z]{10}$`, same as B3).
+`src/lib/qr-code.ts`: `newQrCode()`, `isQrCode(s)` (M4; regex `^[0-9A-HJKMNP-TV-Z]{10}$`, same as B3), plus `normalizeQrCode(input)` and `parseQrPayload(text)` (this module).
 
 ### Payload
 
@@ -50,7 +50,7 @@ The QR encodes `landak://h/<qr_code>`. The scanner also accepts a bare 10-char c
 ### Lookup sequence (`src/features/qr/lookup.ts`)
 
 1. Local SQLite: `select id from hives where qr_code = ? and deleted_at is null` across every organization on the phone → found: open `/hive/<id>` (switch the active organization if it belongs to another one, with a toast "Cambiaste a <organización>").
-2. Not found, online: `supabase.from('hives').select('id, organization_id').eq('qr_code', code).is('deleted_at', null).maybeSingle()` under RLS → found: trigger a pull of that organization (it is ours but not synced yet) and open it.
+2. Not found, online: `supabase.from('hives').select('id, organization_id').eq('qr_code', code).is('deleted_at', null).maybeSingle()` under RLS → found: trigger a pull of that organization (it is ours but not synced yet) and open it once the hive row is local (the timeline uses the server fallback of M6 meanwhile).
 3. Not found anywhere:
    - User is owner of the active organization → "Este código no está asignado" with **"Asignar a una colmena"** (pick a hive of the active organization → re-label flow below) and "Volver a escanear".
    - Otherwise → "Esta colmena no pertenece a tus apiarios".

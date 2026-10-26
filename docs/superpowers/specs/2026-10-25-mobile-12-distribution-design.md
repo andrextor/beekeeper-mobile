@@ -13,12 +13,12 @@ The pilot needs an APK that a beekeeper installs without a computer, updates wit
 | Key | Value |
 |-----|-------|
 | `expo.name` | Landak Apiario |
-| `expo.slug` | `beekeeper-mobile` |
+| `expo.slug` | `landak-apiario` (as set in M1; the EAS project is created with it) |
 | `android.package` | `co.landak.apiario` (proposed; **cannot change after the first install** without users reinstalling) |
 | `expo.version` | SemVer, equal to `package.json` `version` |
 | `android.versionCode` | integer, +1 on every APK build (EAS `autoIncrement` on remote version source) |
 | `scheme` | `landak` (QR deep link `landak://h/<code>`, B3) |
-| `android.permissions` | `CAMERA`, `RECORD_AUDIO` only (no location, no storage permission needed on modern Android) |
+| `android.permissions` | `CAMERA`, `RECORD_AUDIO`, `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION` (M4 "Usar mi ubicación", foreground only) and nothing else: no background location, no storage permission (not needed on modern Android). `android.blockedPermissions` lists what config plugins add but the app does not use |
 
 ### EAS Build profiles (`eas.json`)
 
@@ -56,9 +56,9 @@ Decided by Iván, 2026-10-25.
 
 The phone may hold unsynced inspections; an APK or OTA update must never lose them.
 
-1. Migrations (`src/db/migrations/`, `PRAGMA user_version`) only add; never drop a column or table holding user data in the same release that stops using it.
+1. Migrations (`src/db/migrations/`, M3, `PRAGMA user_version`) only add; never drop a column or table holding user data in the same release that stops using it.
 2. **Before migrating**, copy the database file to `backups/db-<oldVersion>-<timestamp>.sqlite` (keep the last 2). If a migration throws, the transaction rolls back, the app opens a "No pudimos actualizar los datos" screen with "Enviar respaldo" (share the backup file) and does not touch the database.
-3. **Fixture tests**: `src/db/__fixtures__/v<N>.sql` — one snapshot per released `user_version` with unsynced outbox rows; a test migrates each fixture to the latest version and asserts every row and outbox entry survived. A release that adds a migration adds its fixture.
+3. **Fixture tests**: `src/db/__fixtures__/v<N>.sql` — one snapshot per released `user_version` with unsynced outbox rows and an open inspection draft; a test loads each fixture into the M3 test database (`src/db/test-db.ts`), migrates it to the latest version and asserts every row, outbox entry and draft survived. A release that adds a migration adds its fixture.
 4. OTA updates that change the local schema are forbidden: schema changes ship only in a new APK (runtime bump), so a half-updated JS bundle never meets an old schema.
 
 ### Install guide (`docs/install.md`, Spanish, for beekeepers)
@@ -78,7 +78,7 @@ Checklist: version bump (`package.json` + `app.json`), `CHANGELOG.md`, fixture f
 | Item | Verified by |
 |------|-------------|
 | APK installs and opens without a computer | Install from a WhatsApp link on a phone that never had a dev build |
-| Sign in and create organization, apiary, hive | M2 + M4 test steps on that phone |
+| Sign in and create organization, apiary, hive | M2 + M4 test steps on that phone, once with a self-created account and once with an account created by the admin (A6) |
 | Two organizations cannot see each other | B2 pgTAP tests + two phones with different accounts |
 | Real QR generated and scanned opens the right hive | Print 3 labels (M5), scan them in the apiary |
 | Manual inspection usable, history visible | M7 + M6 on site |

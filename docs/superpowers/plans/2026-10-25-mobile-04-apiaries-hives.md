@@ -4,13 +4,13 @@ Spec: `docs/superpowers/specs/2026-10-25-mobile-04-apiaries-hives-design.md` · 
 
 New dependencies (approval asked here): `expo-location`, `@react-native-community/datetimepicker` (native date picker, via `pnpm expo install`).
 
-1. **Schemas and helpers** — `src/features/apiaries/schema.ts`, `src/features/hives/schema.ts` (Zod, every B3 rule) + tests; `src/features/hives/age.ts`, `queen-color.ts`, `qr-code.ts` (`newQrCode()`) + tests; `next-name.ts` ("C-13") + test.
+1. **Schemas and helpers** — `src/features/apiaries/schema.ts`, `src/features/hives/schema.ts` (Zod, every B3 rule) + tests; `src/features/hives/age.ts`, `queen-color.ts`, `next-name.ts` ("C-13", per apiary) + tests; `src/lib/qr-code.ts` (`newQrCode()`, `isQrCode()`) + `qr-code.test.ts` (alphabet, length, regex identical to B3).
 2. **Local queries** — `src/features/apiaries/queries.ts` (list with active hive counts and last inspection, detail), `src/features/hives/queries.ts` (by apiary with filter, detail).
 3. **Apiarios tab and apiary detail** — `src/app/(tabs)/apiaries.tsx`, `src/app/apiary/[id]/index.tsx`, `ApiaryListItem.tsx`, `HiveListItem.tsx`, empty states per role.
 4. **Apiary form** — `src/app/apiary/new.tsx`, `src/app/apiary/[id]/edit.tsx`, `ApiaryForm.tsx` (location button, soft delete with `apiary_not_empty` check, undo).
 5. **Hive form** — `src/app/hive/new.tsx`, `src/app/hive/[id]/edit.tsx`, `HiveForm.tsx` (steppers, chips, queen color suggestion, live age).
 6. **Hive facts** — `src/app/hive/[id]/index.tsx` header (`HiveFacts.tsx`); timeline placeholder for M6.
-7. **Role gating and rejections** — `useRole()` in every owner action, edit-route guard; Pendientes "Revisar" opens the form with the failing field; automatic `qr_taken` regeneration in `push.ts` hook.
+7. **Role gating and rejections** — `useRole()` in every owner action, edit-route guard; Pendientes "Revisar" opens the form with the failing field; automatic `qr_taken` regeneration for new hives in a `push.ts` hook (new code + `qr_relabel` event, re-queued) + test.
 8. **Remove the M3 dev button** "Crear colmena de prueba".
 9. **Release** — `chore(release): 0.4.0`. Check: `pnpm ci:check`.
 
@@ -22,4 +22,5 @@ New dependencies (approval asked here): `expo-location`, `@react-native-communit
 4. Airplane mode off → synced; check in `beekeeper` admin or Studio.
 5. Try to delete Vallecito 2 while its hive is active → blocked message.
 6. Sign in as `reviewer@landak.test` → same lists, no "Nuevo"/"Editar" buttons.
-7. Create a hive named "C-01" (existing) while offline, go online → "Requiere atención" with "Ya existe…" → Revisar → rename → synced.
+7. Create a hive named "C-01" in Vallecito 1 (existing) while offline, go online → "Requiere atención" with "Ya hay una colmena con ese nombre en este apiario." → Revisar → rename → synced. A hive "C-01" in Vallecito 2 syncs fine (names are per apiary).
+8. Studio: demote `owner@` to reviewer while the phone has an edited hive queued offline → go online → "Requiere atención" with the permission message; restore the role → Revisar → save again → synced.
