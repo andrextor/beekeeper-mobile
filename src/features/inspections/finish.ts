@@ -6,7 +6,7 @@ import { fieldErrors } from '@/lib/form'
 import { type Draft, writeDraft } from './drafts'
 import { inspectionSchema } from './schema'
 
-type Write = { table: 'inspections' | 'hive_events'; row: ServerRow }
+type Write = { table: 'hives' | 'inspections' | 'hive_events'; row: ServerRow }
 
 /**
  * What Deshacer needs: the draft, for an edit the rows as they were before Terminar, and the hives
