@@ -60,7 +60,8 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
   }, [ready])
 
   if (!ready) return null
-  if (dbFailed) return <DbError onShare={() => void shareDatabase()} onRetry={openDb} />
+  if (dbFailed)
+    return <DbError onShare={() => void shareDatabase().catch(() => {})} onRetry={openDb} />
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bgSoft } }}>
