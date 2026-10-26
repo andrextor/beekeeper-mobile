@@ -13,9 +13,12 @@ export async function relabelHive(db: Db, hiveId: string, newCode: string): Prom
   const row = await db.getFirstAsync<LocalRow>('select * from hives where id = ?', [hiveId])
   if (!row) return false
   const hive = fromLocal('hives', row)
+  // Reused only while the hive's previous code is still queued too: once it reached the server,
+  // that code is history and the next change is a new event.
   const queued = await db.getFirstAsync<LocalRow>(
     `select e.* from hive_events e join outbox o on o.table_name = 'hive_events' and o.row_id = e.id
-     where e.hive_id = ? and e.type = 'qr_relabel'`,
+     where e.hive_id = ? and e.type = 'qr_relabel'
+       and exists (select 1 from outbox h where h.table_name = 'hives' and h.row_id = e.hive_id)`,
     [hiveId],
   )
   const now = new Date().toISOString()

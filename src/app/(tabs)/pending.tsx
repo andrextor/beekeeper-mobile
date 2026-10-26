@@ -76,10 +76,12 @@ export default function PendingScreen() {
   // A re-label whose code another hive has (spec M5): a fresh code, the same queued event.
   const newCode = async (entry: PendingEntry) => {
     try {
+      let saved = false
       await exclusive(async () => {
-        await relabelHive(await getDb(), entry.row_id, newQrCode())
+        saved = await relabelHive(await getDb(), entry.row_id, newQrCode())
       })
-      showToast('Código nuevo guardado. Imprime la etiqueta otra vez.')
+      if (saved) showToast('Código nuevo guardado. Imprime la etiqueta otra vez.')
+      else setError('Esta colmena ya no está en el teléfono. Usa "Descartar cambio".')
     } catch (e) {
       setError(messageFor(e))
     }

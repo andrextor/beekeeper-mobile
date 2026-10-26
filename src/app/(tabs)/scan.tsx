@@ -10,12 +10,10 @@ export default function ScanScreen() {
   const { state, setActiveOrganization } = useSession()
   const owner = useRole() === 'owner'
   const [focused, setFocused] = useState(false)
-  const memberships = state.status === 'signedIn' ? state.memberships : []
   const lookup = useCodeLookup({
     isOwner: owner,
+    memberships: state.status === 'signedIn' ? state.memberships : [],
     activeOrganizationId: state.status === 'signedIn' ? state.activeOrganizationId : null,
-    fincaName: (id) =>
-      memberships.find((m) => m.organization_id === id)?.organization_name ?? 'otra finca',
     switchFinca: setActiveOrganization,
   })
 

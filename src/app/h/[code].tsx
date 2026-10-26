@@ -14,26 +14,24 @@ export default function HiveLinkScreen() {
   const { state, setActiveOrganization } = useSession()
   const owner = useRole() === 'owner'
   const signedIn = state.status === 'signedIn' && state.memberships.length > 0
-  const memberships = state.status === 'signedIn' ? state.memberships : []
   const { state: found, open } = useCodeLookup({
     isOwner: owner,
+    memberships: state.status === 'signedIn' ? state.memberships : [],
     activeOrganizationId: state.status === 'signedIn' ? state.activeOrganizationId : null,
-    fincaName: (id) =>
-      memberships.find((m) => m.organization_id === id)?.organization_name ?? 'otra finca',
     switchFinca: setActiveOrganization,
     replace: true,
   })
 
+  const loading = state.status === 'loading'
   useEffect(() => {
-    if (signedIn && code) void open(code)
-  }, [signedIn, code, open])
+    if (loading || !code) return
+    if (signedIn) void open(code)
+    // Signed out or still without a finca: the tabs open it once they mount.
+    else keepLinkForLater(code)
+  }, [loading, signedIn, code, open])
 
-  if (state.status === 'loading') return null
-  if (!code) return <Redirect href="/" />
-  if (!signedIn) {
-    keepLinkForLater(code)
-    return <Redirect href="/" />
-  }
+  if (loading) return null
+  if (!code || !signedIn) return <Redirect href="/" />
   if (found.kind === 'idle') return null
   return (
     <ScanOutcome

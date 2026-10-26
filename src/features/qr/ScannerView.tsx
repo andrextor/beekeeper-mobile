@@ -51,6 +51,17 @@ export function ScannerView({ onCode }: { onCode: (code: string) => void }) {
   const insets = useSafeAreaInsets()
   const frame = Math.round(width * 0.7)
 
+  const manual = (
+    <ManualCodeSheet
+      visible={typing}
+      onClose={() => setTyping(false)}
+      onCode={(code) => {
+        setTyping(false)
+        onCode(code)
+      }}
+    />
+  )
+
   if (!permission) return null
   if (!permission.granted) {
     return (
@@ -76,14 +87,7 @@ export function ScannerView({ onCode }: { onCode: (code: string) => void }) {
           label="Escribir código"
           onPress={() => setTyping(true)}
         />
-        <ManualCodeSheet
-          visible={typing}
-          onClose={() => setTyping(false)}
-          onCode={(code) => {
-            setTyping(false)
-            onCode(code)
-          }}
-        />
+        {manual}
       </View>
     )
   }
@@ -131,14 +135,7 @@ export function ScannerView({ onCode }: { onCode: (code: string) => void }) {
         />
         <BigToggle icon={Keyboard} label="Escribir código" onPress={() => setTyping(true)} />
       </View>
-      <ManualCodeSheet
-        visible={typing}
-        onClose={() => setTyping(false)}
-        onCode={(code) => {
-          setTyping(false)
-          onCode(code)
-        }}
-      />
+      {manual}
     </View>
   )
 }

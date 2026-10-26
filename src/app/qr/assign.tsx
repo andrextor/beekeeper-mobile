@@ -16,12 +16,13 @@ import { useRole, useSession } from '@/features/auth/session'
 import { type FincaHive, useFincaHives } from '@/features/hives/queries'
 import { assignCode } from '@/features/qr/assign-code'
 import { messageFor } from '@/lib/errors'
-import { groupedQrCode } from '@/lib/qr-code'
+import { groupedQrCode, parseQrPayload } from '@/lib/qr-code'
 import { color } from '@/lib/theme'
 
 /** An unassigned label → a hive of the active finca (its old label stops working). */
 export default function AssignCodeScreen() {
-  const { code } = useLocalSearchParams<{ code: string }>()
+  const params = useLocalSearchParams<{ code?: string }>()
+  const code = parseQrPayload(params.code ?? '')
   const insets = useSafeAreaInsets()
   const { state } = useSession()
   const owner = useRole() === 'owner'
@@ -32,8 +33,9 @@ export default function AssignCodeScreen() {
 
   if (!owner)
     return <NotAvailable icon={Lock} title="Solo el propietario puede asignar etiquetas." />
+  if (!code) return <NotAvailable icon={Hexagon} title="Ese código no es válido." />
 
-  const assign = async (hive: FincaHive) => {
+  const assign = async (hive: FincaHive, code: string) => {
     setSaving(true)
     setError(null)
     try {
@@ -89,7 +91,7 @@ export default function AssignCodeScreen() {
         <Button
           label="Asignar etiqueta"
           loading={saving}
-          onPress={() => chosen && void assign(chosen)}
+          onPress={() => chosen && void assign(chosen, code)}
         />
         <Button variant="secondary" label="Cancelar" onPress={() => setChosen(null)} />
       </Sheet>

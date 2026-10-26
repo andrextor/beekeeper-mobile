@@ -33,6 +33,16 @@ async function removeLocal(db: Db, table: SyncedTable, id: string): Promise<void
   await db.runAsync(`delete from ${table} where id = ?`, [id])
 }
 
+/** A discarded hive change takes the `qr_relabel` event that announced its new code with it. */
+async function dropQueuedRelabels(db: Db, hiveId: string): Promise<void> {
+  const events = await db.getAllAsync<{ id: string }>(
+    `select e.id from hive_events e join outbox o on o.table_name = 'hive_events' and o.row_id = e.id
+     where e.hive_id = ? and e.type = 'qr_relabel' and e._on_server = 0`,
+    [hiveId],
+  )
+  for (const event of events) await removeLocal(db, 'hive_events', event.id)
+}
+
 /**
  * "Descartar cambio": a record the server has goes back to the server's version (or away, if this
  * person can no longer read it); a record that never reached the server is removed. Run it through
@@ -48,6 +58,7 @@ export async function discardChange(entry: PendingEntry): Promise<void> {
   const onServer = local?._on_server === 1
   const serverRow = onServer ? await fetchServerRow(table, entry.row_id) : null
   await db.transaction(async () => {
+    if (table === 'hives') await dropQueuedRelabels(db, entry.row_id)
     if (!onServer) return removeLocal(db, table, entry.row_id)
     await db.runAsync('delete from outbox where id = ?', [entry.id])
     if (serverRow) await applyServerRows(db, table, [serverRow], true)

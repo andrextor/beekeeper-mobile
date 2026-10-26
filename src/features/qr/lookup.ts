@@ -21,7 +21,8 @@ export type LookupDeps = {
   isOwner: boolean
 }
 
-const findLocal = (db: Db, code: string) =>
+/** The live hive with this code on the phone, any finca. */
+export const findLocal = (db: Db, code: string) =>
   db.getFirstAsync<Found>(
     'select id, organization_id from hives where qr_code = ? and deleted_at is null',
     [code],
