@@ -1,19 +1,21 @@
 # M7 · Inspection field mode — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-07-field-inspection-design.md` · Branch: `feat/m7-field-inspection` · Status: **awaiting OK**
+Spec: `docs/superpowers/specs/2026-10-25-mobile-07-field-inspection-design.md` · Branch: `feat/m7-field-inspection` · Status: **awaiting OK** (reviewed 2026-10-26 after M6)
 
-New dependencies (approval asked here; `pnpm expo install`; skip any already added in M1): `expo-keep-awake`, `expo-haptics`.
+No new dependencies: `expo-keep-awake` and `expo-haptics` came with M1.
 
 1. **Schema and helpers** — `src/features/inspections/schema.ts` (Zod mirroring B4) + `schema.test.ts` (every range edge, unknown pest, varroa coherence cases, sample size required for wash/roll, `inspected_at` +2 days refused, empty inspection valid); `varroa.ts` + test; `next-date.ts` (`addDays` in local zone) + test.
-2. **Drafts table** — `src/db/migrations/0002_inspection_drafts.ts` (local only, excluded from the sync table list) + `src/features/inspections/drafts.ts` (`openDraft(hiveId)`, `openEditDraft(inspectionId)`, `updateDraft`, `discardDraft`, `listDrafts`) + test on the M3 test database (one new draft per hive, an edit draft coexists, resume returns the same id).
-3. **Field components** — `src/components/field/{ScaleField,TriStateField,StepperField,ChipSelect,ActionTile,ActionGrid,FieldHeader}.tsx` with haptics, tap-again-to-clear, `accessibilityLabel`/`accessibilityValue`; if M1 already built some, only extend.
+2. **Drafts table** — `src/db/migrations/0002_inspection_drafts.ts` (local only, never in `syncedTables`; its hash appended to `migrations.test.ts`) + `src/features/inspections/drafts.ts` (`openDraft(hiveId)`, `openEditDraft(inspectionId)`, `updateDraft`, `discardDraft`, `listDrafts`) + test on the M3 test database (one new draft per hive, an edit draft coexists, resume returns the same id).
+3. **Field components** — M1 built all of them (`src/components/field/`) and M4 extended `TriStateField` (labels) and `StepperField` (start); this task only adds what field mode needs: a check badge and preview text on `ActionTile` for filled note slots.
 4. **Field mode screen** — `src/app/hive/[id]/inspect.tsx`, `src/features/inspections/{FieldInspection,FieldSections}.tsx`: sections from the spec table, labels from `src/lib/labels.ts`, autosave debounce 300 ms, keep-awake, resume toast.
 5. **Notes** — `src/features/inspections/NoteSheet.tsx`, slot logic in `drafts.ts`, filled-slot badges on tiles.
-6. **Finish and undo** — `src/features/inspections/finish.ts` (validate → one transaction: inspection + note events + outbox + delete draft; `undoFinish` for pushed / not-pushed cases) + test on the M3 test database (row counts, outbox entries, undo before and after push, finishing an undone pushed inspection restores it and its notes, edit keeps note ids).
+6. **Finish and undo** — `src/features/inspections/finish.ts` (validate → one transaction via `saveRows` + its new `extra` step: inspection + note events + outbox + delete draft; `undoFinish` for pushed / not-pushed cases) + test on the M3 test database (row counts, outbox entries, undo before and after push, finishing an undone pushed inspection restores it and its notes, edit keeps note ids).
 7. **Draft surfaces** — hive screen "Revisión sin terminar" card (M6 files), Pendientes tab drafts section (M3 files).
 8. **Release** — `chore(release): 0.7.0`. Check: `pnpm ci:check`.
 
 ## How Iván tests it
+
+Run in the final phone pass, on the single development build (Iván, 2026-10-26).
 
 On a real Android phone, dev build, **gloves on** for steps 2–5:
 
