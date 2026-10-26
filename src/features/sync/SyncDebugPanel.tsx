@@ -9,7 +9,8 @@ import { fromLocal, type LocalRow, type ServerRow } from '@/db/mapping'
 import { useLocalQuery } from '@/db/useLocalQuery'
 import { saveRow } from '@/db/write'
 import { messageFor } from '@/lib/errors'
-import { randomQrCode, uuid } from '@/lib/ids'
+import { uuid } from '@/lib/ids'
+import { newQrCode } from '@/lib/qr-code'
 import { setForcedFailure } from './push'
 
 type Props = { organizationId: string; userId: string; onMessage: (message: string) => void }
@@ -124,8 +125,8 @@ export function SyncDebugPanel({ organizationId, userId, onMessage }: Props) {
         organization_id: organizationId,
         created_by: userId,
         apiary_id: apiaryId,
-        name: name.trim() || `P-${randomQrCode().slice(0, 4)}`,
-        qr_code: randomQrCode(),
+        name: name.trim() || `P-${newQrCode().slice(0, 4)}`,
+        qr_code: newQrCode(),
         hive_type: null,
         brood_boxes: null,
         supers: null,
