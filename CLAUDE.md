@@ -8,6 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Never run tests or checks.** Iván runs them, always (2026-10-26). Do not run `pnpm test`, `pnpm typecheck`, `pnpm ci:check`, jest or any test command, not even the test just written. Write the code and the tests, commit each task, and at the end hand Iván the exact one-line command to run; he pastes back whatever fails.
 
+**Never start dev servers or long-running processes.** Iván starts them (2026-10-26): no `pnpm --filter admin dev`, `vite`, `supabase start`/`pnpm db:start` or background shells. Hand him the command; for a browser check, ask him to start the server. One-shot commands that apply or inspect state (`pnpm db:migrate`, `pnpm db:reset`, `pnpm db:types`, git) are fine.
+
 ## Project
 
 Landak Apiario Android app: offline-first hive management. Flow: scan a hive's QR → see its history → dictate or tap the inspection → confirm the proposed fields → saved on the phone → synced to Supabase when there is signal, never lost, never duplicated.

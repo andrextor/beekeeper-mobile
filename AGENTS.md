@@ -67,7 +67,7 @@ pnpm ci:check    # all of the above
 pnpm android     # dev build on a connected phone / emulator
 ```
 
-**Iván runs the tests and checks, never the session** (Iván, 2026-10-26): the session writes code and tests, commits each task, and hands Iván the exact command (`pnpm ci:check`) when the plan is done; he runs it and tests on his phone before merging.
+**Iván runs the tests and checks, never the session** (Iván, 2026-10-26): the session writes code and tests, commits each task, and hands Iván the exact command (`pnpm ci:check`) when the plan is done; he runs it and tests on his phone before merging. The session never starts Metro, dev builds, emulators or other long-running processes either; Iván starts them.
 
 ## Changelog and versions
 
