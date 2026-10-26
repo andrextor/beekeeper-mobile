@@ -1,5 +1,5 @@
 import { useKeepAwake } from 'expo-keep-awake'
-import { CircleCheck, Mic, Plus, StickyNote, TriangleAlert } from 'lucide-react-native'
+import { Camera, CircleCheck, Mic, Plus, StickyNote, TriangleAlert } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, ScrollView, type ScrollViewInstance, Text, View } from 'react-native'
 
@@ -42,6 +42,8 @@ type Props = {
   today: string
   onBack: () => void
   onFinished: (finished: Finished) => void
+  /** Opens the camera for this inspection (its photos link to the draft's id). */
+  onPhoto: () => void
 }
 
 const firstWords = (text: string) => (text.length > 18 ? `${text.slice(0, 18)}…` : text)
@@ -56,6 +58,7 @@ export function FieldInspection({
   today,
   onBack,
   onFinished,
+  onPhoto,
 }: Props) {
   useKeepAwake()
   const [fields, setFields] = useState(draft.fields)
@@ -239,6 +242,7 @@ export function FieldInspection({
         <ActionGrid
           actions={[
             { icon: Mic, label: 'Dictar', onPress: () => setDictating(true) },
+            { icon: Camera, label: 'Foto', onPress: onPhoto },
             slotTile(1),
             slotTile(2),
             {

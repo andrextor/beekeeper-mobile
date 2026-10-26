@@ -12,6 +12,8 @@ import { useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+// Photo eviction registers itself to run after every full sync (M9).
+import '@/features/photos/evict'
 import { useSession } from '@/features/auth/session'
 import { takeWaitingLink } from '@/features/qr/pending-link'
 import { useSyncTriggers } from '@/features/sync/triggers'

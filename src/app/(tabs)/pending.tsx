@@ -11,8 +11,10 @@ import { Toast } from '@/components/ui/Toast'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { useSession } from '@/features/auth/session'
+import { useLocalQuery } from '@/db/useLocalQuery'
 import { DraftCard, useDrafts } from '@/features/inspections/DraftCard'
 import { discardChange } from '@/features/sync/discard'
+import { allowMobileDataOnce } from '@/features/sync/network-policy'
 import { PendingList } from '@/features/sync/PendingList'
 import { entryTitle, type PendingEntry, usePendingEntries } from '@/features/sync/pending'
 import { relabelHive } from '@/features/sync/relabel'
@@ -34,6 +36,13 @@ function StatusChip({ status }: { status: SyncStatus }) {
 
 function Header({ status }: { status: SyncStatus }) {
   const { state } = useSession()
+  const waitingPhotos =
+    useLocalQuery<{ n: number }>(
+      `select count(*) as n from photos p join outbox o on o.table_name = 'photos' and o.row_id = p.id
+       where p._on_server = 0 and o.state = 'pending'`,
+      [],
+      ['photos', 'outbox'],
+    ).rows[0]?.n ?? 0
   const drafts = useDrafts({
     organizationId: state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : '',
   })
@@ -50,6 +59,21 @@ function Header({ status }: { status: SyncStatus }) {
         onPress={() => void syncNow()}
       />
       <FormError message={status.error} />
+      {waitingPhotos > 0 ? (
+        <View className="gap-2 rounded-card border-2 border-accent p-3">
+          <Text className="font-sans-semibold text-body text-text">
+            {`${plural(waitingPhotos, 'foto esperando', 'fotos esperando')} Wi-Fi`}
+          </Text>
+          <Button
+            variant="secondary"
+            label="Subir ahora con datos"
+            onPress={() => {
+              allowMobileDataOnce()
+              void syncNow()
+            }}
+          />
+        </View>
+      ) : null}
       <Text className="font-sans text-caption text-muted">
         {status.lastSyncAt
           ? `Última sincronización ${formatRelative(status.lastSyncAt)}`

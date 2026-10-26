@@ -2,8 +2,14 @@ import { useSyncExternalStore } from 'react'
 
 import { Toast } from './Toast'
 
-type Options = { onUndo?: () => void; durationMs?: number; tone?: 'success' | 'danger' }
-type Shown = Options & { message: string; key: number }
+type Options = {
+  onUndo?: () => void
+  /** Runs when the toast closes without "Deshacer": the moment a removal becomes final. */
+  onExpire?: () => void
+  durationMs?: number
+  tone?: 'success' | 'danger'
+}
+type Shown = Options & { message: string; key: number; undone?: boolean }
 
 export const undoFailed = 'No se pudo deshacer. Inténtalo otra vez desde la pantalla.'
 
@@ -44,10 +50,20 @@ export function ToastHost() {
       key={current?.key}
       message={current?.message ?? null}
       tone={current?.tone}
-      onUndo={current?.onUndo}
+      onUndo={
+        current?.onUndo
+          ? () => {
+              current.undone = true
+              current.onUndo?.()
+            }
+          : undefined
+      }
       durationMs={current?.durationMs}
       bottomOffset={aboveTabBar}
-      onHide={() => set(null)}
+      onHide={() => {
+        if (current && !current.undone) current.onExpire?.()
+        set(null)
+      }}
     />
   )
 }
