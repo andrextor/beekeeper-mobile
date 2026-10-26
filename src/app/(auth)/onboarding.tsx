@@ -21,7 +21,7 @@ export default function OnboardingScreen() {
   if (state.status !== 'signedIn') return null
   // Someone who already has a finca lands here only to add another one (never mid-creation).
   if (state.memberships.length > 0 && !creating) {
-    return <Redirect href={state.activeOrganizationId ? '/' : '/organizations'} />
+    return <Redirect href={state.activeOrganizationId ? '/(tabs)' : '/organizations'} />
   }
 
   if (creating) {

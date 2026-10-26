@@ -46,8 +46,8 @@ export default function TabsLayout() {
   const { state } = useSession()
 
   // "/" is where the app opens: send each auth state to its entry screen.
-  if (state.status !== 'signedIn') return <Redirect href="/welcome" />
-  if (state.memberships.length === 0) return <Redirect href="/onboarding" />
+  if (state.status !== 'signedIn') return <Redirect href="/(auth)/welcome" />
+  if (state.memberships.length === 0) return <Redirect href="/(auth)/onboarding" />
   if (!state.activeOrganizationId) return <Redirect href="/organizations" />
 
   return (
