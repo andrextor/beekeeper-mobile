@@ -1,6 +1,6 @@
 # M10 · Events: feeding, treatment, harvest, queen change, split, swarm, merge, transfer, loss — spec
 
-Date: 2026-10-25 · Branch: `feat/m10-events` · Status: **awaiting OK** (reviewed 2026-10-26 after M9) · Version: 0.10.0
+Date: 2026-10-25 · Branch: `feat/m10-events` · Status: **approved** (Iván, 2026-10-26) · Version: 0.10.0
 
 ## Problem
 
