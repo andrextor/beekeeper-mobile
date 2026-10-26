@@ -21,9 +21,9 @@ La galería de componentes está en Perfil → **Galería de componentes** (solo
 ## APK de desarrollo sin Android Studio
 
 ```bash
-pnpm dlx eas-cli@latest login
-pnpm dlx eas-cli@latest build -p android --profile development          # en la nube
-pnpm dlx eas-cli@latest build -p android --profile development --local  # en el Mac
+npx eas-cli@latest login
+npx eas-cli@latest build -p android --profile development          # en la nube
+npx eas-cli@latest build -p android --profile development --local  # en el Mac
 ```
 
 Se instala el APK en el teléfono y luego `pnpm start`. El perfil `preview` produce un APK sin herramientas de desarrollo.
