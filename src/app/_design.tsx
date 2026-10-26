@@ -33,6 +33,8 @@ import { Sheet } from '@/components/ui/Sheet'
 import { SyncChip } from '@/components/ui/SyncChip'
 import { TextField } from '@/components/ui/TextField'
 import { Toast } from '@/components/ui/Toast'
+import { useSession } from '@/features/auth/session'
+import { SyncDebugPanel } from '@/features/sync/SyncDebugPanel'
 import { formatLastInspection } from '@/lib/format'
 import { successHaptic } from '@/lib/haptics'
 import {
@@ -51,6 +53,7 @@ export default function DesignRoute() {
 const noop = () => {}
 
 function Gallery() {
+  const { state } = useSession()
   const [toast, setToast] = useState<string | null>(null)
   const [sheet, setSheet] = useState(false)
   const [dictation, setDictation] = useState(false)
@@ -78,6 +81,15 @@ function Gallery() {
         onBack={() => router.back()}
       />
       <Screen field topInset={false}>
+        {state.status === 'signedIn' && state.activeOrganizationId ? (
+          <Section title="Sincronización (pruebas)">
+            <SyncDebugPanel
+              organizationId={state.activeOrganizationId}
+              userId={state.session.user.id}
+              onMessage={setToast}
+            />
+          </Section>
+        ) : null}
         <Section title="Field · acciones">
           <ActionGrid
             actions={[
