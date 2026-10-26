@@ -38,6 +38,11 @@ export function useDictation(room: number) {
     onDevice: false,
   })
   const text = useRef('')
+  // Recognition events are global: only the hook that started this session listens to them.
+  const owner = useRef(false)
+  // A start still waiting for permission or locales is forgotten by reset (Cancelar).
+  const generation = useRef(0)
+  const startRoom = useRef(room)
 
   const begin = (lang: string, onDevice: boolean) => {
     owner.current = true
