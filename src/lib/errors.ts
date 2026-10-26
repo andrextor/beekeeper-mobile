@@ -10,18 +10,25 @@ const detailMessages: Record<string, string> = {
 }
 
 /** `23505`: the constraint name comes in `message`. */
-const uniqueMessages: Record<string, string> = {
-  organization_invites_code_key: 'No pudimos crear el código. Inténtalo de nuevo.',
-  apiaries_org_name_key: 'Ya tienes un apiario con ese nombre.',
-  hives_apiary_name_key: 'Ya hay una colmena con ese nombre en este apiario.',
-  hives_qr_code_key: 'Ese código QR ya está en uso en otra colmena.',
+const uniqueViolations: Record<string, { code: string; message: string }> = {
+  organization_invites_code_key: {
+    code: 'code_collision',
+    message: 'No pudimos crear el código. Inténtalo de nuevo.',
+  },
+  apiaries_org_name_key: {
+    code: 'duplicate_name',
+    message: 'Ya tienes un apiario con ese nombre.',
+  },
+  hives_apiary_name_key: {
+    code: 'duplicate_name',
+    message: 'Ya hay una colmena con ese nombre en este apiario.',
+  },
+  hives_qr_code_key: { code: 'qr_taken', message: 'Ese código QR ya está en uso en otra colmena.' },
 }
 
-const uniqueCodes: Record<string, string> = {
-  organization_invites_code_key: 'code_collision',
-  apiaries_org_name_key: 'duplicate_name',
-  hives_apiary_name_key: 'duplicate_name',
-  hives_qr_code_key: 'qr_taken',
+function uniqueViolation(message: unknown) {
+  const constraint = Object.keys(uniqueViolations).find((c) => str(message)?.includes(c))
+  return constraint ? uniqueViolations[constraint] : undefined
 }
 
 const authMessages: Record<string, string> = {
@@ -61,10 +68,7 @@ export function isNetworkError(error: unknown): boolean {
 export function errorCode(error: unknown): string | undefined {
   const { code, details, message } = shape(error)
   if (code === 'P0001') return str(details)
-  if (code === '23505') {
-    const constraint = Object.keys(uniqueCodes).find((c) => str(message)?.includes(c))
-    return constraint ? uniqueCodes[constraint] : 'duplicate'
-  }
+  if (code === '23505') return uniqueViolation(message)?.code ?? 'duplicate'
   return str(code)
 }
 
@@ -75,10 +79,7 @@ export function messageFor(error: unknown): string {
     const detail = str(details)
     return (detail && detailMessages[detail]) ?? str(message) ?? generic
   }
-  if (code === '23505') {
-    const constraint = Object.keys(uniqueMessages).find((c) => str(message)?.includes(c))
-    return constraint ? (uniqueMessages[constraint] ?? generic) : generic
-  }
+  if (code === '23505') return uniqueViolation(message)?.message ?? generic
   if (code === '23514') return 'Revisa los datos: hay un valor fuera de rango.'
   if (code === '42501')
     return 'No tienes permiso para este cambio. Pide al propietario que lo haga.'

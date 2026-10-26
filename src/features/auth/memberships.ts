@@ -30,8 +30,12 @@ export async function fetchMemberships(): Promise<Membership[]> {
 export async function cachedMemberships(): Promise<Membership[]> {
   const raw = await AsyncStorage.getItem(cacheKey)
   if (!raw) return []
-  const parsed = membershipsSchema.safeParse(JSON.parse(raw))
-  return parsed.success ? parsed.data : []
+  try {
+    const parsed = membershipsSchema.safeParse(JSON.parse(raw))
+    return parsed.success ? parsed.data : []
+  } catch {
+    return []
+  }
 }
 
 export async function storedActiveOrganizationId(): Promise<string | null> {

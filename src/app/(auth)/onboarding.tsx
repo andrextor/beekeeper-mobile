@@ -1,12 +1,12 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router'
 import { Hexagon, KeyRound } from 'lucide-react-native'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
 import { Button } from '@/components/ui/Button'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { createOrganization, updateDisplayName } from '@/features/auth/organizations'
+import { createOrganization, includesFinca, updateDisplayName } from '@/features/auth/organizations'
 import { useSession } from '@/features/auth/session'
 import { messageFor } from '@/lib/errors'
 import { uuid } from '@/lib/ids'
@@ -18,8 +18,8 @@ export default function OnboardingScreen() {
   const [creating, setCreating] = useState(add === '1')
 
   if (state.status !== 'signedIn') return null
-  // Someone who already has a finca lands here only to add another one.
-  if (state.memberships.length > 0 && add !== '1') {
+  // Someone who already has a finca lands here only to add another one (never mid-creation).
+  if (state.memberships.length > 0 && !creating) {
     return <Redirect href={state.activeOrganizationId ? '/' : '/organizations'} />
   }
 
@@ -29,7 +29,7 @@ export default function OnboardingScreen() {
         userId={state.session.user.id}
         email={state.session.user.email ?? ''}
         onCreated={async (id) => {
-          await refreshMemberships()
+          includesFinca(await refreshMemberships(true), id)
           await setActiveOrganization(id)
           router.replace('/apiaries')
         }}
@@ -95,7 +95,7 @@ function CreateFinca({
   email: string
   onCreated: (id: string) => Promise<void>
 }) {
-  const [id] = useState(uuid)
+  const id = useRef(uuid())
   const [name, setName] = useState(`Finca de ${email.split('@')[0] ?? ''}`)
   const [displayName, setDisplayName] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -103,6 +103,7 @@ function CreateFinca({
 
   const trimmed = name.trim()
   const submit = async () => {
+    if (busy || !trimmed) return
     setBusy(true)
     setError(null)
     try {

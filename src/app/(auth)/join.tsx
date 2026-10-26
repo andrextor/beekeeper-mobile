@@ -5,7 +5,7 @@ import { Text, TextInput, View } from 'react-native'
 import { Button } from '@/components/ui/Button'
 import { Screen } from '@/components/ui/Screen'
 import { formatInviteCode, isCompleteInviteCode } from '@/features/auth/invite-code'
-import { acceptInvite } from '@/features/auth/organizations'
+import { acceptInvite, includesFinca } from '@/features/auth/organizations'
 import { useSession } from '@/features/auth/session'
 import { messageFor } from '@/lib/errors'
 import { color } from '@/lib/theme'
@@ -15,17 +15,27 @@ export default function JoinScreen() {
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  // A code works once: after accept_invite succeeds, a retry only reloads the fincas.
+  const [joinedId, setJoinedId] = useState<string | null>(null)
+  const canSubmit = !busy && (joinedId !== null || isCompleteInviteCode(code))
 
   const submit = async () => {
+    if (!canSubmit) return
     setBusy(true)
     setError(null)
+    let organizationId = joinedId
     try {
-      const organizationId = await acceptInvite(code)
-      await refreshMemberships()
+      organizationId ??= await acceptInvite(code)
+      setJoinedId(organizationId)
+      includesFinca(await refreshMemberships(true), organizationId)
       await setActiveOrganization(organizationId)
       router.replace('/')
     } catch (e) {
-      setError(messageFor(e))
+      setError(
+        organizationId
+          ? 'Ya eres parte de la finca, pero no pudimos cargarla. Revisa tu conexión y toca Reintentar.'
+          : messageFor(e),
+      )
     } finally {
       setBusy(false)
     }
@@ -50,9 +60,9 @@ export default function JoinScreen() {
           autoCorrect={false}
           autoComplete="off"
           returnKeyType="go"
-          onSubmitEditing={() => isCompleteInviteCode(code) && submit()}
-          style={{ fontFamily: 'monospace', letterSpacing: 4 }}
-          className="min-h-field text-center text-[28px] text-text"
+          editable={joinedId === null}
+          onSubmitEditing={submit}
+          className="min-h-field text-center font-mono text-code tracking-widest text-text"
         />
       </View>
       {error ? (
@@ -61,9 +71,9 @@ export default function JoinScreen() {
         </Text>
       ) : null}
       <Button
-        label="Unirme a la finca"
+        label={joinedId ? 'Reintentar' : 'Unirme a la finca'}
         loading={busy}
-        disabled={!isCompleteInviteCode(code)}
+        disabled={!canSubmit && !busy}
         onPress={submit}
       />
     </Screen>

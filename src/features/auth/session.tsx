@@ -36,20 +36,29 @@ export type AuthState =
 
 type SessionContext = {
   state: AuthState
-  /** Reloads `my_memberships()`; offline it keeps the cached list. */
-  refreshMemberships: () => Promise<Membership[]>
+  /** Reloads `my_memberships()`; offline it keeps the cached list, unless `strict` (then it throws). */
+  refreshMemberships: (strict?: boolean) => Promise<Membership[]>
   setActiveOrganization: (id: string) => Promise<void>
 }
 
 const Context = createContext<SessionContext | null>(null)
 
-export const lastSignedInEmail = () => SecureStore.getItemAsync(lastEmailKey)
+export const lastSignedInEmail = () => orElse(SecureStore.getItemAsync(lastEmailKey), null)
+
+/** A failing local store (keystore reset, corrupted cache) must never keep the app on the splash. */
+async function orElse<T>(promise: Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await promise
+  } catch {
+    return fallback
+  }
+}
 
 async function loadMemberships(): Promise<Membership[]> {
   try {
     return await fetchMemberships()
   } catch {
-    return cachedMemberships()
+    return orElse(cachedMemberships(), [])
   }
 }
 
@@ -58,19 +67,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const userId = useRef<string | null>(null)
 
   const enter = useCallback(async (session: Session, isNewSignIn: boolean) => {
-    userId.current = session.user.id
-    const email = session.user.email ?? ''
+    const id = session.user.id
+    userId.current = id
+    const email = (session.user.email ?? '').toLowerCase()
     if (isNewSignIn) {
       // Data kept after an expired session belongs to the previous person; another account starts clean.
-      const previous = await SecureStore.getItemAsync(lastEmailKey)
-      if (previous && previous !== email) await wipeLocalData()
-      await SecureStore.setItemAsync(lastEmailKey, email)
+      const previous = await orElse(SecureStore.getItemAsync(lastEmailKey), null)
+      if (previous && previous.toLowerCase() !== email) await orElse(wipeLocalData(), undefined)
+      await orElse(SecureStore.setItemAsync(lastEmailKey, email), undefined)
     }
-    const memberships = isNewSignIn ? await loadMemberships() : await cachedMemberships()
-    const activeOrganizationId = pickActive(memberships, await storedActiveOrganizationId())
-    setState({ status: 'signedIn', session, memberships, activeOrganizationId })
+    const memberships = isNewSignIn
+      ? await loadMemberships()
+      : await orElse(cachedMemberships(), [])
+    const stored = await orElse(storedActiveOrganizationId(), null)
+    // A SIGNED_OUT (or another account) that arrived during the awaits wins.
+    if (userId.current !== id) return
+    setState({
+      status: 'signedIn',
+      session,
+      memberships,
+      activeOrganizationId: pickActive(memberships, stored),
+    })
     if (!isNewSignIn) {
       const fresh = await loadMemberships()
+      if (userId.current !== id) return
       setState((s) =>
         s.status === 'signedIn'
           ? {
@@ -101,8 +121,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => data.subscription.unsubscribe()
   }, [enter])
 
-  const refreshMemberships = useCallback(async () => {
-    const memberships = await loadMemberships()
+  const refreshMemberships = useCallback(async (strict = false) => {
+    const memberships = strict ? await fetchMemberships() : await loadMemberships()
     setState((s) =>
       s.status === 'signedIn'
         ? {
@@ -116,7 +136,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const setActiveOrganization = useCallback(async (id: string) => {
-    await storeActiveOrganizationId(id)
+    await orElse(storeActiveOrganizationId(id), undefined)
     setState((s) => (s.status === 'signedIn' ? { ...s, activeOrganizationId: id } : s))
   }, [])
 

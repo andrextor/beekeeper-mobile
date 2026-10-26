@@ -42,6 +42,14 @@ describe('LargeSecureStore', () => {
     expect(await store.getItem('sb-auth')).toBeNull()
   })
 
+  it('keeps the key across writes so one write replaces the session', async () => {
+    await store.setItem('sb-auth', session)
+    const key = mockSecureData.get('sb-auth')
+    await store.setItem('sb-auth', 'refreshed')
+    expect(mockSecureData.get('sb-auth')).toBe(key)
+    expect(await store.getItem('sb-auth')).toBe('refreshed')
+  })
+
   it('removes the value and its key', async () => {
     await store.setItem('sb-auth', session)
     await store.removeItem('sb-auth')

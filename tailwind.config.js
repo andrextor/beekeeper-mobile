@@ -34,6 +34,7 @@ module.exports = {
       sans: ['Inter_400Regular'],
       'sans-semibold': ['Inter_600SemiBold'],
       'sans-bold': ['Inter_700Bold'],
+      mono: ['monospace'],
     },
     fontSize: {
       caption: ['15px', '20px'],
@@ -42,6 +43,7 @@ module.exports = {
       title: ['26px', '32px'],
       'field-label': ['22px', '28px'],
       'field-value': ['32px', '38px'],
+      code: ['28px', '36px'],
     },
     extend: {
       borderRadius: {

@@ -48,8 +48,10 @@ export default function SignInScreen() {
 
   // Another account on this phone erases what the previous one left unsynced: say so first.
   const submit = async () => {
+    if (busy || !email.trim() || !password) return
     const pending = await pendingCount()
-    if (lastEmail && lastEmail !== email.trim() && pending > 0) return setPendingOfOther(pending)
+    const other = lastEmail && lastEmail.toLowerCase() !== email.trim().toLowerCase()
+    if (other && pending > 0) return setPendingOfOther(pending)
     await signIn()
   }
 

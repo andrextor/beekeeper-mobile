@@ -22,6 +22,7 @@ export default function SignUpScreen() {
   const repeatError = repeat && repeat !== password ? 'Las contraseñas no coinciden.' : undefined
 
   const submit = async () => {
+    if (busy || !email.trim() || !password || !repeat) return
     if (password.length < minPassword)
       return setError('La contraseña debe tener al menos 8 caracteres.')
     if (password !== repeat) return setError('Las contraseñas no coinciden.')
