@@ -1,6 +1,7 @@
 import type { Db } from '@/db/db'
 import { fromLocal, type LocalRow, type ServerRow } from '@/db/mapping'
 import { saveRows } from '@/db/write'
+import { isRecord } from '@/lib/guards'
 import { uuid } from '@/lib/ids'
 
 /**
@@ -25,10 +26,7 @@ export async function relabelHive(db: Db, hiveId: string, newCode: string): Prom
   const pending = queued ? fromLocal('hive_events', queued) : null
   const pendingDetails = pending?.details
   const oldCode =
-    typeof pendingDetails === 'object' &&
-    pendingDetails !== null &&
-    !Array.isArray(pendingDetails) &&
-    typeof pendingDetails.old_qr_code === 'string'
+    isRecord(pendingDetails) && typeof pendingDetails.old_qr_code === 'string'
       ? pendingDetails.old_qr_code
       : hive.qr_code
   const event: ServerRow<'hive_events'> = pending

@@ -1,6 +1,6 @@
 # M6 · Hive detail and timeline — spec
 
-Date: 2026-10-25 · Branch: `feat/m6-hive-timeline` · Status: **awaiting OK** · Version: 0.6.0
+Date: 2026-10-25 · Branch: `feat/m6-hive-timeline` · Status: **approved** (Iván, 2026-10-26) · Version: 0.6.0
 
 ## Problem
 
@@ -17,12 +17,16 @@ Top to bottom:
 | Header | Apiary › hive name (Plus Jakarta Sans 26), status badge (DESIGN.md hive status), `SyncChip` for the hive's pending rows |
 | Attention card (only if any) | Last inspection `attention_level` `soon`/`urgent` (`clock` / `siren`, `honey` / `danger`), `next_inspection_on` due or overdue ("Revisión atrasada 3 días"), active treatment (`treatment` event with `ends_on` ≥ today) |
 | Last inspection facts | "Última revisión hace 12 días · por Ana" + up to 4 facts: Fuerza, Reina (vista / no vista / no revisado), Cría (cuadros), Reservas |
-| **Nueva revisión** | Full-width 72-dp `primary` button, `clipboard-check` icon, fixed above the tab bar (thumb zone) |
+| **Nueva revisión** | Full-width 72-dp `primary` button, `clipboard-check` icon, fixed at the bottom of the screen (thumb zone); it opens `hive/[id]/inspect`, which M7 builds; until then that route is a placeholder |
 | Hive facts (collapsed) | Type, brood boxes, supers, origin, age from `colony_started_on`, queen year + color dot + marked + origin, notes |
 | Photos strip | Last 10 thumbnails (only once M9 exists; hidden before), tap → viewer |
 | Timeline | Inspections and events merged, newest first |
 
-Owner extra actions in a header menu: Editar colmena (M4), Etiqueta QR / Cambiar etiqueta (M5).
+Actions stay as M4/M5 left them, big buttons below the facts instead of a header menu (a small menu icon fails with gloves): Etiqueta QR for everyone (M5, where owners also find Cambiar etiqueta), Editar colmena for owners (M4). M4's `HiveFacts` card is reused, collapsed by default.
+
+### Timestamps compared as text
+
+SQLite compares the ISO strings as text. Pulled rows arrive as `2026-10-26T10:00:00.123456+00:00` and local writes as `2026-10-26T10:00:00.123Z`, which order wrongly within the same second. M3's `toLocal` therefore normalizes every timestamp column (`created_at`, `updated_at`, `deleted_at`, `inspected_at`, `occurred_at`, `taken_at`) to `YYYY-MM-DDTHH:MM:SS.mmmZ` by string rewriting (no `Date` parsing, Hermes lesson). Cursors of the pull keep using the server's raw strings (M3), so nothing is lost there.
 
 ### Timeline data (local)
 

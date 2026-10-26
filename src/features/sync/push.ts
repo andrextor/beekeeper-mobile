@@ -2,6 +2,7 @@ import type { Db } from '@/db/db'
 import type { SyncedTable } from '@/db/mapping'
 import { applyServerRows } from '@/db/write'
 import { errorCode, messageFor } from '@/lib/errors'
+import { isRecord } from '@/lib/guards'
 import { newQrCode } from '@/lib/qr-code'
 import { classify, retryDelayMs } from './classify'
 import { type OutboxEntry, pushSteps, type Step } from './order'
@@ -81,9 +82,6 @@ async function mustWait(db: Db, { entry, payload }: Step): Promise<boolean> {
   }
   return false
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
 
 async function settle(db: Db, step: Step, answer: Answer, now: Date): Promise<'go' | 'stop'> {
   const { entry } = step

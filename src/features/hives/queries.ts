@@ -69,3 +69,37 @@ export function useFincaHives(organizationId: string): FincaHive[] {
     ['hives', 'apiaries'],
   ).rows
 }
+
+/** What the attention card needs: the latest inspection and treatments still running. */
+export function useHiveAttentionData(hiveId: string, today: string) {
+  const last = useLocalQuery<{ attention_level: string | null; next_inspection_on: string | null }>(
+    `select attention_level, next_inspection_on from inspections
+     where hive_id = ? and deleted_at is null order by inspected_at desc, id desc limit 1`,
+    [hiveId],
+    ['inspections'],
+  ).rows[0]
+  const treatments = useLocalQuery<{ details: string }>(
+    `select details from hive_events where hive_id = ? and type = 'treatment' and deleted_at is null
+     and json_extract(details, '$.ends_on') >= ? order by occurred_at desc limit 5`,
+    [hiveId, today],
+    ['hive_events'],
+  ).rows
+  return {
+    last: last ?? null,
+    treatments: treatments.map((t) => ({ details: JSON.parse(t.details) as unknown })),
+  }
+}
+
+/** The hive's own changes still in the outbox (its row and everything recorded on it). */
+export function useHiveQueue(hiveId: string): { pending: number; attention: number } {
+  const row = useLocalQuery<{ pending: number; attention: number }>(
+    `select
+       coalesce(sum(state = 'pending'), 0) as pending,
+       coalesce(sum(state = 'failed_permanent'), 0) as attention
+     from outbox where (table_name = 'hives' and row_id = ?)
+       or json_extract(payload, '$.hive_id') = ?`,
+    [hiveId, hiveId],
+    ['outbox'],
+  ).rows[0]
+  return { pending: row?.pending ?? 0, attention: row?.attention ?? 0 }
+}

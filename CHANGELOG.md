@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-26
+
+### Added
+
+- Hive screen: attention card (urgent, overdue or due today, active treatment), last inspection "hace … · por …" with four facts, the hive's sync state, collapsible facts, and **Nueva revisión** fixed at the bottom (field mode arrives with M7).
+- History: inspections and events newest first with the admin's summary lines, notes inside their inspection, author ("Antiguo miembro" when unknown), pending or attention marks; **Cargar más** in steps of 30.
+- While the finca's first download runs, the history comes from the server (`hive_timeline`) with a notice; offline, what the phone has, saying part may be missing.
+- Inspection read view: every recorded field, the dictation as a quote, notes and the events recorded during it; **Editar revisión** for its author or an owner.
+- Inicio: **Para revisar** (urgent, overdue, due today, soon), **Tareas** grouped by planned action, **Última actividad**, "Todo al día" and **Escanear colmena**.
+
+### Fixed
+
+- Local timestamps are stored in one text format, so items within the same second order correctly.
+
 ## [0.5.0] - 2026-10-26
 
 ### Added
