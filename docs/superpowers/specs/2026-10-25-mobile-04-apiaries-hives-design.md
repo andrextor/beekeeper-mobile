@@ -1,6 +1,6 @@
 # M4 · Apiaries and hives — spec
 
-Date: 2026-10-25 · Branch: `feat/m4-apiaries-hives` · Status: **awaiting OK** · Version: 0.4.0
+Date: 2026-10-25 · Branch: `feat/m4-apiaries-hives` · Status: **approved** · Version: 0.4.0
 
 ## Problem
 
@@ -17,9 +17,9 @@ An owner registers their sites ("Vallecito 1") and the hives in each, with the f
 
 ### Screens
 
-**Apiarios tab** (`(tabs)/apiaries.tsx`): search field (name or farm), list of `apiaries` of the active organization where `deleted_at is null`, ordered by name. Item: name (Plus Jakarta Sans 20), farm name · place, "N colmenas activas", last inspection relative (from local `inspections`). Owner: floating "Nuevo apiario" button (56 dp, bottom right, thumb zone). Empty state: owner "Crea tu primer apiario" + button; reviewer "Este apicultor aún no tiene apiarios.".
+**Apiarios tab** (`(tabs)/apiaries.tsx`): search field (name or farm; case- and accent-insensitive with a small fold in `src/lib/text.ts`, not `String.prototype.normalize`, which Hermes may lack), list of `apiaries` of the active organization where `deleted_at is null`, ordered by name. Item: name (Plus Jakarta Sans 20), farm name · place, "N colmenas activas", last inspection relative (from local `inspections`). Owner: floating "Nuevo apiario" button (56 dp, bottom right, thumb zone). Empty state: owner "Crea tu primer apiario" + button; reviewer "Este apicultor aún no tiene apiarios.".
 
-**Apiary detail** (`apiary/[id]/index.tsx`): header with facts (farm, place, altitude, flora, water, notes; "Ver en mapa" opens `geo:` intent only when coordinates exist). Hive list with chips **Activas** (default) / **Todas**; item: name, status badge, type, queen color dot, last inspection, attention badge from the last inspection's `attention_level`. Owner: "Nueva colmena", "Editar apiario".
+**Apiary detail** (`apiary/[id]/index.tsx`): header with facts (farm, place, altitude, flora, water, notes; "Ver en mapa" opens `geo:` intent only when coordinates exist). Hive list (local query, `limit 500`) with chips **Activas** (default) / **Todas**; item: name, status badge, type, queen color dot, last inspection, attention badge from the last inspection's `attention_level`. Owner: "Nueva colmena", "Editar apiario".
 
 **Hive facts** (`hive/[id]/index.tsx` header part; the timeline below is M6): name, apiary, status, type, brood boxes / supers, origin, age, race, queen (year, color dot + name, marked, origin), notes. Owner: "Editar".
 
@@ -57,7 +57,8 @@ An owner registers their sites ("Vallecito 1") and the hives in each, with the f
 | Estado | ChipSelect (edit only; new = `active`) | `active` Activa · `inactive` Inactiva · `dead` Muerta · `absconded` Fugada · `merged` Unida · `sold` Vendida |
 | Notas | multiline | ≤ 2000 |
 
-- `qr_code` is generated on create by `newQrCode()` in `src/lib/qr-code.ts` (10 chars Crockford base32 from `expo-crypto` random bytes, the final generator, not a stub). It lives in `lib/` because both `features/hives` and `features/qr` (M5) need it and features do not import each other. Not editable here (re-label is M5).
+- `qr_code` is generated on create by `newQrCode()` in `src/lib/qr-code.ts` (10 chars Crockford base32 from `expo-crypto` random bytes, the final generator, not a stub; it replaces M3's `randomQrCode()` in `src/lib/ids.ts`). It lives in `lib/` because both `features/hives` and `features/qr` (M5) need it and features do not import each other. Not editable here (re-label is M5).
+- Features never read the session: routes pass the role (`useRole()`) and the active finca to the feature components.
 - Validation with Zod schemas in `src/features/hives/schema.ts` / `src/features/apiaries/schema.ts`, mirroring every B3 rule, so a permanent push failure is rare.
 - Save → `saveRow` (M3) → toast "Guardado en este dispositivo" → back to the detail.
 
@@ -67,11 +68,11 @@ An owner registers their sites ("Vallecito 1") and the hives in each, with the f
 
 ### Server rejections
 
-`duplicate_name` (`23505` on `apiaries_org_name_key` / `hives_apiary_name_key`), `parent_mismatch`, `apiary_not_empty` and an RLS refusal (`42501`, e.g. the user was demoted to reviewer with an edit still queued) arrive as permanent outbox failures (M3) and show in Pendientes with their Spanish messages (`src/lib/errors.ts`); tapping "Revisar" opens the edit form with the field highlighted. `qr_taken` (`23505` on `hives_qr_code_key`) on a **new** hive: the pusher regenerates the code, updates the local row and re-queues it automatically, no user action (`api.md` → Errors). If a label had already been printed offline it no longer matches: the regeneration also writes a `qr_relabel` event, so the timeline shows "Cambio de etiqueta QR" and the owner reprints (odds ≈ 1 in 10^15 per code; accepted). `parent_deleted` (the apiary was deleted elsewhere) follows M3: an edit of a synced hive is dropped, a hive created offline shows Requiere atención.
+`duplicate_name` (`23505` on `apiaries_org_name_key` / `hives_apiary_name_key`), `parent_mismatch`, `apiary_not_empty` and an RLS refusal (`42501`, e.g. the user was demoted to reviewer with an edit still queued) arrive as permanent outbox failures (M3) and show in Pendientes with their Spanish messages (`src/lib/errors.ts`); the Pendientes card gets the **Revisar** button M3 left for this module: an apiary or hive entry opens its edit form, with the name field highlighted for `duplicate_name`. `qr_taken` (`23505` on `hives_qr_code_key`) on a **new** hive (`_on_server = 0`): the pusher (M3 `push.ts`) regenerates the code, updates the local row and re-queues it automatically, no user action (`api.md` → Errors). If a label had already been printed offline it no longer matches: the regeneration also writes a `qr_relabel` event, so the timeline shows "Cambio de etiqueta QR" and the owner reprints (odds ≈ 1 in 10^15 per code; accepted). `parent_deleted` (the apiary was deleted elsewhere) follows M3: an edit of a synced hive is dropped, a hive created offline shows Requiere atención.
 
 ### Helpers
 
-`src/features/hives/age.ts` (`colonyAge(startedOn, today)` → "3 meses", "1 año y 3 meses"; `null` → "Edad desconocida") and `queen-color.ts` (`suggestQueenColor(year)`), both with tests.
+The colony age reuses M1's `formatColonyAge` (`src/lib/format.ts`; `null` start → "Edad desconocida" in the caller). New: `src/features/hives/queen-color.ts` (`suggestQueenColor(year)`) and `next-name.ts` ("C-13" after the highest `C-n` in the apiary), both with tests.
 
 ## Field use
 
@@ -80,6 +81,13 @@ Owners usually create apiaries and hives at the apiary, gloved: steppers and chi
 ## Security constraints
 
 The UI hides owner actions for reviewers, but RLS (B3) is what refuses them; a reviewer's forged write ends as "Requiere atención — Solo el propietario…". Location permission is asked only when the user taps "Usar mi ubicación".
+
+### Location, always one tap away (Iván, 2026-10-26)
+
+- "Usar mi ubicación" is always visible in the apiary form (create and edit; "Actualizar ubicación" when one is saved), and the apiary detail shows "Agregar ubicación" to the owner when it has none.
+- Permission denied once → the system asks again on the next tap. Denied for good → the form says "La ubicación está desactivada para Landak Apiario." with **Abrir ajustes** (`Linking.openSettings()`), no dead end.
+- Location off on the phone → Android's own "Activar ubicación" dialog (`Location.enableNetworkProviderAsync()`), then the reading continues.
+- One reading with 20 s timeout ("Buscando señal GPS…"); if it times out, the last known position is offered ("Usar la última ubicación conocida"). Works without data signal.
 
 ## Backend contract used (B3)
 

@@ -11,7 +11,9 @@ export const unstable_settings = { initialRouteName: 'welcome' }
 /** Signed in → the tabs (they pick onboarding, the switcher or Inicio); signed out → welcome. */
 export default function AuthLayout() {
   const { state } = useSession()
-  const screen = useSegments()[1] ?? 'welcome'
+  // Typed routes may narrow the segments to a 1-tuple; the group's screen is the second one.
+  const segments: string[] = useSegments()
+  const screen = segments[1] ?? 'welcome'
   const signedIn = state.status === 'signedIn'
 
   if (signedIn && signedOutScreens.includes(screen)) return <Redirect href="/(tabs)" />

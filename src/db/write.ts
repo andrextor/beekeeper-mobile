@@ -39,30 +39,39 @@ async function upsertDirty(db: Db, table: SyncedTable, row: ServerRow): Promise<
 }
 
 /**
- * Every local write: the row and its outbox entry in one transaction. Soft-deleting an inspection
- * soft-deletes its events and photos too, as the server does (B4).
+ * Every local write: the rows and their outbox entries in one transaction. Soft-deleting an
+ * inspection soft-deletes its events too, as the server does (B4).
  */
-export async function saveRow(db: Db, table: SyncedTable, row: ServerRow): Promise<void> {
+export async function saveRows(
+  db: Db,
+  writes: readonly { table: SyncedTable; row: ServerRow }[],
+): Promise<void> {
   await db.transaction(async () => {
-    await upsertDirty(db, table, row)
-    if (table !== 'inspections' || !row.deleted_at) return
-    // ponytail: photos only change locally (the server cascades them, B4) until M9 pushes photos.
-    await db.runAsync(
-      'update photos set deleted_at = ? where inspection_id = ? and deleted_at is null',
-      [row.deleted_at, row.id],
-    )
-    for (const child of ['hive_events'] as const) {
-      const children = await db.getAllAsync<LocalRow>(
-        `select * from ${child} where inspection_id = ? and deleted_at is null`,
+    for (const { table, row } of writes) {
+      await upsertDirty(db, table, row)
+      if (table !== 'inspections' || !row.deleted_at) continue
+      // ponytail: photos only change locally (the server cascades them, B4) until M9 pushes photos.
+      await db.runAsync(
+        'update photos set deleted_at = ? where inspection_id = ? and deleted_at is null',
+        [row.deleted_at, row.id],
+      )
+      const events = await db.getAllAsync<LocalRow>(
+        'select * from hive_events where inspection_id = ? and deleted_at is null',
         [row.id],
       )
-      for (const c of children) {
-        await upsertDirty(db, child, { ...fromLocal(child, c), deleted_at: row.deleted_at })
+      for (const e of events) {
+        await upsertDirty(db, 'hive_events', {
+          ...fromLocal('hive_events', e),
+          deleted_at: row.deleted_at,
+        })
       }
     }
   })
-  for (const listener of listeners) listener(table)
+  for (const { table } of writes) for (const listener of listeners) listener(table)
 }
+
+export const saveRow = (db: Db, table: SyncedTable, row: ServerRow): Promise<void> =>
+  saveRows(db, [{ table, row }])
 
 /**
  * Rows the server returned (pull pages, push answers): `_on_server = 1`. A row with a local edit

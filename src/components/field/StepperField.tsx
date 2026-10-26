@@ -15,11 +15,22 @@ type Props = {
   max: number
   step?: number
   unit?: string
+  /** Where + lands from "not recorded" (default `min`), e.g. this year for the queen's year. */
+  start?: number
 }
 
-/** − value + with 72-dp buttons; + from "not recorded" lands on min, − from min goes back to it. */
-export function StepperField({ label, value, onChange, min, max, step = 1, unit }: Props) {
-  const more = withTap(() => onChange(value === null ? min : Math.min(max, value + step)))
+/** − value + with 72-dp buttons; + from "not recorded" lands on `start`, − from min goes back to it. */
+export function StepperField({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  unit,
+  start = min,
+}: Props) {
+  const more = withTap(() => onChange(value === null ? start : Math.min(max, value + step)))
   const less = withTap(() =>
     onChange(value === null || value <= min ? null : Math.max(min, value - step)),
   )

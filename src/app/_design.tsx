@@ -81,13 +81,9 @@ function Gallery() {
         onBack={() => router.back()}
       />
       <Screen field topInset={false}>
-        {state.status === 'signedIn' && state.activeOrganizationId ? (
+        {state.status === 'signedIn' ? (
           <Section title="Sincronización (pruebas)">
-            <SyncDebugPanel
-              organizationId={state.activeOrganizationId}
-              userId={state.session.user.id}
-              onMessage={setToast}
-            />
+            <SyncDebugPanel />
           </Section>
         ) : null}
         <Section title="Field · acciones">

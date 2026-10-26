@@ -1,3 +1,4 @@
+import { router } from 'expo-router'
 import { RefreshCw } from 'lucide-react-native'
 import { useRef, useState } from 'react'
 import { Text, View } from 'react-native'
@@ -48,6 +49,20 @@ function Header({ status }: { status: SyncStatus }) {
   )
 }
 
+const forms = { apiaries: '/apiary/[id]/edit', hives: '/hive/[id]/edit' } as const
+
+// A failed deletion has no form to open: its card offers "Descartar cambio", which restores it.
+const canReview = (entry: PendingEntry) =>
+  entry.table_name in forms &&
+  (JSON.parse(entry.payload) as { deleted_at?: unknown }).deleted_at == null
+
+/** The record's form; a repeated name arrives highlighted (spec M4 → Server rejections). */
+function review(entry: PendingEntry) {
+  if (entry.table_name !== 'apiaries' && entry.table_name !== 'hives') return
+  const nameError = entry.last_error_code === 'duplicate_name' ? (entry.last_error ?? '') : ''
+  router.push({ pathname: forms[entry.table_name], params: { id: entry.row_id, nameError } })
+}
+
 export default function PendingScreen() {
   const insets = useSafeAreaInsets()
   const status = useSyncStatus()
@@ -78,6 +93,8 @@ export default function PendingScreen() {
         header={<Header status={status} />}
         refreshing={status.running}
         onRefresh={() => void syncNow()}
+        canReview={canReview}
+        onReview={review}
         onDiscard={(entry) => {
           // A second discard inside the window closes the first one's window now.
           if (discarding && !undone.current) void discard(discarding)

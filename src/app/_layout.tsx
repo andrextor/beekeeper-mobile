@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
+import { ToastHost } from '@/components/ui/ToastHost'
 import { SessionProvider, useSession } from '@/features/auth/session'
 import { color } from '@/lib/theme'
 
@@ -33,6 +34,7 @@ export default function RootLayout() {
       <SessionProvider>
         <RootNavigator fontsReady={fontsReady} />
       </SessionProvider>
+      <ToastHost />
     </SafeAreaProvider>
   )
 }
@@ -54,6 +56,12 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
       <Stack.Screen name="(tabs)" />
       <Stack.Protected guard={hasFincas}>
         <Stack.Screen name="organizations" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="apiary/new" />
+        <Stack.Screen name="apiary/[id]/index" />
+        <Stack.Screen name="apiary/[id]/edit" />
+        <Stack.Screen name="hive/new" />
+        <Stack.Screen name="hive/[id]/index" />
+        <Stack.Screen name="hive/[id]/edit" />
       </Stack.Protected>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="_design" />

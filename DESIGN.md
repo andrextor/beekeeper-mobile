@@ -23,6 +23,7 @@ Brand: `deep #04303b`, `leaf #0c6511`, `sprout #82c75c`, `honey #ffb545`, `polle
 | `accent` / `on-accent` | `honey` / `deep` | Field action buttons, pending states |
 | `danger` / `on-danger` | `#b42318` / `#ffffff` | Attention, destructive |
 | `success-bg` | `#e7f4e4` | Saved toasts |
+| `queen-white` … `queen-blue` | `#ffffff` `#facc15` `#dc2626` `#16a34a` `#2563eb` | Queen-marking dots only (international colours, same as the admin), always next to the color's name |
 
 Rules: no text lighter than `stone-700`; `sprout` and `pollen` are decorative only; white on `honey` is forbidden; color never carries meaning alone (always icon + word).
 

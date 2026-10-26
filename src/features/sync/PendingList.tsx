@@ -15,9 +15,14 @@ type Props = {
   refreshing: boolean
   onRefresh: () => void
   onDiscard: (entry: PendingEntry) => void
+  /** Opens the record's form; only for tables whose module has one. */
+  onReview: (entry: PendingEntry) => void
+  canReview: (entry: PendingEntry) => boolean
 }
 
-function EntryCard({ entry, onDiscard }: { entry: PendingEntry; onDiscard: Props['onDiscard'] }) {
+type CardProps = Pick<Props, 'onDiscard' | 'onReview' | 'canReview'> & { entry: PendingEntry }
+
+function EntryCard({ entry, onDiscard, onReview, canReview }: CardProps) {
   const attention = entry.state === 'failed_permanent'
   return (
     <Card className="gap-2">
@@ -25,6 +30,9 @@ function EntryCard({ entry, onDiscard }: { entry: PendingEntry; onDiscard: Props
       <Text className={cx('font-sans text-caption', attention ? 'text-danger' : 'text-muted')}>
         {attention ? (entry.last_error ?? 'No se pudo guardar.') : entryDetail(entry)}
       </Text>
+      {attention && canReview(entry) ? (
+        <Button label="Revisar" onPress={() => onReview(entry)} />
+      ) : null}
       {attention ? (
         <Button variant="secondary" label="Descartar cambio" onPress={() => onDiscard(entry)} />
       ) : null}
@@ -33,7 +41,15 @@ function EntryCard({ entry, onDiscard }: { entry: PendingEntry; onDiscard: Props
 }
 
 /** Pull to refresh runs a full sync. */
-export function PendingList({ entries, header, refreshing, onRefresh, onDiscard }: Props) {
+export function PendingList({
+  entries,
+  header,
+  refreshing,
+  onRefresh,
+  onDiscard,
+  onReview,
+  canReview,
+}: Props) {
   const attention = entries.filter((e) => e.state === 'failed_permanent')
   const queued = entries.filter((e) => e.state !== 'failed_permanent')
   const sections = [
@@ -61,7 +77,9 @@ export function PendingList({ entries, header, refreshing, onRefresh, onDiscard 
           {section.title}
         </Text>
       )}
-      renderItem={({ item }) => <EntryCard entry={item} onDiscard={onDiscard} />}
+      renderItem={({ item }) => (
+        <EntryCard entry={item} onDiscard={onDiscard} onReview={onReview} canReview={canReview} />
+      )}
       ItemSeparatorComponent={() => <View className="h-3" />}
       refreshing={refreshing}
       onRefresh={onRefresh}
