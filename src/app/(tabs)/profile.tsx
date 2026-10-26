@@ -1,6 +1,6 @@
 import Constants from 'expo-constants'
 import { router } from 'expo-router'
-import { LogOut, Palette } from 'lucide-react-native'
+import { LogOut, Palette, Users } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 
@@ -8,6 +8,7 @@ import { ChipSelect } from '@/components/field/ChipSelect'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { FormError } from '@/components/ui/FormError'
+import { RoleBadge } from '@/components/ui/RoleBadge'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { TextField } from '@/components/ui/TextField'
@@ -15,8 +16,7 @@ import { Toast } from '@/components/ui/Toast'
 import { getDb } from '@/db/database'
 import { useLocalQuery } from '@/db/useLocalQuery'
 import { updateDisplayName } from '@/features/auth/organizations'
-import { RoleBadge } from '@/features/auth/RoleBadge'
-import { signOut, useSession } from '@/features/auth/session'
+import { signOut, useActiveMembership, useSession } from '@/features/auth/session'
 import { mobileDataSetting, writeSetting } from '@/features/sync/network-policy'
 import { pendingCount } from '@/features/sync/pending'
 import { syncNow } from '@/features/sync/triggers'
@@ -27,6 +27,7 @@ const offlineEdit = 'Necesitas conexión para cambiar tu nombre.'
 
 export default function ProfileScreen() {
   const { state } = useSession()
+  const active = useActiveMembership()
   const [displayName, setDisplayName] = useState('')
   const [nameError, setNameError] = useState<string | null>(null)
   const [savingName, setSavingName] = useState(false)
@@ -60,7 +61,6 @@ export default function ProfileScreen() {
   }, [userId])
 
   if (state.status !== 'signedIn') return null
-  const active = state.memberships.find((m) => m.organization_id === state.activeOrganizationId)
 
   const saveName = async () => {
     setSavingName(true)
@@ -128,6 +128,14 @@ export default function ProfileScreen() {
             label="Cambiar de finca"
             onPress={() => router.push('/organizations')}
           />
+          {active ? (
+            <Button
+              variant="secondary"
+              icon={Users}
+              label="Personas de la finca"
+              onPress={() => router.push('/members')}
+            />
+          ) : null}
         </Card>
         <Card className="gap-3">
           <ChipSelect

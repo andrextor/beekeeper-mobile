@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
 import { useLocalRead } from '@/db/useLocalQuery'
-import { useSession } from '@/features/auth/session'
+import { useActiveMembership, useSession } from '@/features/auth/session'
 import { hivesToVisit, latestInspections, openTasks, recentActivity } from '@/features/hives/home'
 import { localDay } from '@/lib/dates'
 import { formatRelative, plural } from '@/lib/format'
@@ -33,10 +33,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export default function HomeScreen() {
   const { state } = useSession()
   const organizationId = state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : ''
-  const finca =
-    state.status === 'signedIn'
-      ? state.memberships.find((m) => m.organization_id === organizationId)?.organization_name
-      : undefined
+  const finca = useActiveMembership()?.organization_name
   const today = localDay()
   const [openTask, setOpenTask] = useState<string | null>(null)
 

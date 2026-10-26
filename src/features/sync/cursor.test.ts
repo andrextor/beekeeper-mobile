@@ -3,6 +3,7 @@ import type { ServerRow } from '@/db/mapping'
 import { migrate } from '@/db/migrate'
 import { openTestDb } from '@/db/test-db'
 import { saveRow } from '@/db/write'
+import { deletePhotoFiles } from '@/lib/photo-files'
 import type { Membership } from './members'
 import {
   type After,
@@ -16,6 +17,7 @@ import {
 } from './pull'
 
 jest.mock('@/lib/supabase', () => ({ supabase: {} }))
+jest.mock('@/lib/photo-files', () => ({ deletePhotoFiles: jest.fn() }))
 
 const finca = (id: string): Membership => ({
   organization_id: id,
@@ -154,6 +156,10 @@ describe('pull cursors', () => {
     await pull(db, fakeSource([finca('a'), finca('b')], rows))
     await saveRow(db, 'apiaries', apiary('unsent', 'b', '2026-10-26T11:00:00.000Z'))
     await db.runAsync("insert into profiles_cache values ('p', 'p@x.co', null, null, '2026-10-26')")
+    await db.runAsync(
+      `insert into photos (id, organization_id, hive_id, storage_path, taken_at, local_main_uri, local_thumb_uri)
+       values ('ph', 'b', 'h', 'b/h/ph.jpg', '2026-10-26', 'file:///ph.jpg', 'file:///ph.thumb.jpg')`,
+    )
 
     await pull(db, fakeSource([finca('a')], rows))
 
@@ -167,6 +173,8 @@ describe('pull cursors', () => {
     })
     expect(await cursorOf(db, 'b', 'apiaries')).toBeNull()
     expect(await db.getAllAsync('select id from profiles_cache')).toEqual([])
+    expect(await db.getAllAsync('select id from photos')).toEqual([])
+    expect(deletePhotoFiles).toHaveBeenCalledWith('file:///ph.jpg', 'file:///ph.thumb.jpg')
   })
 })
 

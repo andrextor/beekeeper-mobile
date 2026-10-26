@@ -1,6 +1,7 @@
 import type { Db } from '@/db/db'
 import { type SyncedTable, syncedTables } from '@/db/mapping'
 import { applyServerRows } from '@/db/write'
+import { deletePhotoFiles } from '@/lib/photo-files'
 import { announceMemberships, fetchMemberships, type Membership } from './members'
 import { client, withTimeout } from './server'
 
@@ -67,6 +68,7 @@ async function syncMembers(db: Db, memberships: Membership[]): Promise<void> {
   const current = new Set(memberships.map((m) => m.organization_id))
   const removed = known.filter((id) => !current.has(id))
   const gained = memberships.some((m) => !known.includes(m.organization_id))
+  let files: (string | null)[] = []
 
   await db.transaction(async () => {
     await db.runAsync('delete from members_cache')
@@ -76,6 +78,8 @@ async function syncMembers(db: Db, memberships: Membership[]): Promise<void> {
         [m.organization_id, m.organization_name, m.role],
       )
     }
+    // Read with the purge, so a photo queued meanwhile keeps its files along with its row.
+    if (removed.length > 0) files = await purgedPhotoFiles(db, removed)
     for (const id of removed) await purge(db, id)
     // Former co-members are no longer readable (B7); new co-members' profiles predate the cursor.
     if (removed.length > 0) await db.runAsync('delete from profiles_cache')
@@ -83,6 +87,23 @@ async function syncMembers(db: Db, memberships: Membership[]): Promise<void> {
       await db.runAsync("delete from sync_state where table_name = 'profiles'")
     }
   })
+  // After the commit: a rolled-back purge must still find its photos.
+  try {
+    deletePhotoFiles(...files)
+  } catch {
+    // ponytail: a file that cannot be deleted stays orphaned; a folder sweep can collect it later.
+  }
+}
+
+/** Files of the photos `purge` deletes (the ones still in the outbox stay with their row). */
+async function purgedPhotoFiles(db: Db, organizationIds: string[]): Promise<(string | null)[]> {
+  const rows = await db.getAllAsync<{ main: string | null; thumb: string | null }>(
+    `select local_main_uri as main, local_thumb_uri as thumb from photos
+     where organization_id in (${organizationIds.map(() => '?').join(', ')})
+       and id not in (select row_id from outbox where table_name = 'photos')`,
+    organizationIds,
+  )
+  return rows.flatMap((r) => [r.main, r.thumb])
 }
 
 async function saveProfiles(db: Db, rows: Row[]): Promise<void> {

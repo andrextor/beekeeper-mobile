@@ -72,6 +72,8 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="photo/[id]" />
         <Stack.Screen name="inspection/[id]" />
         <Stack.Screen name="qr/assign" />
+        <Stack.Screen name="members" />
+        <Stack.Screen name="invite" />
       </Stack.Protected>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="h/[code]" />
