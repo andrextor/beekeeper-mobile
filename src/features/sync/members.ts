@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { supabase } from '@/lib/supabase'
+import { withTimeout } from './server'
 
 const membershipSchema = z.object({
   organization_id: z.string(),
@@ -14,7 +15,9 @@ export type Role = Membership['role']
 
 /** `my_memberships()`: the fincas and roles this person has now (soft-deleted fincas excluded). */
 export async function fetchMemberships(): Promise<Membership[]> {
-  const { data, error } = await supabase.rpc('my_memberships')
+  const { data, error } = await withTimeout((signal) =>
+    supabase.rpc('my_memberships').abortSignal(signal),
+  )
   if (error) throw error
   return membershipsSchema.parse(data)
 }

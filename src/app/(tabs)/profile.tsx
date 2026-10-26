@@ -15,7 +15,7 @@ import { updateDisplayName } from '@/features/auth/organizations'
 import { RoleBadge } from '@/features/auth/RoleBadge'
 import { signOut, useSession } from '@/features/auth/session'
 import { pendingCount } from '@/features/sync/pending'
-import { requestSync } from '@/features/sync/triggers'
+import { syncNow } from '@/features/sync/triggers'
 import { isNetworkError, messageFor } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
 
@@ -154,7 +154,7 @@ export default function ProfileScreen() {
             label="Sincronizar primero"
             onPress={() => {
               setSignOutPending(null)
-              void requestSync('full')
+              void syncNow()
               router.navigate('/pending')
             }}
           />

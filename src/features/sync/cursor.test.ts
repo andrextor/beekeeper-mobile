@@ -171,8 +171,10 @@ describe('pull cursors', () => {
 })
 
 describe('withOverlap', () => {
-  it('cuts microseconds and falls back to the same cursor on a bad date', () => {
+  it('reads any fraction as milliseconds and falls back to the same cursor on a bad date', () => {
     expect(withOverlap('2026-10-26T10:05:00.123456+00:00')).toBe('2026-10-26T10:03:00.123Z')
+    expect(withOverlap('2026-10-26T10:05:00.1+00:00')).toBe('2026-10-26T10:03:00.100Z')
+    expect(withOverlap('2026-10-26T10:05:00+00:00')).toBe('2026-10-26T10:03:00.000Z')
     expect(withOverlap('not a date')).toBe('not a date')
   })
 })

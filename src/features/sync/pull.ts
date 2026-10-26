@@ -98,10 +98,15 @@ async function saveProfiles(db: Db, rows: Row[]): Promise<void> {
 
 /**
  * Two minutes back catches rows whose transaction committed after a later one (api.md → Sync
- * pull). Microseconds are cut first: Hermes may not parse more than milliseconds.
+ * pull). The fraction becomes exactly milliseconds first: Postgres sends 0 to 6 digits and Hermes
+ * may not parse other than 3.
  */
 export function withOverlap(at: string): string {
-  const time = new Date(at.replace(/(\.\d{3})\d+/, '$1')).getTime()
+  const millis = at.replace(
+    /\.(\d+)/,
+    (_, digits: string) => `.${digits.padEnd(3, '0').slice(0, 3)}`,
+  )
+  const time = new Date(millis).getTime()
   return Number.isNaN(time) ? at : new Date(time - overlapMs).toISOString()
 }
 

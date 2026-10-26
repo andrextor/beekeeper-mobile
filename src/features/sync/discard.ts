@@ -1,11 +1,42 @@
 import { getDb } from '@/db/database'
+import type { Db } from '@/db/db'
+import type { SyncedTable } from '@/db/mapping'
 import { applyServerRows } from '@/db/write'
 import type { PendingEntry } from './pending'
-import { client, withTimeout } from './server'
+import { fetchServerRow } from './server'
+
+const children: Record<SyncedTable, [SyncedTable, string][]> = {
+  apiaries: [['hives', 'apiary_id']],
+  hives: [
+    ['inspections', 'hive_id'],
+    ['hive_events', 'hive_id'],
+    ['photos', 'hive_id'],
+  ],
+  inspections: [
+    ['hive_events', 'inspection_id'],
+    ['photos', 'inspection_id'],
+  ],
+  hive_events: [],
+  photos: [],
+}
+
+/** A record that never reached the server goes with everything recorded under it (also local only). */
+async function removeLocal(db: Db, table: SyncedTable, id: string): Promise<void> {
+  for (const [child, column] of children[table]) {
+    const rows = await db.getAllAsync<{ id: string }>(
+      `select id from ${child} where ${column} = ? and _on_server = 0`,
+      [id],
+    )
+    for (const row of rows) await removeLocal(db, child, row.id)
+  }
+  await db.runAsync('delete from outbox where table_name = ? and row_id = ?', [table, id])
+  await db.runAsync(`delete from ${table} where id = ?`, [id])
+}
 
 /**
  * "Descartar cambio": a record the server has goes back to the server's version (or away, if this
- * person can no longer read it); a record that never reached the server is removed.
+ * person can no longer read it); a record that never reached the server is removed. Run it through
+ * `exclusive` so no push is in flight.
  */
 export async function discardChange(entry: PendingEntry): Promise<void> {
   const db = await getDb()
@@ -14,15 +45,10 @@ export async function discardChange(entry: PendingEntry): Promise<void> {
     `select _on_server from ${table} where id = ?`,
     [entry.row_id],
   )
-  let serverRow: Record<string, unknown> | null = null
-  if (local?._on_server === 1) {
-    const { data, error } = await withTimeout((signal) =>
-      client.from(table).select('*').eq('id', entry.row_id).abortSignal(signal).maybeSingle(),
-    )
-    if (error) throw error
-    serverRow = data as Record<string, unknown> | null
-  }
+  const onServer = local?._on_server === 1
+  const serverRow = onServer ? await fetchServerRow(table, entry.row_id) : null
   await db.transaction(async () => {
+    if (!onServer) return removeLocal(db, table, entry.row_id)
     await db.runAsync('delete from outbox where id = ?', [entry.id])
     if (serverRow) await applyServerRows(db, table, [serverRow], true)
     else await db.runAsync(`delete from ${table} where id = ?`, [entry.row_id])

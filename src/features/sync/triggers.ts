@@ -3,17 +3,24 @@ import { useEffect } from 'react'
 import { AppState } from 'react-native'
 
 import { getDb } from '@/db/database'
+import { serialized } from '@/db/db'
 import { onLocalWrite } from '@/db/write'
 import { messageFor } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
 import { registerWipe } from '@/lib/wipe'
 import { singleFlight } from './engine'
 import { pull } from './pull'
-import { pushOutbox } from './push'
+import { pushOutbox, retryNow } from './push'
+import { within } from './server'
 
-export type RunStatus = { running: boolean; error: string | null }
+export type RunStatus = {
+  running: boolean
+  error: string | null
+  /** End of the last full run that finished without errors in this session. */
+  lastSyncAt: string | null
+}
 
-let status: RunStatus = { running: false, error: null }
+let status: RunStatus = { running: false, error: null, lastSyncAt: null }
 const watchers = new Set<() => void>()
 
 function setStatus(next: Partial<RunStatus>) {
@@ -21,7 +28,7 @@ function setStatus(next: Partial<RunStatus>) {
   for (const watch of watchers) watch()
 }
 
-registerWipe(async () => setStatus({ error: null }))
+registerWipe(async () => setStatus({ error: null, lastSyncAt: null }))
 
 export const runStatus = {
   get: (): RunStatus => status,
@@ -31,23 +38,41 @@ export const runStatus = {
   },
 }
 
+/** Sync runs and "Descartar cambio" never overlap, so a discarded change cannot be pushed mid-way. */
+export const exclusive = serialized((task) => task())
+
 /** Pushes first so the pull brings back the server's version of what was just sent. */
-export const requestSync = singleFlight(async (mode) => {
-  const { data } = await supabase.auth.getSession()
-  // Signed out, or a refresh refused for good: pushing waits for the same person to sign in.
-  if (!data.session) return
-  setStatus({ running: true })
+export const requestSync = singleFlight((mode) =>
+  exclusive(async () => {
+    const { data } = await within(supabase.auth.getSession())
+    // Signed out, or a refresh refused for good: pushing waits for the same person to sign in.
+    if (!data.session) return
+    setStatus({ running: true })
+    try {
+      const db = await getDb()
+      await pushOutbox(db)
+      if (mode === 'full') await pull(db)
+      setStatus({
+        error: null,
+        lastSyncAt: mode === 'full' ? new Date().toISOString() : status.lastSyncAt,
+      })
+    } catch (error) {
+      setStatus({ error: messageFor(error) })
+    } finally {
+      setStatus({ running: false })
+    }
+  }),
+)
+
+/** Manual sync and reconnect: every pending entry goes now, whatever its backoff. */
+export async function syncNow(): Promise<void> {
   try {
-    const db = await getDb()
-    await pushOutbox(db)
-    if (mode === 'full') await pull(db)
-    setStatus({ error: null })
-  } catch (error) {
-    setStatus({ error: messageFor(error) })
-  } finally {
-    setStatus({ running: false })
+    await retryNow(await getDb())
+  } catch {
+    // The run below reports database errors.
   }
-})
+  await requestSync('full')
+}
 
 const debounceMs = 3_000
 const foregroundEveryMs = 2 * 60_000
@@ -60,7 +85,7 @@ export function useSyncTriggers(): void {
     let online: boolean | null = null
     const network = addNetworkStateListener(({ isConnected, isInternetReachable }) => {
       const now = isConnected !== false && isInternetReachable !== false
-      if (now && online === false) void requestSync('full')
+      if (now && online === false) void syncNow()
       online = now
     })
 

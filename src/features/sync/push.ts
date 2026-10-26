@@ -4,7 +4,7 @@ import { applyServerRows } from '@/db/write'
 import { errorCode, messageFor } from '@/lib/errors'
 import { classify, retryDelayMs } from './classify'
 import { type OutboxEntry, pushSteps, type Step } from './order'
-import { client, withTimeout } from './server'
+import { client, fetchServerRow, withTimeout } from './server'
 
 type Answer = { data: unknown; error: unknown; status: number }
 
@@ -118,13 +118,18 @@ async function settle(db: Db, step: Step, answer: Answer, now: Date): Promise<'g
     // No signal or a struggling server: the rest of the queue would fail the same way.
     return 'stop'
   }
+  // A dropped edit never reached the server: show the server's version again, not the edit.
+  const serverRow =
+    verdict === 'drop' ? await fetchServerRow(table, entry.row_id).catch(() => null) : null
   await db.transaction(async () => {
     if (verdict === 'drop') {
       const { changes } = await db.runAsync('delete from outbox where id = ? and payload = ?', [
         entry.id,
         entry.payload,
       ])
-      if (changes) await db.runAsync(`update ${table} set _dirty = 0 where id = ?`, [entry.row_id])
+      if (!changes) return
+      if (serverRow) await applyServerRows(db, table, [serverRow], true)
+      else await db.runAsync(`update ${table} set _dirty = 0 where id = ?`, [entry.row_id])
       return
     }
     await db.runAsync(
@@ -134,6 +139,15 @@ async function settle(db: Db, step: Step, answer: Answer, now: Date): Promise<'g
     )
   })
   return 'go'
+}
+
+/** "Sincronizar ahora" and a reconnect do not wait out the backoff. */
+export async function retryNow(db: Db): Promise<void> {
+  await db.transaction(async () => {
+    await db.runAsync("update outbox set next_attempt_at = ? where state = 'pending'", [
+      new Date().toISOString(),
+    ])
+  })
 }
 
 /** Pushes every due outbox entry in order (spec → Outbox), one row per request. */

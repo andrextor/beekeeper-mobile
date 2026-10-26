@@ -8,9 +8,9 @@ import { FormError } from '@/components/ui/FormError'
 import { SyncChip } from '@/components/ui/SyncChip'
 import { Toast } from '@/components/ui/Toast'
 import { discardChange } from '@/features/sync/discard'
-import { type PendingEntry, usePendingEntries } from '@/features/sync/pending'
+import { entryTitle, type PendingEntry, usePendingEntries } from '@/features/sync/pending'
 import { PendingList } from '@/features/sync/PendingList'
-import { requestSync } from '@/features/sync/triggers'
+import { exclusive, syncNow } from '@/features/sync/triggers'
 import { type SyncStatus, useSyncStatus } from '@/features/sync/useSyncStatus'
 import { messageFor } from '@/lib/errors'
 import { formatRelative, plural } from '@/lib/format'
@@ -36,7 +36,7 @@ function Header({ status }: { status: SyncStatus }) {
         icon={RefreshCw}
         label="Sincronizar ahora"
         loading={status.running}
-        onPress={() => void requestSync('full')}
+        onPress={() => void syncNow()}
       />
       <FormError message={status.error} />
       <Text className="font-sans text-caption text-muted">
@@ -56,16 +56,19 @@ export default function PendingScreen() {
   const [error, setError] = useState<string | null>(null)
   const undone = useRef(false)
 
-  // The change is discarded when the undo window closes without "Deshacer".
-  const closeUndoWindow = async () => {
-    const entry = discarding
-    setDiscarding(null)
-    if (!entry || undone.current) return
+  const discard = async (entry: PendingEntry) => {
     try {
-      await discardChange(entry)
+      await exclusive(() => discardChange(entry))
     } catch (e) {
       setError(messageFor(e))
     }
+  }
+
+  // The change is discarded when the undo window closes without "Deshacer".
+  const closeUndoWindow = () => {
+    const entry = discarding
+    setDiscarding(null)
+    if (entry && !undone.current) void discard(entry)
   }
 
   return (
@@ -74,14 +77,16 @@ export default function PendingScreen() {
         entries={entries.filter((e) => e.id !== discarding?.id)}
         header={<Header status={status} />}
         refreshing={status.running}
-        onRefresh={() => void requestSync('full')}
+        onRefresh={() => void syncNow()}
         onDiscard={(entry) => {
+          // A second discard inside the window closes the first one's window now.
+          if (discarding && !undone.current) void discard(discarding)
           undone.current = false
           setDiscarding(entry)
         }}
       />
       <Toast
-        message={discarding ? 'Cambio descartado' : null}
+        message={discarding ? `Cambio descartado: ${entryTitle(discarding)}` : null}
         onUndo={() => {
           undone.current = true
         }}

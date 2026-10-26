@@ -46,7 +46,12 @@ export async function saveRow(db: Db, table: SyncedTable, row: ServerRow): Promi
   await db.transaction(async () => {
     await upsertDirty(db, table, row)
     if (table !== 'inspections' || !row.deleted_at) return
-    for (const child of ['hive_events', 'photos'] as const) {
+    // ponytail: photos only change locally (the server cascades them, B4) until M9 pushes photos.
+    await db.runAsync(
+      'update photos set deleted_at = ? where inspection_id = ? and deleted_at is null',
+      [row.deleted_at, row.id],
+    )
+    for (const child of ['hive_events'] as const) {
       const children = await db.getAllAsync<LocalRow>(
         `select * from ${child} where inspection_id = ? and deleted_at is null`,
         [row.id],

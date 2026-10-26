@@ -7,6 +7,7 @@ import { migrate } from './migrate'
 const name = 'landak.db'
 
 let opening: Promise<{ native: SQLiteDatabase; db: Db }> | null = null
+let wiping: Promise<void> | null = null
 
 async function open() {
   // The change listener feeds useLocalQuery.
@@ -28,6 +29,8 @@ async function open() {
 
 /** The app's local database, opened and migrated once. */
 export async function getDb(): Promise<Db> {
+  // A query or sync during sign-out must not reopen the file before it is deleted.
+  while (wiping) await wiping
   opening ??= open()
   try {
     return (await opening).db
@@ -37,7 +40,7 @@ export async function getDb(): Promise<Db> {
   }
 }
 
-registerWipe(async () => {
+async function wipe(): Promise<void> {
   const current = opening
   opening = null
   try {
@@ -45,5 +48,15 @@ registerWipe(async () => {
   } catch {
     // A database that never opened has nothing to close.
   }
+  // Also fails when no file exists yet (nothing to erase).
   await deleteDatabaseAsync(name).catch(() => {})
+}
+
+registerWipe(async () => {
+  wiping = wipe()
+  try {
+    await wiping
+  } finally {
+    wiping = null
+  }
 })
