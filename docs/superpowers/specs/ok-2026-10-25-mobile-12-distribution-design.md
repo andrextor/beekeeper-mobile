@@ -9,6 +9,7 @@ The pilot needs an APK that a beekeeper installs without a computer, updates wit
 ## Revision 2026-10-26 (what changed against the code and D1)
 
 - **Identity is done** since M1/M5: name, slug, package `co.landak.apiario`, scheme `landak`, EAS project id. M12 only adds `runtimeVersion`, the updates URL and `android.blockedPermissions` (read from `npx expo config --type introspect`).
+- **`runtimeVersion: { policy: "fingerprint" }`** instead of `appVersion`: every PR bumps `expo.version` (AGENTS.md), which under `appVersion` would make every OTA incompatible. The fingerprint skips `version`/`versionCode` and changes only with native code; migrations still ship only in an APK (rule in `docs/release.md`).
 - **`versionCode` stays local** (`appVersionSource: local`, +1 by hand in the release commit, as AGENTS.md says); no remote `autoIncrement`.
 - **Supabase values in `eas.json`**: D1 is live (`https://dhacyrwngqegqjffpten.supabase.co`). The publishable key is public by design (it ships inside every APK), so the `preview` profile carries both values in `env`; no EAS secrets to keep in step. `development` keeps reading `.env` (local stack).
 - **No backup copy before migrating.** `migrate` already runs every step in one transaction: a failing migration rolls back and leaves the file exactly as the previous version wrote it. What was missing is the screen: when the database cannot open, the app shows "No pudimos actualizar los datos" with **Enviar respaldo** (shares `landak.db` with `expo-sharing`, already installed) instead of failing on every screen.

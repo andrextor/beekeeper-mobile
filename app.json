@@ -63,7 +63,7 @@
     },
     "owner": "andrextors-team",
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "fingerprint"
     },
     "updates": {
       "url": "https://u.expo.dev/d89ae7ab-acdc-4c2c-b987-3064f1553a9e",

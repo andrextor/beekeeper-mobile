@@ -6,7 +6,7 @@ New dependency (approval asked here): `expo-updates` (`pnpm expo install`). Mach
 
 Tasks marked 🔑 need Iván's accounts and are done with him.
 
-1. **Config** — `app.json`: `runtimeVersion: { policy: "appVersion" }`, `updates.url`, `android.blockedPermissions`; `eas.json`: `preview` with channel `preview` and the D1 URL + publishable key in `env`, `production` (AAB, channel `production`), `development` unchanged.
+1. **Config** — `app.json`: `runtimeVersion: { policy: "fingerprint" }`, `updates.url`, `android.blockedPermissions`; `eas.json`: `preview` with channel `preview` and the D1 URL + publishable key in `env`, `production` (AAB, channel `production`), `development` unchanged.
 2. **DB upgrade safety** — `src/db/migrations.test.ts`: the step-by-step upgrade test with user data and a draft; `src/app/_layout.tsx` shows `src/components/ui/DbError.tsx` ("No pudimos actualizar los datos" + Enviar respaldo) when `getDb()` fails at start.
 3. **Update banners** — `src/features/updates/config.ts` (stable APK and `latest.json` URLs), `version.ts` (`isNewer` + test), `useOtaUpdate.ts` (start and foreground, at most once per hour, never on the inspect screen), `useApkVersion.ts` (reads `latest.json`), `UpdateBanner.tsx` in the tabs layout.
 4. **Invite link** — `src/features/members/invite-message.ts` adds the stable APK link (+ test).
