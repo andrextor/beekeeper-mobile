@@ -45,6 +45,8 @@ async function upsertDirty(db: Db, table: SyncedTable, row: ServerRow): Promise<
 export async function saveRows(
   db: Db,
   writes: readonly { table: SyncedTable; row: ServerRow }[],
+  /** More local work that must commit or fail with these rows (e.g. deleting a draft). */
+  extra?: (db: Db) => Promise<void>,
 ): Promise<void> {
   await db.transaction(async () => {
     for (const { table, row } of writes) {
@@ -66,6 +68,7 @@ export async function saveRows(
         })
       }
     }
+    await extra?.(db)
   })
   for (const { table } of writes) for (const listener of listeners) listener(table)
 }

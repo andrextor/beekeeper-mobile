@@ -41,24 +41,27 @@ const toDraft = (row: DraftRow): Draft => ({
   updated_at: row.updated_at,
 })
 
-async function insertDraft(db: Db, draft: Draft): Promise<void> {
-  await db.transaction(async () => {
-    await db.runAsync(
-      `insert into inspection_drafts
+/** Inside a caller's transaction (Terminar's undo puts the draft back in the same one). */
+export async function writeDraft(db: Db, draft: Draft): Promise<void> {
+  await db.runAsync(
+    `insert into inspection_drafts
          (id, organization_id, hive_id, is_edit, payload, notes, created_at, updated_at)
        values (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        draft.id,
-        draft.organization_id,
-        draft.hive_id,
-        draft.is_edit ? 1 : 0,
-        JSON.stringify(draft.fields),
-        JSON.stringify(draft.notes),
-        draft.created_at,
-        draft.updated_at,
-      ],
-    )
-  })
+    [
+      draft.id,
+      draft.organization_id,
+      draft.hive_id,
+      draft.is_edit ? 1 : 0,
+      JSON.stringify(draft.fields),
+      JSON.stringify(draft.notes),
+      draft.created_at,
+      draft.updated_at,
+    ],
+  )
+}
+
+async function insertDraft(db: Db, draft: Draft): Promise<void> {
+  await db.transaction(() => writeDraft(db, draft))
 }
 
 export async function getDraft(db: Db, id: string): Promise<Draft | null> {
@@ -113,7 +116,7 @@ export async function openEditDraft(
   const base = emptyInspection(saved.inspected_at)
   const fields = Object.fromEntries(
     Object.keys(base).map((key) => [key, saved[key as keyof typeof saved] ?? null]),
-  ) as InspectionDraft
+  ) as unknown as InspectionDraft
   const events = await db.getAllAsync<LocalRow>(
     `select * from hive_events where inspection_id = ? and type = 'note' and deleted_at is null
      order by occurred_at`,
@@ -165,12 +168,12 @@ export async function discardDraft(db: Db, id: string): Promise<void> {
   })
 }
 
-/** Puts a draft back exactly as it was (Deshacer of Terminar or of Descartar). */
+/** Puts a discarded draft back exactly as it was (Deshacer of "Descartar"). */
 export async function restoreDraft(db: Db, draft: Draft): Promise<void> {
   await db.transaction(async () => {
     await db.runAsync('delete from inspection_drafts where id = ?', [draft.id])
+    await writeDraft(db, draft)
   })
-  await insertDraft(db, draft)
 }
 
 /** The next free note slot: 1 and 2 have their own tiles, "Nota +" takes 3, 4… */

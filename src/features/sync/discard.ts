@@ -21,7 +21,7 @@ const children: Record<SyncedTable, [SyncedTable, string][]> = {
 }
 
 /** A record that never reached the server goes with everything recorded under it (also local only). */
-async function removeLocal(db: Db, table: SyncedTable, id: string): Promise<void> {
+export async function removeLocal(db: Db, table: SyncedTable, id: string): Promise<void> {
   for (const [child, column] of children[table]) {
     const rows = await db.getAllAsync<{ id: string }>(
       `select id from ${child} where ${column} = ? and _on_server = 0`,
