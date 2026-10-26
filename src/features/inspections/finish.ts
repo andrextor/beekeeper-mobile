@@ -22,13 +22,13 @@ async function savedRows(db: Db, inspectionId: string) {
   const inspection = await db.getFirstAsync<LocalRow>('select * from inspections where id = ?', [
     inspectionId,
   ])
-  const notes = await db.getAllAsync<LocalRow>(
-    "select * from hive_events where inspection_id = ? and type = 'note'",
+  const children = await db.getAllAsync<LocalRow>(
+    'select * from hive_events where inspection_id = ?',
     [inspectionId],
   )
   return {
     inspection: inspection ? fromLocal('inspections', inspection) : null,
-    notes: notes.map((n) => fromLocal('hive_events', n)),
+    children: children.map((n) => fromLocal('hive_events', n)),
   }
 }
 
@@ -66,18 +66,28 @@ export async function finishDraft(
     updated_at: at,
     deleted_at: null,
   }
-  const notes = draft.notes.map((note): Write => {
-    const old = saved.notes.find((n) => n.id === note.id)
+  // Notes and the other events recorded during it (a dictated feeding) are its children.
+  const drafted = [
+    ...draft.notes.map((n) => ({
+      id: n.id,
+      type: 'note',
+      at: n.at,
+      details: { text: n.text, source: n.source, slot: n.slot },
+    })),
+    ...draft.events,
+  ]
+  const children = drafted.map((child): Write => {
+    const old = saved.children.find((c) => c.id === child.id)
     return {
       table: 'hive_events',
       row: {
-        id: note.id,
+        id: child.id,
         organization_id: draft.organization_id,
         hive_id: draft.hive_id,
         inspection_id: draft.id,
-        type: 'note',
-        occurred_at: note.at,
-        details: { text: note.text, source: note.source, slot: note.slot },
+        type: child.type,
+        occurred_at: child.at,
+        details: child.details as ServerRow<'hive_events'>['details'],
         created_by: old?.created_by ?? userId,
         created_at: old?.created_at ?? at,
         updated_at: at,
@@ -85,21 +95,21 @@ export async function finishDraft(
       },
     }
   })
-  const removed = saved.notes
-    .filter((n) => n.deleted_at === null && !draft.notes.some((d) => d.id === n.id))
-    .map((n): Write => ({ table: 'hive_events', row: { ...n, deleted_at: at } }))
+  const removed = saved.children
+    .filter((c) => c.deleted_at === null && !drafted.some((d) => d.id === c.id))
+    .map((c): Write => ({ table: 'hive_events', row: { ...c, deleted_at: at } }))
 
   const before: Write[] | null =
     draft.is_edit && saved.inspection
       ? [
           { table: 'inspections', row: saved.inspection },
-          ...saved.notes.map((n): Write => ({ table: 'hive_events', row: n })),
+          ...saved.children.map((c): Write => ({ table: 'hive_events', row: c })),
         ]
       : null
 
   await saveRows(
     db,
-    [{ table: 'inspections', row: inspection }, ...notes, ...removed],
+    [{ table: 'inspections', row: inspection }, ...children, ...removed],
     deleteDraft(draft.id),
   )
   return { ok: true, finished: { draft, before } }
@@ -113,8 +123,10 @@ export async function finishDraft(
 export async function undoFinish(db: Db, { draft, before }: Finished): Promise<void> {
   const putBack = (tx: Db) => writeDraft(tx, draft)
   if (before) {
-    // Notes added by the edit did not exist before it: they go too.
-    const added = draft.notes.filter((n) => !before.some((b) => b.row.id === n.id))
+    // Notes and events added by the edit did not exist before it: they go too.
+    const added = [...draft.notes, ...draft.events].filter(
+      (n) => !before.some((b) => b.row.id === n.id),
+    )
     const sent = new Set(
       (
         await db.getAllAsync<{ id: string }>(

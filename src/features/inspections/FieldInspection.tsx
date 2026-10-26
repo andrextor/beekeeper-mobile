@@ -1,5 +1,5 @@
 import { useKeepAwake } from 'expo-keep-awake'
-import { CircleCheck, Plus, StickyNote, TriangleAlert } from 'lucide-react-native'
+import { CircleCheck, Mic, Plus, StickyNote, TriangleAlert } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
 import { Pressable, ScrollView, type ScrollViewInstance, Text, View } from 'react-native'
 
@@ -7,11 +7,15 @@ import { ActionGrid } from '@/components/field/ActionGrid'
 import { FieldHeader } from '@/components/field/FieldHeader'
 import { FormError } from '@/components/ui/FormError'
 import { getDb } from '@/db/database'
+import { DictationFlow } from '@/features/voice/DictationFlow'
+import { parseInspection, type Proposal } from '@/features/voice/parser'
 import { messageFor } from '@/lib/errors'
 import { successHaptic } from '@/lib/haptics'
 import { uuid } from '@/lib/ids'
 import { color, iconSize } from '@/lib/theme'
-import { type Draft, type DraftNote, nextSlot, updateDraft } from './drafts'
+import { applyProposals, transcriptLimit } from './apply-voice'
+import { ConfirmProposals } from './ConfirmProposals'
+import { type Draft, type DraftEvent, type DraftNote, nextSlot, updateDraft } from './drafts'
 import { FieldSections, fieldPlaces, type SectionKey } from './FieldSections'
 import { type Finished, finishDraft } from './finish'
 import { NoteSheet } from './NoteSheet'
@@ -61,12 +65,14 @@ export function FieldInspection({
   const [problems, setProblems] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
+  const [dictating, setDictating] = useState(false)
+  const [confirming, setConfirming] = useState<{ text: string; proposals: Proposal[] } | null>(null)
   const scroll = useRef<ScrollViewInstance>(null)
   const positions = useRef<Partial<Record<SectionKey, number>>>({})
 
   // Autosave: the draft follows every change 300 ms later, and is flushed when the screen goes.
   // The latest values live in refs so two changes in one tick never save a stale half.
-  const latest = useRef({ fields: draft.fields, notes: draft.notes })
+  const latest = useRef({ fields: draft.fields, notes: draft.notes, events: draft.events })
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dirty = useRef(false)
   const flush = async () => {
@@ -74,8 +80,8 @@ export function FieldInspection({
     timer.current = null
     if (!dirty.current) return
     dirty.current = false
-    const { fields: f, notes: n } = latest.current
-    await updateDraft(await getDb(), draft.id, f, n)
+    const { fields: f, notes: n, events: e } = latest.current
+    await updateDraft(await getDb(), draft.id, f, n, e)
   }
   const schedule = () => {
     dirty.current = true
@@ -97,12 +103,12 @@ export function FieldInspection({
   }
 
   const noteIn = (slot: number) => notes.find((n) => n.slot === slot)
-  const saveNote = (slot: number, text: string) => {
+  const saveNote = (slot: number, text: string, source: 'text' | 'voice') => {
     const current = latest.current.notes
     changeNotes(
       current.some((n) => n.slot === slot)
-        ? current.map((n) => (n.slot === slot ? { ...n, text } : n))
-        : [...current, { id: uuid(), slot, text, source: 'text', at: new Date().toISOString() }],
+        ? current.map((n) => (n.slot === slot ? { ...n, text, source } : n))
+        : [...current, { id: uuid(), slot, text, source, at: new Date().toISOString() }],
     )
     setSheet(null)
   }
@@ -114,8 +120,7 @@ export function FieldInspection({
     try {
       // Whatever Terminar decides, the draft first holds every tap made before it.
       await flush()
-      const { fields: f, notes: n } = latest.current
-      const outcome = await finishDraft(await getDb(), { ...draft, fields: f, notes: n }, userId)
+      const outcome = await finishDraft(await getDb(), { ...draft, ...latest.current }, userId)
       if (!outcome.ok) {
         setProblems(outcome.problems)
         scroll.current?.scrollTo({ y: 0, animated: true })
@@ -129,6 +134,28 @@ export function FieldInspection({
     } finally {
       setSaving(false)
     }
+  }
+
+  // Spec M8 → Confirmation: accepted proposals go into the draft only; Terminar saves them.
+  const acceptProposals = (accepted: Proposal[], text: string, change: SectionKey | null) => {
+    const applied = applyProposals(latest.current.fields, accepted, text)
+    const feedings = applied.feedings.map(
+      (details): DraftEvent => ({
+        id: uuid(),
+        type: 'feeding',
+        details,
+        at: new Date().toISOString(),
+      }),
+    )
+    latest.current = {
+      ...latest.current,
+      fields: applied.fields,
+      events: [...latest.current.events, ...feedings],
+    }
+    setFields(applied.fields)
+    schedule()
+    setConfirming(null)
+    if (change) goTo(change)
   }
 
   const goTo = (section: SectionKey) => {
@@ -159,7 +186,22 @@ export function FieldInspection({
         sync="saved"
         onBack={onBack}
       />
+      {confirming ? (
+        <ConfirmProposals
+          transcript={confirming.text}
+          proposals={confirming.proposals}
+          current={fields}
+          hiveName={hiveName}
+          onDone={acceptProposals}
+          onRedictate={() => {
+            setConfirming(null)
+            setDictating(true)
+          }}
+          onCancel={() => setConfirming(null)}
+        />
+      ) : null}
       <ScrollView
+        style={confirming ? { display: 'none' } : undefined}
         ref={scroll}
         contentContainerClassName="gap-8 p-4 pb-16"
         keyboardShouldPersistTaps="handled"
@@ -193,6 +235,7 @@ export function FieldInspection({
         ) : null}
         <ActionGrid
           actions={[
+            { icon: Mic, label: 'Dictar', onPress: () => setDictating(true) },
             slotTile(1),
             slotTile(2),
             {
@@ -237,14 +280,23 @@ export function FieldInspection({
         />
       </ScrollView>
 
+      <DictationFlow
+        visible={dictating}
+        room={transcriptLimit - (fields.transcript?.length ?? 0) - 1}
+        onClose={() => setDictating(false)}
+        onDone={(text) => {
+          setDictating(false)
+          setConfirming({ text, proposals: parseInspection(text, { today, hiveName }) })
+        }}
+      />
       <NoteSheet
         title={sheetSlot ? `Nota ${sheetSlot}` : 'Notas de la revisión'}
         visible={sheet !== null}
         initial={sheetSlot ? (noteIn(sheetSlot)?.text ?? '') : (fields.notes ?? '')}
         max={sheetSlot ? 2000 : 4000}
         onClose={() => setSheet(null)}
-        onSave={(text) => {
-          if (sheetSlot) return saveNote(sheetSlot, text)
+        onSave={(text, source) => {
+          if (sheetSlot) return saveNote(sheetSlot, text, source)
           change({ notes: text })
           setSheet(null)
         }}

@@ -21,7 +21,7 @@ async function draftWithNote(db: Db): Promise<Draft> {
   const fields = { ...draft.fields, population_strength: 4 }
   const notes = [{ id: 'n-1', slot: 1, text: 'Falta una alza', source: 'text' as const, at: iso }]
   await updateDraft(db, draft.id, fields, notes)
-  return { ...draft, fields, notes }
+  return { ...draft, fields, notes, events: [] }
 }
 
 const count = async (db: Db, sql: string) => (await db.getFirstAsync<{ n: number }>(sql))?.n
