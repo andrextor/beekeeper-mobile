@@ -15,20 +15,13 @@ const fresh = (path: string) => {
 
 /** One `createSignedUrls` call per 100 paths; returns the URL for each path once signed. */
 export function useSignedUrls(paths: readonly string[]): (path: string) => string | null {
-  const [version, setVersion] = useState(0)
+  const [, setVersion] = useState(0)
   const key = paths.join('|')
 
-  // Missing (no signal) and old URLs are asked for again each minute while the screen is open.
   useEffect(() => {
-    const timer = setInterval(() => setVersion((v) => v + 1), 60_000)
-    return () => clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
-    const missing = key.split('|').filter((p) => p && !fresh(p))
-    if (missing.length === 0) return
     let alive = true
-    void (async () => {
+    const sign = async () => {
+      const missing = key.split('|').filter((p) => p && !fresh(p))
       for (let i = 0; i < missing.length; i += batch) {
         const { data } = await client.storage
           .from('hive-photos')
@@ -39,14 +32,20 @@ export function useSignedUrls(paths: readonly string[]): (path: string) => strin
           }
         }
       }
-      if (alive) setVersion((v) => v + 1)
-    })().catch(() => {
-      // Offline: grids show the photos this phone has; the rest load with signal.
-    })
+      if (alive && missing.length) setVersion((v) => v + 1)
+    }
+    const attempt = () =>
+      void sign().catch(() => {
+        // Offline: grids show the photos this phone has; the rest load with signal.
+      })
+    attempt()
+    // Missing (no signal) and old URLs are asked for again each minute while the screen is open.
+    const timer = setInterval(attempt, 60_000)
     return () => {
       alive = false
+      clearInterval(timer)
     }
-  }, [key, version])
+  }, [key])
 
   return fresh
 }

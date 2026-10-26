@@ -12,7 +12,7 @@ import { photoUploadAllowed } from './network-policy'
 import { type OutboxEntry, pushSteps, type Step } from './order'
 import { preparePhoto } from './push-photos'
 import { replaceTakenQrCode } from './relabel'
-import { client, fetchServerRow, withTimeout, within } from './server'
+import { client, fetchServerRow, within, withTimeout } from './server'
 
 /** `message` replaces the generic Spanish text (Storage errors carry none of ours). */
 type Answer = { data: unknown; error: unknown; status: number; message?: string }

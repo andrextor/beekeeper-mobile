@@ -10,4 +10,5 @@ export const migrations: readonly string[] = [
   inspectionDrafts,
   timestampsUtcMs,
   draftEvents,
+  photosLocal,
 ]

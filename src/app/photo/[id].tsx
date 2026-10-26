@@ -77,8 +77,8 @@ export default function PhotoScreen() {
           <IconButton
             icon={ChevronLeft}
             label="Foto anterior"
-            onPress={() => go(index - 1)}
-            disabled={index <= 0}
+            onPress={() => go(newer)}
+            disabled={!newer}
           />
           <IconButton
             icon={ChevronRight}
