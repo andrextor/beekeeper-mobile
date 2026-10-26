@@ -82,6 +82,13 @@ Owners usually create apiaries and hives at the apiary, gloved: steppers and chi
 
 The UI hides owner actions for reviewers, but RLS (B3) is what refuses them; a reviewer's forged write ends as "Requiere atención — Solo el propietario…". Location permission is asked only when the user taps "Usar mi ubicación".
 
+### Location, always one tap away (Iván, 2026-10-26)
+
+- "Usar mi ubicación" is always visible in the apiary form (create and edit; "Actualizar ubicación" when one is saved), and the apiary detail shows "Agregar ubicación" to the owner when it has none.
+- Permission denied once → the system asks again on the next tap. Denied for good → the form says "La ubicación está desactivada para Landak Apiario." with **Abrir ajustes** (`Linking.openSettings()`), no dead end.
+- Location off on the phone → Android's own "Activar ubicación" dialog (`Location.enableNetworkProviderAsync()`), then the reading continues.
+- One reading with 20 s timeout ("Buscando señal GPS…"); if it times out, the last known position is offered ("Usar la última ubicación conocida"). Works without data signal.
+
 ## Backend contract used (B3)
 
 Tables `apiaries` (`name`, `farm_name`, `place`, `latitude`, `longitude`, `altitude_m`, `flora_notes`, `water_source`, `notes`) and `hives` (`apiary_id`, `name`, `qr_code`, `hive_type`, `brood_boxes`, `supers`, `colony_origin`, `colony_started_on`, `bee_race`, `queen_year`, `queen_marked`, `queen_color`, `queen_origin`, `status`, `notes`) with the common columns; errors `duplicate_name`, `qr_taken` (via the `23505` constraint table), `parent_mismatch`, `parent_deleted`, `apiary_not_empty`, `future_date`, `immutable_column`, RLS `42501`; owner-only writes.
