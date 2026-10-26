@@ -67,6 +67,7 @@ function RootNavigator({ fontsReady }: { fontsReady: boolean }) {
         <Stack.Screen name="qr/assign" />
       </Stack.Protected>
       <Stack.Screen name="(auth)" />
+      <Stack.Screen name="h/[code]" />
       <Stack.Screen name="_design" />
     </Stack>
   )

@@ -1,5 +1,5 @@
 import { router } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import { showToast } from '@/components/ui/ToastHost'
 import { successHaptic } from '@/lib/haptics'
@@ -24,26 +24,30 @@ type Options = {
 /** Scanner and deep link: find the code, switch finca if needed, open the hive or say why not. */
 export function useCodeLookup(options: Options) {
   const [state, setState] = useState<LookupState>({ kind: 'idle' })
+  // `open` and `reset` stay the same functions across renders (focus and link effects use them).
+  const latest = useRef(options)
+  latest.current = options
 
-  const open = async (code: string) => {
+  const open = useCallback(async (code: string) => {
+    const { isOwner, activeOrganizationId, fincaName, switchFinca, replace } = latest.current
     setState({ kind: 'looking' })
     successHaptic()
     let outcome: LookupOutcome
     try {
-      outcome = await findHive(code, options.isOwner)
+      outcome = await findHive(code, isOwner)
     } catch {
       outcome = { kind: 'offline_unknown' }
     }
     if (outcome.kind !== 'found') return setState({ ...outcome, code })
-    if (outcome.organizationId !== options.activeOrganizationId) {
-      await options.switchFinca(outcome.organizationId)
-      showToast(`Cambiaste a ${options.fincaName(outcome.organizationId)}`)
+    if (outcome.organizationId !== activeOrganizationId) {
+      await switchFinca(outcome.organizationId)
+      showToast(`Cambiaste a ${fincaName(outcome.organizationId)}`)
     }
     setState({ kind: 'idle' })
     const href = { pathname: '/hive/[id]', params: { id: outcome.hiveId } } as const
-    if (options.replace) router.replace(href)
+    if (replace) router.replace(href)
     else router.push(href)
-  }
+  }, [])
 
   const reset = useCallback(() => setState({ kind: 'idle' }), [])
   return { state, open, reset }
