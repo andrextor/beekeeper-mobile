@@ -1,20 +1,22 @@
 import { addDatabaseChangeListener } from 'expo-sqlite'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { getDb } from './database'
-import type { SqlValue } from './db'
+import type { Db, SqlValue } from './db'
 
-/** Runs `sql` on the local database and again whenever one of `tables` changes. */
-export function useLocalQuery<T>(
-  sql: string,
-  params: SqlValue[],
+/**
+ * Runs `read` on the local database, again when `key` changes and whenever one of `tables` changes.
+ * The result is tagged with the key that produced it: a new key never shows the old answer.
+ */
+export function useLocalRead<T>(
+  read: (db: Db) => Promise<T>,
+  key: string,
   tables: readonly string[],
-): { rows: T[]; loading: boolean } {
-  const paramsKey = JSON.stringify(params)
+): { data: T | null; loading: boolean } {
+  const [result, setResult] = useState<{ key: string; data: T } | null>(null)
+  const latestRead = useRef(read)
+  latestRead.current = read
   const tablesKey = tables.join(',')
-  const key = `${sql}\n${paramsKey}`
-  // Rows are tagged with the query that produced them: new params never show the old answer.
-  const [result, setResult] = useState<{ key: string; rows: T[] } | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -22,17 +24,16 @@ export function useLocalQuery<T>(
     const run = async () => {
       timer = null
       try {
-        const db = await getDb()
-        const rows = await db.getAllAsync<T>(sql, JSON.parse(paramsKey) as SqlValue[])
-        if (alive) setResult({ key: `${sql}\n${paramsKey}`, rows })
+        const data = await latestRead.current(await getDb())
+        if (alive) setResult({ key, data })
       } catch {
-        // A database being wiped keeps the last rows until it reopens.
+        // A database being wiped keeps the last answer until it reopens.
       }
     }
     void run()
     const watched = tablesKey.split(',')
     const subscription = addDatabaseChangeListener(({ tableName }) => {
-      // A pulled page changes hundreds of rows: one query per burst.
+      // A pulled page changes hundreds of rows: one read per burst.
       if (watched.includes(tableName) && !timer) timer = setTimeout(run, 50)
     })
     return () => {
@@ -40,8 +41,22 @@ export function useLocalQuery<T>(
       subscription.remove()
       if (timer) clearTimeout(timer)
     }
-  }, [sql, paramsKey, tablesKey])
+  }, [key, tablesKey])
 
   const current = result?.key === key ? result : null
-  return { rows: current?.rows ?? [], loading: current === null }
+  return { data: current?.data ?? null, loading: current === null }
+}
+
+/** `sql` on the local database, again whenever one of `tables` changes. */
+export function useLocalQuery<T>(
+  sql: string,
+  params: SqlValue[],
+  tables: readonly string[],
+): { rows: T[]; loading: boolean } {
+  const { data, loading } = useLocalRead(
+    (db) => db.getAllAsync<T>(sql, params),
+    `${sql}\n${JSON.stringify(params)}`,
+    tables,
+  )
+  return { rows: data ?? [], loading }
 }
