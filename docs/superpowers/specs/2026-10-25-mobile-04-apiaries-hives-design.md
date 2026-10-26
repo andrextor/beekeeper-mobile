@@ -67,7 +67,7 @@ An owner registers their sites ("Vallecito 1") and the hives in each, with the f
 
 ### Server rejections
 
-`duplicate_name` (`23505` on `apiaries_org_name_key` / `hives_apiary_name_key`), `apiary_not_empty` and an RLS refusal (`42501`, e.g. the user was demoted to reviewer with an edit still queued) arrive as permanent outbox failures (M3) and show in Pendientes with their Spanish messages (`src/lib/errors.ts`); tapping "Revisar" opens the edit form with the field highlighted. `qr_taken` (`23505` on `hives_qr_code_key`) on a **new** hive: the pusher regenerates the code, updates the local row and re-queues it automatically, no user action (`api.md` → Errors). If a label had already been printed offline it no longer matches: the regeneration also writes a `qr_relabel` event, so the timeline shows "Cambio de etiqueta QR" and the owner reprints (odds ≈ 1 in 10^15 per code; accepted). `parent_mismatch` (a hive edited under an apiary deleted elsewhere) is dropped by M3, not shown.
+`duplicate_name` (`23505` on `apiaries_org_name_key` / `hives_apiary_name_key`), `parent_mismatch`, `apiary_not_empty` and an RLS refusal (`42501`, e.g. the user was demoted to reviewer with an edit still queued) arrive as permanent outbox failures (M3) and show in Pendientes with their Spanish messages (`src/lib/errors.ts`); tapping "Revisar" opens the edit form with the field highlighted. `qr_taken` (`23505` on `hives_qr_code_key`) on a **new** hive: the pusher regenerates the code, updates the local row and re-queues it automatically, no user action (`api.md` → Errors). If a label had already been printed offline it no longer matches: the regeneration also writes a `qr_relabel` event, so the timeline shows "Cambio de etiqueta QR" and the owner reprints (odds ≈ 1 in 10^15 per code; accepted). `parent_deleted` (the apiary was deleted elsewhere) follows M3: an edit of a synced hive is dropped, a hive created offline shows Requiere atención.
 
 ### Helpers
 
@@ -83,7 +83,7 @@ The UI hides owner actions for reviewers, but RLS (B3) is what refuses them; a r
 
 ## Backend contract used (B3)
 
-Tables `apiaries` (`name`, `farm_name`, `place`, `latitude`, `longitude`, `altitude_m`, `flora_notes`, `water_source`, `notes`) and `hives` (`apiary_id`, `name`, `qr_code`, `hive_type`, `brood_boxes`, `supers`, `colony_origin`, `colony_started_on`, `bee_race`, `queen_year`, `queen_marked`, `queen_color`, `queen_origin`, `status`, `notes`) with the common columns; errors `duplicate_name`, `qr_taken` (via the `23505` constraint table), `parent_mismatch`, `apiary_not_empty`, `future_date`, `immutable_column`, RLS `42501`; owner-only writes.
+Tables `apiaries` (`name`, `farm_name`, `place`, `latitude`, `longitude`, `altitude_m`, `flora_notes`, `water_source`, `notes`) and `hives` (`apiary_id`, `name`, `qr_code`, `hive_type`, `brood_boxes`, `supers`, `colony_origin`, `colony_started_on`, `bee_race`, `queen_year`, `queen_marked`, `queen_color`, `queen_origin`, `status`, `notes`) with the common columns; errors `duplicate_name`, `qr_taken` (via the `23505` constraint table), `parent_mismatch`, `parent_deleted`, `apiary_not_empty`, `future_date`, `immutable_column`, RLS `42501`; owner-only writes.
 
 ## Out of scope
 
