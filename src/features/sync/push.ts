@@ -1,17 +1,10 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-
 import type { Db } from '@/db/db'
 import type { SyncedTable } from '@/db/mapping'
 import { applyServerRows } from '@/db/write'
 import { errorCode, messageFor } from '@/lib/errors'
-import { supabase } from '@/lib/supabase'
 import { classify, retryDelayMs } from './classify'
 import { type OutboxEntry, pushSteps, type Step } from './order'
-
-// The pusher writes any synced table by name; the typed client cannot express that.
-const client = supabase as unknown as SupabaseClient
-
-const timeoutMs = 15_000
+import { client, withTimeout } from './server'
 
 type Answer = { data: unknown; error: unknown; status: number }
 
@@ -24,18 +17,18 @@ export function setForcedFailure(on: boolean): void {
 
 async function send(table: SyncedTable, payload: Record<string, unknown>): Promise<Answer> {
   if (forcedFailure) return { data: null, error: { message: 'Fallo forzado' }, status: 0 }
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const { data, error, status } = await client
-      .from(table)
-      .upsert(payload, { onConflict: 'id' })
-      .select()
-      .abortSignal(controller.signal)
-      .single()
+    const { data, error, status } = await withTimeout((signal) =>
+      client
+        .from(table)
+        .upsert(payload, { onConflict: 'id' })
+        .select()
+        .abortSignal(signal)
+        .single(),
+    )
     return { data, error, status }
-  } finally {
-    clearTimeout(timer)
+  } catch (error) {
+    return { data: null, error, status: 0 }
   }
 }
 
