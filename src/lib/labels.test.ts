@@ -1,7 +1,7 @@
 import {
   attentionLevelLabels,
-  colonyOriginLabels,
   broodPatternLabels,
+  colonyOriginLabels,
   diseaseSignLabels,
   eventTypeLabels,
   feedLabels,
