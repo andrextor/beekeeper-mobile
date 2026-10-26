@@ -28,7 +28,14 @@ export function TimelineList({ timeline }: { timeline: Timeline }) {
         <TimelineItemView
           key={item.id}
           item={item}
-          onOpen={() => router.push({ pathname: '/inspection/[id]', params: { id: item.id } })}
+          onOpen={() =>
+            item.kind === 'inspection'
+              ? router.push({ pathname: '/inspection/[id]', params: { id: item.id } })
+              : router.push({
+                  pathname: '/hive/[id]/event/[eventId]',
+                  params: { id: item.event.hive_id, eventId: item.id },
+                })
+          }
         />
       ))}
       {timeline.hasMore ? (

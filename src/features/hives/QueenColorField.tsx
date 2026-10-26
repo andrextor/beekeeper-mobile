@@ -5,8 +5,8 @@ import { FieldLabel } from '@/components/field/FieldLabel'
 import { cx } from '@/lib/cx'
 import { withTap } from '@/lib/haptics'
 import { queenColorLabels } from '@/lib/labels'
+import { type QueenColor, suggestQueenColor } from '@/lib/queen-color'
 import { QueenDot } from './QueenDot'
-import { type QueenColor, suggestQueenColor } from './queen-color'
 
 const colors = Object.keys(queenColorLabels) as QueenColor[]
 

@@ -5,6 +5,7 @@ import {
   ChevronUp,
   ClipboardCheck,
   Hexagon,
+  ListPlus,
   Pencil,
   QrCode,
 } from 'lucide-react-native'
@@ -100,6 +101,12 @@ export default function HiveScreen() {
           onPress={() => setShowFacts((v) => !v)}
         />
         {showFacts ? <HiveFacts hive={hive} /> : null}
+        <Button
+          variant="accent"
+          icon={ListPlus}
+          label="Registrar actividad"
+          onPress={() => router.push({ pathname: '/hive/[id]/event/new', params: { id } })}
+        />
         <Button
           variant="secondary"
           icon={QrCode}

@@ -107,6 +107,9 @@ export default function InspectScreen() {
       today={localDay()}
       onBack={() => router.back()}
       onFinished={finished}
+      onActivity={() =>
+        router.push({ pathname: '/hive/[id]/event/new', params: { id, draftId: opened.draft.id } })
+      }
       onPhoto={() =>
         router.push({
           pathname: '/hive/[id]/camera',

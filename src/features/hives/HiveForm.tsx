@@ -18,11 +18,11 @@ import {
   hiveTypeLabels,
   queenOriginLabels,
 } from '@/lib/labels'
+import { suggestQueenColor } from '@/lib/queen-color'
 import { nameTaken } from '@/lib/text'
 import { ColonyStartField } from './ColonyStartField'
 import { nextHiveName } from './next-name'
 import { QueenColorField } from './QueenColorField'
-import { suggestQueenColor } from './queen-color'
 import { type Hive, useHiveNames } from './queries'
 import { type HiveDraft, type HiveFields, hiveSchema, localDay } from './schema'
 

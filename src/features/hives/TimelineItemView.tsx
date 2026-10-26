@@ -53,8 +53,7 @@ export function TimelineItemView({ item, onOpen }: { item: TimelineItem; onOpen:
 
   return (
     <Pressable
-      accessibilityRole={inspection ? 'button' : undefined}
-      disabled={!inspection}
+      accessibilityRole="button"
       onPress={onOpen}
       className="min-h-target flex-row gap-3 rounded-card border border-border bg-surface p-4 active:bg-stone-100"
     >
