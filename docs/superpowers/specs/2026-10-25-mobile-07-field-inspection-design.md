@@ -49,6 +49,7 @@ A tile whose note slot is filled shows a check badge and the first words; tappin
 | | `pests` | `ChipSelect` multi | Polilla de la cera · Escarabajo de la colmena · Hormigas · Avispas · Ratones · Otra |
 | | `disease_signs` | `ChipSelect` multi | Cría yesificada · Cría ensacada · Signos de loque · Alas deformes · Diarrea · Abejas muertas · Otro — section caption: "Signos observados, no es un diagnóstico" |
 | Trabajo | `attention_level` | `ChipSelect` single | Sin novedad · Pronto · Urgente |
+| | `planned_actions` | `ChipSelect` multi | Alimentar · Tratar · Cambiar reina · Poner alza · Quitar alza · Cosechar · Dividir · Unir · Trasladar · Revisar reina · Otra (feeds Inicio → Tareas, M6) |
 | | `next_inspection_on` | `ChipSelect` single + `StepperField` | En 7 días · En 14 días · En 21 días · Otro (stepper of days 1–90) → date shown "mar 4 nov" |
 | | `weather` | `ChipSelect` single | Soleado · Nublado · Lluvia · Viento |
 | | `temperature_c` | `StepperField` −20..60 step 1 | — |
