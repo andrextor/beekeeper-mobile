@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router'
 import {
+  Camera,
   ChevronDown,
   ChevronUp,
   ClipboardCheck,

@@ -33,7 +33,7 @@ export function CameraScreen({ organizationId, hiveId, inspectionId, userId, onD
   const [flash, setFlash] = useState(false)
   const [busy, setBusy] = useState(false)
   const [taken, setTaken] = useState<Taken[]>([])
-  const [removing, setRemoving] = useState<Taken | null>(null)
+  const [removing, setRemoving] = useState<Taken[]>([])
   const [message, setMessage] = useState<string | null>(null)
   const undone = useRef(false)
   const where = { organizationId, hiveId, inspectionId, userId }
@@ -59,11 +59,14 @@ export function CameraScreen({ organizationId, hiveId, inspectionId, userId, onD
     )
   }
 
-  const keep = async (uris: string[], fromCamera: boolean) => {
+  const keep = async (
+    sources: { uri: string; width?: number; height?: number }[],
+    fromCamera: boolean,
+  ) => {
     setBusy(true)
     try {
-      for (const uri of uris) {
-        const photo = await keepPhoto(uri, where, fromCamera)
+      for (const source of sources) {
+        const photo = await keepPhoto(source, where, fromCamera)
         successHaptic()
         setTaken((list) => [photo, ...list])
       }
@@ -77,7 +80,7 @@ export function CameraScreen({ organizationId, hiveId, inspectionId, userId, onD
   const shoot = async () => {
     if (busy) return
     const picture = await camera.current?.takePictureAsync({ quality: 0.9 }).catch(() => null)
-    if (picture?.uri) await keep([picture.uri], true)
+    if (picture?.uri) await keep([picture], true)
   }
 
   const pick = async () => {
@@ -87,28 +90,35 @@ export function CameraScreen({ organizationId, hiveId, inspectionId, userId, onD
       selectionLimit: 10,
       quality: 1,
     })
-    if (!result.canceled)
-      await keep(
-        result.assets.map((a) => a.uri),
-        false,
-      )
+    if (!result.canceled) await keep(result.assets, false)
   }
 
-  // The removal happens when the undo window closes; a photo never uploaded leaves no trace (M9).
-  const closeUndo = async () => {
-    const photo = removing
-    setRemoving(null)
-    if (!photo || undone.current) return
+  // Removals become final when the undo window closes or on Listo; a photo never uploaded leaves
+  // no trace (M9). Several taps in a row add to the same window.
+  const commitRemovals = async (photos: Taken[]) => {
     const db = await getDb()
-    const row = await db.getFirstAsync<LocalRow>('select * from photos where id = ?', [photo.id])
-    if (row)
-      await saveRow(db, 'photos', {
-        ...fromLocal('photos', row),
-        deleted_at: new Date().toISOString(),
-      })
+    for (const photo of photos) {
+      const row = await db.getFirstAsync<LocalRow>('select * from photos where id = ?', [photo.id])
+      if (row) {
+        await saveRow(db, 'photos', {
+          ...fromLocal('photos', row),
+          deleted_at: new Date().toISOString(),
+        })
+      }
+    }
+  }
+  const closeUndo = async () => {
+    const photos = removing
+    setRemoving([])
+    if (undone.current) return
+    await commitRemovals(photos)
+  }
+  const done = async () => {
+    if (removing.length) await commitRemovals(removing)
+    onDone()
   }
 
-  const shown = taken.filter((t) => t.id !== removing?.id)
+  const shown = taken.filter((t) => !removing.some((r) => r.id === t.id))
 
   return (
     <View className="flex-1 bg-deep">
@@ -127,7 +137,7 @@ export function CameraScreen({ organizationId, hiveId, inspectionId, userId, onD
                   accessibilityLabel="Quitar esta foto"
                   onPress={withTap(() => {
                     undone.current = false
-                    setRemoving(t)
+                    setRemoving((list) => [...list, t])
                   })}
                 >
                   <Image source={{ uri: t.thumbUri }} className="size-16 rounded-button" />
@@ -153,7 +163,7 @@ export function CameraScreen({ organizationId, hiveId, inspectionId, userId, onD
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Listo"
-            onPress={withTap(onDone)}
+            onPress={withTap(() => void done())}
             className="size-field items-center justify-center rounded-full bg-primary"
           >
             <Check color={color.onPrimary} size={iconSize.field} />
@@ -168,7 +178,7 @@ export function CameraScreen({ organizationId, hiveId, inspectionId, userId, onD
         />
       </View>
       <Toast
-        message={removing ? 'Foto quitada' : null}
+        message={removing.length ? plural(removing.length, 'foto quitada', 'fotos quitadas') : null}
         onUndo={() => {
           undone.current = true
         }}

@@ -1,3 +1,4 @@
+import { NetworkStateType, useNetworkState } from 'expo-network'
 import { router } from 'expo-router'
 import { RefreshCw } from 'lucide-react-native'
 import { useRef, useState } from 'react'
@@ -36,10 +37,12 @@ function StatusChip({ status }: { status: SyncStatus }) {
 
 function Header({ status }: { status: SyncStatus }) {
   const { state } = useSession()
+  const onWifi = useNetworkState().type === NetworkStateType.WIFI
   const waitingPhotos =
     useLocalQuery<{ n: number }>(
       `select count(*) as n from photos p join outbox o on o.table_name = 'photos' and o.row_id = p.id
-       where p._on_server = 0 and o.state = 'pending'`,
+       where p._on_server = 0 and o.state = 'pending' and p.deleted_at is null
+         and (p.inspection_id is null or exists (select 1 from inspections i where i.id = p.inspection_id))`,
       [],
       ['photos', 'outbox'],
     ).rows[0]?.n ?? 0
@@ -59,7 +62,7 @@ function Header({ status }: { status: SyncStatus }) {
         onPress={() => void syncNow()}
       />
       <FormError message={status.error} />
-      {waitingPhotos > 0 ? (
+      {waitingPhotos > 0 && !onWifi ? (
         <View className="gap-2 rounded-card border-2 border-accent p-3">
           <Text className="font-sans-semibold text-body text-text">
             {`${plural(waitingPhotos, 'foto esperando', 'fotos esperando')} Wi-Fi`}

@@ -13,7 +13,7 @@ import { getDb } from '@/db/database'
 import { fromLocal, type LocalRow } from '@/db/mapping'
 import { saveRow } from '@/db/write'
 import { useRole, useSession } from '@/features/auth/session'
-import { usePhoto, usePhotos } from '@/features/photos/queries'
+import { usePhoto, usePhotoNeighbors } from '@/features/photos/queries'
 import { mainSource } from '@/features/photos/sources'
 import { useSignedUrls } from '@/features/photos/useSignedUrls'
 import { formatDateTime } from '@/lib/format'
@@ -31,7 +31,7 @@ export default function PhotoScreen() {
   const { state } = useSession()
   const owner = useRole() === 'owner'
   const photo = usePhoto(id)
-  const siblings = usePhotos({ hiveId: photo?.hive_id ?? '' })
+  const { newer, older } = usePhotoNeighbors(photo)
   const source = photo ? mainSource(photo) : null
   const signed = useSignedUrls(source && 'path' in source ? [source.path] : [])
   const [caption, setCaption] = useState<string | null>(null)
@@ -50,10 +50,8 @@ export default function PhotoScreen() {
 
   if (!photo) return <NotAvailable icon={ImageOff} title="Esta foto ya no está." />
   const uri = source && ('uri' in source ? source.uri : signed(source.path))
-  const index = siblings.findIndex((p) => p.id === id)
-  const go = (to: number) => {
-    const next = siblings[to]
-    if (next) router.replace({ pathname: '/photo/[id]', params: { id: next.id } })
+  const go = (to: string | null) => {
+    if (to) router.replace({ pathname: '/photo/[id]', params: { id: to } })
   }
   const userId = state.status === 'signedIn' ? state.session.user.id : null
   const canDelete = owner || photo.created_by === userId
@@ -85,8 +83,8 @@ export default function PhotoScreen() {
           <IconButton
             icon={ChevronRight}
             label="Foto siguiente"
-            onPress={() => go(index + 1)}
-            disabled={index < 0 || index >= siblings.length - 1}
+            onPress={() => go(older)}
+            disabled={!older}
           />
         </View>
         {caption === null ? (

@@ -22,6 +22,8 @@ export type PhotoStep =
   | { kind: 'done' }
   | { kind: 'failed'; error: unknown; status: number | undefined; message: string }
 
+const undoWindowMs = 10_000
+
 const storageMessages: Readonly<Record<number, string>> = {
   403: 'No se pudo subir la foto: la colmena ya no existe o ya no tienes acceso a la finca.',
   413: 'La foto es demasiado grande para subirla.',
@@ -42,8 +44,19 @@ export async function preparePhoto(
     [id],
   )
   if (!row) return { kind: 'row' }
-  const deleted = (JSON.parse(step.entry.payload) as { deleted_at?: unknown }).deleted_at != null
+  const { deleted_at: deletedAt } = JSON.parse(step.entry.payload) as { deleted_at?: unknown }
+  const deleted = typeof deletedAt === 'string'
+  // Deshacer stays possible for a moment (5-s toasts): the drop waits until it has passed.
+  if (
+    row._on_server === 0 &&
+    deleted &&
+    Date.now() - new Date(deletedAt).getTime() < undoWindowMs
+  ) {
+    return { kind: 'wait' }
+  }
   if (row._on_server === 0 && deleted) {
+    // ponytail: files already uploaded (upload_step main/thumb) stay in Storage; the app has no
+    // delete policy (B5) and orphan cleanup is a later server job (api.md → Upload order).
     await db.transaction(async () => {
       await db.runAsync('delete from outbox where id = ?', [step.entry.id])
       await db.runAsync('delete from photos where id = ?', [id])

@@ -57,7 +57,8 @@ export async function discardWithUndo(id: string): Promise<void> {
   if (!draft) return
   await discardDraft(db, id)
   showToast('Revisión descartada', {
-    onExpire: () => void dropDraftPhotos(id),
+    // An edit's photos belong to an inspection that exists: they stay (and upload).
+    onExpire: draft.is_edit ? undefined : () => void dropDraftPhotos(id),
     onUndo: () =>
       void restoreDraft(db, draft).catch((e: unknown) =>
         showToast(`No se pudo deshacer: ${messageFor(e)}`, { tone: 'danger' }),

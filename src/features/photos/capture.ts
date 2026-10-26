@@ -14,12 +14,15 @@ export type Taken = { id: string; thumbUri: string }
  * `deleteSource` removes the camera's temporary original (never a gallery photo).
  */
 export async function keepPhoto(
-  sourceUri: string,
+  source: { uri: string; width?: number; height?: number },
   where: Where,
   deleteSource: boolean,
 ): Promise<Taken> {
   const id = uuid()
-  const processed = await processPhoto(sourceUri, id)
+  const sourceUri = source.uri
+  const size =
+    source.width && source.height ? { width: source.width, height: source.height } : undefined
+  const processed = await processPhoto(sourceUri, id, size)
   if (deleteSource) {
     const original = new File(sourceUri)
     if (original.exists) original.delete()

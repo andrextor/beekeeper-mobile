@@ -15,8 +15,14 @@ const fresh = (path: string) => {
 
 /** One `createSignedUrls` call per 100 paths; returns the URL for each path once signed. */
 export function useSignedUrls(paths: readonly string[]): (path: string) => string | null {
-  const [, setVersion] = useState(0)
+  const [version, setVersion] = useState(0)
   const key = paths.join('|')
+
+  // Missing (no signal) and old URLs are asked for again each minute while the screen is open.
+  useEffect(() => {
+    const timer = setInterval(() => setVersion((v) => v + 1), 60_000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const missing = key.split('|').filter((p) => p && !fresh(p))
@@ -40,7 +46,7 @@ export function useSignedUrls(paths: readonly string[]): (path: string) => strin
     return () => {
       alive = false
     }
-  }, [key])
+  }, [key, version])
 
   return fresh
 }

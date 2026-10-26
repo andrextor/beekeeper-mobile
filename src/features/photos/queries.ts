@@ -38,3 +38,24 @@ export function usePhoto(id: string): PhotoItem | null {
     ).rows[0] ?? null
   )
 }
+
+/** The newer and the older photo of the same hive, for the viewer's buttons (no list walked). */
+export function usePhotoNeighbors(photo: PhotoItem | null): {
+  newer: string | null
+  older: string | null
+} {
+  const params = photo ? [photo.hive_id, photo.taken_at, photo.id] : ['', '', '']
+  const newer = useLocalQuery<{ id: string }>(
+    `select id from photos where hive_id = ? and deleted_at is null and (taken_at, id) > (?, ?)
+     order by taken_at, id limit 1`,
+    params,
+    ['photos'],
+  ).rows[0]
+  const older = useLocalQuery<{ id: string }>(
+    `select id from photos where hive_id = ? and deleted_at is null and (taken_at, id) < (?, ?)
+     order by taken_at desc, id desc limit 1`,
+    params,
+    ['photos'],
+  ).rows[0]
+  return { newer: newer?.id ?? null, older: older?.id ?? null }
+}

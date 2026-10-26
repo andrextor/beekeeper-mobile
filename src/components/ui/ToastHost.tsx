@@ -28,6 +28,8 @@ function set(next: Shown | null) {
  */
 export function showToast(message: string, options: Options = {}) {
   if (shown?.onUndo && !options.onUndo) return
+  // A newer undo toast closes the older window: what it was waiting for becomes final now.
+  if (shown && !shown.undone) shown.onExpire?.()
   key += 1
   set({ message, key, ...options })
 }

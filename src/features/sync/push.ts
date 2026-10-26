@@ -7,6 +7,7 @@ import { errorCode, messageFor } from '@/lib/errors'
 import { isRecord } from '@/lib/guards'
 import { newQrCode } from '@/lib/qr-code'
 import { classify, retryDelayMs } from './classify'
+import { removeLocal } from './discard'
 import { photoUploadAllowed } from './network-policy'
 import { type OutboxEntry, pushSteps, type Step } from './order'
 import { preparePhoto } from './push-photos'
@@ -191,6 +192,23 @@ export async function retryNow(db: Db): Promise<void> {
   })
 }
 
+/**
+ * A photo of a field draft that no longer exists (discarded, and the app closed before its photos
+ * were removed): neither the inspection nor the draft is on the phone, so it would wait forever.
+ */
+async function orphanPhoto(db: Db, { entry, payload }: Step): Promise<boolean> {
+  const inspectionId = payload.inspection_id
+  if (typeof inspectionId !== 'string') return false
+  const parent = await db.getFirstAsync(
+    `select 1 from inspections where id = ?
+     union all select 1 from inspection_drafts where id = ?`,
+    [inspectionId, inspectionId],
+  )
+  if (parent || (await onServer(db, 'photos', entry.row_id)) !== 0) return false
+  await db.transaction(() => removeLocal(db, 'photos', entry.row_id))
+  return true
+}
+
 /** Pushes every due outbox entry in order (spec → Outbox), one row per request. */
 export async function pushOutbox(db: Db): Promise<void> {
   const entries = await db.getAllAsync<OutboxEntry>(
@@ -209,8 +227,13 @@ export async function pushOutbox(db: Db): Promise<void> {
   // An entry dropped by an earlier step (a photo deleted before upload) has nothing left to push.
   const dropped = new Set<string>()
   for (const step of pushSteps(entries)) {
-    if (dropped.has(step.entry.id) || (await mustWait(db, step))) continue
+    if (dropped.has(step.entry.id)) continue
     const photo = step.entry.table_name === 'photos'
+    if (photo && (await orphanPhoto(db, step))) {
+      dropped.add(step.entry.id)
+      continue
+    }
+    if (await mustWait(db, step)) continue
     if (photo) {
       const prepared = await preparePhoto(db, step, { upload: uploadFile, allowed: photosAllowed })
       if (prepared.kind === 'wait') continue

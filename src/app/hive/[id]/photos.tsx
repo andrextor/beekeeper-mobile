@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router'
 import { Camera, ImageOff } from 'lucide-react-native'
+import { useState } from 'react'
 import { Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
@@ -9,10 +10,14 @@ import { Screen } from '@/components/ui/Screen'
 import { PhotoGrid } from '@/features/photos/PhotoGrid'
 import { usePhotos } from '@/features/photos/queries'
 
-/** Every photo of the hive, thumbnails only. */
+// Pages of 60 thumbnails: a hive with years of photos never loads them all at once.
+const page = 60
+
+/** Every photo of the hive, thumbnails only, "Cargar más" for older ones. */
 export default function HivePhotosScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const photos = usePhotos({ hiveId: id }, 300)
+  const [limit, setLimit] = useState(page)
+  const photos = usePhotos({ hiveId: id }, limit)
   return (
     <Screen>
       <BackButton />
@@ -33,6 +38,9 @@ export default function HivePhotosScreen() {
       ) : (
         <EmptyState icon={ImageOff} title="Esta colmena aún no tiene fotos." />
       )}
+      {photos.length === limit ? (
+        <Button variant="secondary" label="Cargar más" onPress={() => setLimit((l) => l + page)} />
+      ) : null}
     </Screen>
   )
 }

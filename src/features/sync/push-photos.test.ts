@@ -34,7 +34,7 @@ const step = (deleted = false): Step => ({
     id: 'photos:p',
     table_name: 'photos',
     row_id: 'p',
-    payload: JSON.stringify({ deleted_at: deleted ? '2026-10-26' : null }),
+    payload: JSON.stringify({ deleted_at: deleted ? '2026-10-26T00:00:00.000Z' : null }),
     attempts: 0,
     created_at: '',
     on_server: 0,
@@ -91,6 +91,14 @@ describe('preparePhoto', () => {
     ).toEqual({
       kind: 'row',
     })
+  })
+
+  it('waits out the undo window before dropping a deleted photo', async () => {
+    const db = await database()
+    const { upload } = recorder()
+    const now = step(true)
+    now.entry.payload = JSON.stringify({ deleted_at: new Date().toISOString() })
+    expect(await preparePhoto(db, now, { upload, allowed: true })).toEqual({ kind: 'wait' })
   })
 
   it('drops a photo deleted before it ever reached the server, files included', async () => {
