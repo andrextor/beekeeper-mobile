@@ -35,7 +35,8 @@ const server: Source = {
       query.order('updated_at').order('id').limit(pageSize).abortSignal(signal),
     )
     if (error) throw error
-    return (data ?? []) as Row[]
+    // The select string is chosen at runtime, so postgrest-js cannot type the rows.
+    return (data ?? []) as unknown as Row[]
   },
 }
 
