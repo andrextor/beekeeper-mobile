@@ -1,6 +1,6 @@
 import Constants from 'expo-constants'
 import { router } from 'expo-router'
-import { LogOut, Palette } from 'lucide-react-native'
+import { LogOut, Palette, Users } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 
@@ -128,6 +128,14 @@ export default function ProfileScreen() {
             label="Cambiar de finca"
             onPress={() => router.push('/organizations')}
           />
+          {active ? (
+            <Button
+              variant="secondary"
+              icon={Users}
+              label="Personas de la finca"
+              onPress={() => router.push('/members')}
+            />
+          ) : null}
         </Card>
         <Card className="gap-3">
           <ChipSelect
