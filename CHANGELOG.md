@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-26
+
+### Added
+
+- Apiarios tab: the finca's apiaries with active hives and last inspection, search by name or farm (case- and accent-insensitive), **Nuevo apiario** for owners.
+- Apiary detail with its facts, **Ver en mapa**, and its hives (Activas / Todas) with status, type, queen colour and the latest inspection's attention.
+- Apiary form with **Usar mi ubicación**, always one tap away: asks again, **Abrir ajustes** when blocked, Android's turn-on dialog when location is off, last known position when there is no GPS fix; altitude prefilled.
+- Hive form for gloves: steppers and chips, name suggested ("C-04"), native date picker with the colony age, queen colour suggested from the year, Sí / No / No sé for the mark; fixed save bar.
+- Hive facts screen (timeline arrives with M6).
+- Soft delete of apiaries (blocked while they have hives) and hives, with 5 s undo; "Guardado en este dispositivo" survives navigation.
+- Reviewers see everything and edit nothing; edit screens say "Solo el propietario puede editar."
+- Pendientes: **Revisar** opens the apiary or hive form, with a repeated name highlighted; a new hive whose QR code is taken gets a new one and a `qr_relabel` event, automatically.
+
+### Changed
+
+- QR code generator moved to `src/lib/qr-code.ts`; the dev sync panel keeps only forced failure, outbox and cursors.
+
 ## [0.3.0] - 2026-10-26
 
 ### Added
