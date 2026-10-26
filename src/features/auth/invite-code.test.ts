@@ -15,6 +15,7 @@ describe('formatInviteCode', () => {
         'Te invité a Finca Landak en Landak Apiario. Escribe este código: K7M2-9QXA. Vence el 1 de noviembre.',
       ),
     ).toBe('K7M2-9QXA')
+    expect(formatInviteCode('Escribe este código: K7M29QXA')).toBe('K7M2-9QXA')
   })
 
   it('caps at 8 characters and knows when it is complete', () => {

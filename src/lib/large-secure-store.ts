@@ -8,6 +8,8 @@ import * as SecureStore from 'expo-secure-store'
  * lives in SecureStore, whose values are too small for a whole session (Supabase RN docs).
  * The key is created once per item and dropped by removeItem (sign-out), so each token refresh is
  * one AsyncStorage write: a kill mid-write can never pair a new key with old ciphertext.
+ * Each write starts CTR at a fresh random 16-byte block (stored as `iv:ciphertext`), so the same key
+ * never reuses a keystream.
  */
 export class LargeSecureStore {
   async getItem(key: string): Promise<string | null> {
@@ -36,14 +38,19 @@ export class LargeSecureStore {
 }
 
 function encrypt(key: Uint8Array, value: string): string {
-  const cipher = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(1))
-  return aesjs.utils.hex.fromBytes(cipher.encrypt(aesjs.utils.utf8.toBytes(value)))
+  const iv = getRandomValues(new Uint8Array(16))
+  const cipher = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(iv))
+  const encrypted = cipher.encrypt(aesjs.utils.utf8.toBytes(value))
+  return `${aesjs.utils.hex.fromBytes(iv)}:${aesjs.utils.hex.fromBytes(encrypted)}`
 }
 
-function decrypt(hexKey: string, encrypted: string): string {
+/** null for anything not written by `encrypt` (Supabase then treats it as no session). */
+function decrypt(hexKey: string, stored: string): string | null {
+  const [iv, encrypted] = stored.split(':')
+  if (!iv || !encrypted) return null
   const cipher = new aesjs.ModeOfOperation.ctr(
     aesjs.utils.hex.toBytes(hexKey),
-    new aesjs.Counter(1),
+    new aesjs.Counter(aesjs.utils.hex.toBytes(iv)),
   )
   return aesjs.utils.utf8.fromBytes(cipher.decrypt(aesjs.utils.hex.toBytes(encrypted)))
 }

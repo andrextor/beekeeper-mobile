@@ -5,6 +5,7 @@ import { Pressable, Text, View } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
+import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
 import { createOrganization, includesFinca, updateDisplayName } from '@/features/auth/organizations'
@@ -33,7 +34,7 @@ export default function OnboardingScreen() {
         onCreated={async (id) => {
           includesFinca(await refreshMemberships(true), id)
           await setActiveOrganization(id)
-          router.replace('/apiaries')
+          router.dismissTo('/apiaries')
         }}
       />
     )
@@ -111,8 +112,10 @@ function CreateFinca({
     setBusy(true)
     setError(null)
     try {
-      if (displayName.trim()) await updateDisplayName(userId, displayName.trim())
-      await onCreated(await createOrganization(id, trimmed))
+      const organizationId = await createOrganization(id, trimmed)
+      // Optional: a failure here must not block the finca, which already exists.
+      if (displayName.trim()) await updateDisplayName(userId, displayName.trim()).catch(() => {})
+      await onCreated(organizationId)
     } catch (e) {
       setError(messageFor(e))
     } finally {
@@ -137,11 +140,7 @@ function CreateFinca({
         autoComplete="name"
         maxLength={80}
       />
-      {error ? (
-        <Text accessibilityRole="alert" className="font-sans-semibold text-body text-danger">
-          {error}
-        </Text>
-      ) : null}
+      <FormError message={error} />
       <Button label="Crear mi finca" loading={busy} disabled={!trimmed} onPress={submit} />
     </Screen>
   )

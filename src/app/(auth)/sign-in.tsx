@@ -4,6 +4,7 @@ import { Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
+import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { TextField } from '@/components/ui/TextField'
@@ -31,6 +32,7 @@ export default function SignInScreen() {
   }, [params.email])
 
   const signIn = async () => {
+    if (busy) return
     setPendingOfOther(0)
     setBusy(true)
     setError(null)
@@ -38,8 +40,9 @@ export default function SignInScreen() {
       email: email.trim(),
       password,
     })
-    setBusy(false)
+    // On success the button stays busy until the session redirect, so it cannot be sent twice.
     if (!signInError) return
+    setBusy(false)
     setError(
       isNetworkError(signInError)
         ? 'Necesitas conexión para entrar la primera vez.'
@@ -80,11 +83,7 @@ export default function SignInScreen() {
         autoComplete="current-password"
         onSubmitEditing={submit}
       />
-      {error ? (
-        <Text accessibilityRole="alert" className="font-sans-semibold text-body text-danger">
-          {error}
-        </Text>
-      ) : null}
+      <FormError message={error} />
       <Button
         label="Ingresar"
         loading={busy}

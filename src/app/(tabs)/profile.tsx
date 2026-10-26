@@ -1,21 +1,21 @@
 import Constants from 'expo-constants'
 import { router } from 'expo-router'
 import { LogOut, Palette } from 'lucide-react-native'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 
-import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { FormError } from '@/components/ui/FormError'
 import { Card } from '@/components/ui/Card'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { TextField } from '@/components/ui/TextField'
 import { Toast } from '@/components/ui/Toast'
 import { updateDisplayName } from '@/features/auth/organizations'
+import { RoleBadge } from '@/features/auth/RoleBadge'
 import { signOut, useSession } from '@/features/auth/session'
 import { pendingCount } from '@/features/sync/pending'
 import { isNetworkError, messageFor } from '@/lib/errors'
-import { roleLabels } from '@/lib/labels'
 import { supabase } from '@/lib/supabase'
 
 const offlineEdit = 'Necesitas conexión para cambiar tu nombre.'
@@ -32,6 +32,8 @@ export default function ProfileScreen() {
 
   const userId = state.status === 'signedIn' ? state.session.user.id : null
 
+  const edited = useRef(false)
+
   useEffect(() => {
     if (!userId) return
     supabase
@@ -39,7 +41,11 @@ export default function ProfileScreen() {
       .select('display_name')
       .eq('id', userId)
       .maybeSingle()
-      .then(({ data }) => setDisplayName(data?.display_name ?? ''))
+      .then(({ data, error }) => {
+        if (error) return setNameError(isNetworkError(error) ? offlineEdit : messageFor(error))
+        // A late answer never overwrites what the person is already typing.
+        if (!edited.current) setDisplayName(data?.display_name ?? '')
+      })
   }, [userId])
 
   if (state.status !== 'signedIn') return null
@@ -82,7 +88,10 @@ export default function ProfileScreen() {
           <TextField
             label="Tu nombre"
             value={displayName}
-            onChangeText={setDisplayName}
+            onChangeText={(text) => {
+              edited.current = true
+              setDisplayName(text)
+            }}
             autoComplete="name"
             maxLength={80}
             error={nameError ?? undefined}
@@ -101,12 +110,7 @@ export default function ProfileScreen() {
             <Text className="font-display text-section text-text">
               {active?.organization_name ?? 'Sin finca'}
             </Text>
-            {active ? (
-              <Badge
-                label={roleLabels[active.role]}
-                tone={active.role === 'owner' ? 'primary' : 'neutral'}
-              />
-            ) : null}
+            {active ? <RoleBadge role={active.role} /> : null}
           </View>
           <Button
             variant="secondary"
@@ -143,11 +147,7 @@ export default function ProfileScreen() {
             ? `Tienes ${signOutPending} registros sin sincronizar. Si cierras sesión se perderán.`
             : 'Se borrarán de este teléfono los datos de tu finca. Vuelven al ingresar de nuevo.'}
         </Text>
-        {signOutError ? (
-          <Text accessibilityRole="alert" className="font-sans-semibold text-body text-danger">
-            {signOutError}
-          </Text>
-        ) : null}
+        <FormError message={signOutError} />
         {signOutPending ? (
           <Button label="Sincronizar primero" onPress={() => setSignOutPending(null)} />
         ) : (

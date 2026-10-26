@@ -50,6 +50,14 @@ describe('LargeSecureStore', () => {
     expect(await store.getItem('sb-auth')).toBe('refreshed')
   })
 
+  it('never reuses a keystream: the same value encrypts differently each time', async () => {
+    await store.setItem('sb-auth', session)
+    const first = mockAsyncData.get('sb-auth')
+    await store.setItem('sb-auth', session)
+    expect(mockAsyncData.get('sb-auth')).not.toBe(first)
+    expect(await store.getItem('sb-auth')).toBe(session)
+  })
+
   it('removes the value and its key', async () => {
     await store.setItem('sb-auth', session)
     await store.removeItem('sb-auth')

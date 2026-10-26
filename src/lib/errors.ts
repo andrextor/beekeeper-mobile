@@ -1,5 +1,8 @@
 // Supabase errors → Spanish, per ../beekeeper/docs/api.md → Errors and Auth. Shared by every module.
 
+export const minPasswordLength = 8
+export const passwordTooShort = `La contraseña debe tener al menos ${minPasswordLength} caracteres.`
+
 const generic = 'Algo salió mal. Inténtalo de nuevo.'
 const network = 'No hay conexión. Revisa tu internet e inténtalo de nuevo.'
 
@@ -35,7 +38,7 @@ const authMessages: Record<string, string> = {
   invalid_credentials: 'Correo o contraseña incorrectos.',
   user_already_exists: 'Ya existe una cuenta con ese correo. Ingresa con tu contraseña.',
   email_exists: 'Ya existe una cuenta con ese correo. Ingresa con tu contraseña.',
-  weak_password: 'La contraseña debe tener al menos 8 caracteres.',
+  weak_password: passwordTooShort,
   validation_failed: 'Revisa el correo y la contraseña.',
   over_request_rate_limit: 'Demasiados intentos. Espera un minuto.',
   user_banned: 'Esta cuenta está desactivada.',
@@ -59,9 +62,7 @@ function shape(error: unknown): ErrorShape {
 export function isNetworkError(error: unknown): boolean {
   const { name, message, status } = shape(error)
   if (name === 'AuthRetryableFetchError' || status === 0) return true
-  return /network request failed|failed to fetch|network error|timed? ?out/i.test(
-    str(message) ?? '',
-  )
+  return /network request failed|failed to fetch|network error/i.test(str(message) ?? '')
 }
 
 /** Stable machine code to branch on: RPC `details`, a mapped `23505`, or the Auth `error_code`. */

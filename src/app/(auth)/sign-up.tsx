@@ -4,13 +4,12 @@ import { Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
+import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
 import { PasswordField } from '@/features/auth/PasswordField'
-import { errorCode, messageFor } from '@/lib/errors'
+import { errorCode, messageFor, minPasswordLength, passwordTooShort } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
-
-const minPassword = 8
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('')
@@ -24,15 +23,15 @@ export default function SignUpScreen() {
 
   const submit = async () => {
     if (busy || !email.trim() || !password || !repeat) return
-    if (password.length < minPassword)
-      return setError('La contraseña debe tener al menos 8 caracteres.')
+    if (password.length < minPasswordLength) return setError(passwordTooShort)
     if (password !== repeat) return setError('Las contraseñas no coinciden.')
     setBusy(true)
     setError(null)
     setExists(false)
     const { error: signUpError } = await supabase.auth.signUp({ email: email.trim(), password })
-    setBusy(false)
+    // On success the button stays busy until the session redirect, so it cannot be sent twice.
     if (!signUpError) return
+    setBusy(false)
     const code = errorCode(signUpError)
     setExists(code === 'user_already_exists' || code === 'email_exists')
     setError(messageFor(signUpError))
@@ -60,7 +59,7 @@ export default function SignUpScreen() {
         value={password}
         onChangeText={setPassword}
         autoComplete="new-password"
-        hint="Mínimo 8 caracteres"
+        hint={`Mínimo ${minPasswordLength} caracteres`}
       />
       <PasswordField
         label="Repite la contraseña"
@@ -70,11 +69,7 @@ export default function SignUpScreen() {
         error={repeatError}
         onSubmitEditing={submit}
       />
-      {error ? (
-        <Text accessibilityRole="alert" className="font-sans-semibold text-body text-danger">
-          {error}
-        </Text>
-      ) : null}
+      <FormError message={error} />
       {exists ? (
         <Button
           variant="secondary"

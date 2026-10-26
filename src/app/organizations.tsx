@@ -2,13 +2,12 @@ import { router } from 'expo-router'
 import { Hexagon, KeyRound, Plus } from 'lucide-react-native'
 import { Text } from 'react-native'
 
-import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
+import { RoleBadge } from '@/features/auth/RoleBadge'
 import { useSession } from '@/features/auth/session'
-import { roleLabels } from '@/lib/labels'
 
 export default function OrganizationsScreen() {
   const { state, setActiveOrganization } = useSession()
@@ -16,7 +15,7 @@ export default function OrganizationsScreen() {
 
   const choose = async (id: string) => {
     await setActiveOrganization(id)
-    router.replace('/')
+    router.dismissTo('/(tabs)')
   }
 
   return (
@@ -31,9 +30,7 @@ export default function OrganizationsScreen() {
             icon={Hexagon}
             title={m.organization_name}
             subtitle={m.organization_id === state.activeOrganizationId ? 'Finca actual' : undefined}
-            trailing={
-              <Badge label={roleLabels[m.role]} tone={m.role === 'owner' ? 'primary' : 'neutral'} />
-            }
+            trailing={<RoleBadge role={m.role} />}
             onPress={() => choose(m.organization_id)}
           />
         ))}

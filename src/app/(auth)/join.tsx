@@ -4,6 +4,7 @@ import { Text, TextInput, View } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
+import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { formatInviteCode, isCompleteInviteCode } from '@/features/auth/invite-code'
 import { acceptInvite, includesFinca } from '@/features/auth/organizations'
@@ -30,7 +31,7 @@ export default function JoinScreen() {
       setJoinedId(organizationId)
       includesFinca(await refreshMemberships(true), organizationId)
       await setActiveOrganization(organizationId)
-      router.replace('/')
+      router.dismissTo('/(tabs)')
     } catch (e) {
       setError(
         organizationId
@@ -67,11 +68,7 @@ export default function JoinScreen() {
           className="min-h-field text-center font-mono text-code tracking-widest text-text"
         />
       </View>
-      {error ? (
-        <Text accessibilityRole="alert" className="font-sans-semibold text-body text-danger">
-          {error}
-        </Text>
-      ) : null}
+      <FormError message={error} />
       <Button
         label={joinedId ? 'Reintentar' : 'Unirme a la finca'}
         loading={busy}
