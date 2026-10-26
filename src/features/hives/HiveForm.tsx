@@ -53,6 +53,8 @@ type Props = {
   hiveId?: string
   /** The finca's live apiaries; moving a hive is choosing another one. */
   apiaries: readonly { id: string; name: string }[]
+  /** The server's reason when Pendientes → Revisar opened the form (a repeated name). */
+  nameError?: string
   onSave: (fields: HiveFields) => Promise<void>
   /** Below the form, above the fixed save bar (the edit screen's delete button). */
   footer?: ReactNode
@@ -63,12 +65,21 @@ type Props = {
 const single = (value: string | null) => (value ? [value] : [])
 
 /** Owner-only, gloves-first: steppers and chips for everything except names and notes. */
-export function HiveForm({ initial, hiveId, apiaries, onSave, footer, title, header }: Props) {
+export function HiveForm({
+  initial,
+  hiveId,
+  apiaries,
+  nameError,
+  onSave,
+  footer,
+  title,
+  header,
+}: Props) {
   const insets = useSafeAreaInsets()
   const [draft, setDraft] = useState(initial)
   const [nameTouched, setNameTouched] = useState(Boolean(hiveId))
   const [colorTouched, setColorTouched] = useState(initial.queen_color !== null)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>(nameError ? { name: nameError } : {})
   const [failure, setFailure] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const set = <K extends keyof HiveDraft>(key: K, value: HiveDraft[K]) =>

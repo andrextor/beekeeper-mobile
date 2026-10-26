@@ -17,7 +17,7 @@ import { useHive } from '@/features/hives/queries'
 import type { HiveFields } from '@/features/hives/schema'
 
 export default function EditHiveScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
+  const { id, nameError } = useLocalSearchParams<{ id: string; nameError?: string }>()
   const owner = useRole() === 'owner'
   const { hive, loading } = useHive(id)
   const apiaries = useApiaryNames(hive?.organization_id ?? '')
@@ -55,6 +55,7 @@ export default function EditHiveScreen() {
         header={<BackButton />}
         initial={toDraft(hive)}
         hiveId={id}
+        nameError={nameError || undefined}
         apiaries={apiaries}
         onSave={save}
         footer={

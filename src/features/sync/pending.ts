@@ -12,6 +12,7 @@ export type PendingEntry = {
   attempts: number
   next_attempt_at: string
   last_error: string | null
+  last_error_code: string | null
   state: 'pending' | 'failed_permanent'
   hive_name: string | null
 }
@@ -23,7 +24,7 @@ export async function pendingCount(): Promise<number> {
 }
 
 const entriesSql = `select o.id, o.table_name, o.row_id, o.payload, o.attempts, o.next_attempt_at,
-    o.last_error, o.state, h.name as hive_name
+    o.last_error, o.last_error_code, o.state, h.name as hive_name
   from outbox o
   left join hives h on h.id = case when o.table_name = 'hives' then o.row_id
     else json_extract(o.payload, '$.hive_id') end

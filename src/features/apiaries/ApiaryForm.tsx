@@ -28,13 +28,15 @@ type Props = {
   initial?: ApiaryDraft
   /** Names of the finca's other live apiaries (unique per finca, B3). */
   otherNames: readonly string[]
+  /** The server's reason when Pendientes → Revisar opened the form (a repeated name). */
+  nameError?: string
   onSave: (fields: ApiaryFields) => Promise<void>
 }
 
 /** Owner-only form; every B3 rule is checked here before the row reaches the outbox. */
-export function ApiaryForm({ initial = emptyApiary, otherNames, onSave }: Props) {
+export function ApiaryForm({ initial = emptyApiary, otherNames, nameError, onSave }: Props) {
   const [draft, setDraft] = useState(initial)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<Record<string, string>>(nameError ? { name: nameError } : {})
   const [saving, setSaving] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const set = <K extends keyof ApiaryDraft>(key: K, value: ApiaryDraft[K]) =>

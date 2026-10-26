@@ -18,7 +18,7 @@ import { useRole } from '@/features/auth/session'
 import { useHiveNames } from '@/features/hives/queries'
 
 export default function EditApiaryScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
+  const { id, nameError } = useLocalSearchParams<{ id: string; nameError?: string }>()
   const owner = useRole() === 'owner'
   const { apiary, loading } = useApiary(id)
   const names = useApiaryNames(apiary?.organization_id ?? '')
@@ -58,6 +58,7 @@ export default function EditApiaryScreen() {
       <ApiaryForm
         initial={toDraft(apiary)}
         otherNames={names.filter((n) => n.id !== id).map((n) => n.name)}
+        nameError={nameError || undefined}
         onSave={save}
       />
       <Button

@@ -2,8 +2,10 @@ import type { Db } from '@/db/db'
 import type { SyncedTable } from '@/db/mapping'
 import { applyServerRows } from '@/db/write'
 import { errorCode, messageFor } from '@/lib/errors'
+import { newQrCode } from '@/lib/qr-code'
 import { classify, retryDelayMs } from './classify'
 import { type OutboxEntry, pushSteps, type Step } from './order'
+import { replaceTakenQrCode } from './qr-taken'
 import { client, fetchServerRow, withTimeout } from './server'
 
 type Answer = { data: unknown; error: unknown; status: number }
@@ -99,11 +101,11 @@ async function settle(db: Db, step: Step, answer: Answer, now: Date): Promise<'g
     return 'go'
   }
 
-  const verdict = classify(
-    answer.error,
-    answer.status,
-    (await onServer(db, table, entry.row_id)) === 1,
-  )
+  const rowOnServer = (await onServer(db, table, entry.row_id)) === 1
+  if (table === 'hives' && !rowOnServer && errorCode(answer.error) === 'qr_taken') {
+    if (await replaceTakenQrCode(db, entry.row_id, newQrCode())) return 'go'
+  }
+  const verdict = classify(answer.error, answer.status, rowOnServer)
   const message = messageFor(answer.error)
   const code = errorCode(answer.error) ?? String(answer.status)
   if (verdict === 'retry') {
