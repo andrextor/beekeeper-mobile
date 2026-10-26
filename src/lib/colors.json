@@ -1,0 +1,19 @@
+{
+  "deep": "#04303b",
+  "leaf": "#0c6511",
+  "sprout": "#82c75c",
+  "honey": "#ffb545",
+  "pollen": "#e8e454",
+  "white": "#ffffff",
+  "stone": {
+    "50": "#fafaf7",
+    "100": "#f2f1ec",
+    "200": "#e4e2da",
+    "300": "#cfccc1",
+    "500": "#7a766b",
+    "700": "#4a473f",
+    "900": "#1f1d19"
+  },
+  "danger": "#b42318",
+  "successBg": "#e7f4e4"
+}
