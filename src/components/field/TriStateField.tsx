@@ -7,16 +7,23 @@ import { choiceBox } from './choice'
 import { FieldLabel } from './FieldLabel'
 
 export type Observed = keyof typeof observedLabels
-const options = Object.keys(observedLabels) as Observed[]
 
-type Props = {
+type Props<T extends string> = {
   label: string
-  value: Observed | null
-  onChange: (value: Observed | null) => void
+  value: T | null
+  onChange: (value: T | null) => void
+  /** Three options in order; defaults to Sí / No / No revisado. */
+  labels?: Readonly<Record<T, string>>
 }
 
-/** Sí / No / No revisado in three 72-dp segments; tapping the chosen one again clears it. */
-export function TriStateField({ label, value, onChange }: Props) {
+/** Three 72-dp segments; tapping the chosen one again clears it. */
+export function TriStateField<T extends string = Observed>({
+  label,
+  value,
+  onChange,
+  labels = observedLabels as unknown as Readonly<Record<T, string>>,
+}: Props<T>) {
+  const options = Object.keys(labels) as T[]
   return (
     <View accessibilityRole="radiogroup" accessibilityLabel={label} className="gap-3">
       <FieldLabel label={label} />
@@ -35,7 +42,7 @@ export function TriStateField({ label, value, onChange }: Props) {
               )}
             >
               <Text className="text-center font-sans-semibold text-body text-text">
-                {observedLabels[option]}
+                {labels[option]}
               </Text>
             </Pressable>
           )

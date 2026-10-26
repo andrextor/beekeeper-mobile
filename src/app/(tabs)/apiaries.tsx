@@ -10,8 +10,8 @@ import { TextField } from '@/components/ui/TextField'
 import { ApiaryListItem } from '@/features/apiaries/ApiaryListItem'
 import { useApiaries } from '@/features/apiaries/queries'
 import { useRole, useSession } from '@/features/auth/session'
-import { color } from '@/lib/theme'
 import { fold } from '@/lib/text'
+import { color } from '@/lib/theme'
 
 export default function ApiariesScreen() {
   const insets = useSafeAreaInsets()

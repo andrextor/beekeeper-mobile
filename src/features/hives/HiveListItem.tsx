@@ -11,8 +11,8 @@ import {
   queenColorLabels,
 } from '@/lib/labels'
 import { color, iconSize } from '@/lib/theme'
-import type { HiveSummary } from './queries'
 import { QueenDot } from './QueenDot'
+import type { HiveSummary } from './queries'
 
 const statusTones: Readonly<Record<string, BadgeTone>> = {
   dead: 'danger',
