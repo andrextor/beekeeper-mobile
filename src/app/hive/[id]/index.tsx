@@ -26,6 +26,7 @@ import { useHive, useHiveAttentionData, useHiveQueue } from '@/features/hives/qu
 import { localDay } from '@/features/hives/schema'
 import { TimelineList } from '@/features/hives/TimelineList'
 import { useTimeline } from '@/features/hives/useTimeline'
+import { DraftCard, useDrafts } from '@/features/inspections/DraftCard'
 import { hiveStatusLabels, label } from '@/lib/labels'
 
 export default function HiveScreen() {
@@ -38,6 +39,8 @@ export default function HiveScreen() {
   const queue = useHiveQueue(id)
   const timeline = useTimeline(id, hive?.organization_id ?? '')
   const [showFacts, setShowFacts] = useState(false)
+  const drafts = useDrafts(id)
+  const newDraft = drafts.find((d) => !d.is_edit)
 
   if (!hive)
     return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
@@ -68,6 +71,18 @@ export default function HiveScreen() {
         ) : queue.pending > 0 ? (
           <SyncChip state="pending" count={queue.pending} />
         ) : null}
+        {drafts.map((d) => (
+          <DraftCard
+            key={d.id}
+            draft={d}
+            onContinue={() =>
+              router.push({
+                pathname: '/hive/[id]/inspect',
+                params: d.is_edit ? { id, inspectionId: d.id } : { id },
+              })
+            }
+          />
+        ))}
         <AttentionCard items={hiveAttention(attention.last, attention.treatments, today)} />
         <LastInspectionCard item={lastInspection?.kind === 'inspection' ? lastInspection : null} />
         <Button
@@ -99,7 +114,7 @@ export default function HiveScreen() {
       >
         <Button
           icon={ClipboardCheck}
-          label="Nueva revisión"
+          label={newDraft ? 'Continuar revisión' : 'Nueva revisión'}
           className="min-h-field"
           onPress={() => router.push({ pathname: '/hive/[id]/inspect', params: { id } })}
         />

@@ -10,6 +10,7 @@ import { SyncChip } from '@/components/ui/SyncChip'
 import { Toast } from '@/components/ui/Toast'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
+import { DraftCard, useDrafts } from '@/features/inspections/DraftCard'
 import { discardChange } from '@/features/sync/discard'
 import { PendingList } from '@/features/sync/PendingList'
 import { entryTitle, type PendingEntry, usePendingEntries } from '@/features/sync/pending'
@@ -31,6 +32,7 @@ function StatusChip({ status }: { status: SyncStatus }) {
 }
 
 function Header({ status }: { status: SyncStatus }) {
+  const drafts = useDrafts()
   return (
     <View className="gap-4">
       <Text accessibilityRole="header" className="font-display text-title text-text">
@@ -49,6 +51,24 @@ function Header({ status }: { status: SyncStatus }) {
           ? `Última sincronización ${formatRelative(status.lastSyncAt)}`
           : 'Todavía no se ha sincronizado en este teléfono.'}
       </Text>
+      {drafts.length ? (
+        <Text accessibilityRole="header" className="pt-2 font-display text-section text-text">
+          Revisiones sin terminar
+        </Text>
+      ) : null}
+      {drafts.map((d) => (
+        <DraftCard
+          key={d.id}
+          draft={d}
+          showHive
+          onContinue={() =>
+            router.push({
+              pathname: '/hive/[id]/inspect',
+              params: d.is_edit ? { id: d.hive_id, inspectionId: d.id } : { id: d.hive_id },
+            })
+          }
+        />
+      ))}
     </View>
   )
 }
