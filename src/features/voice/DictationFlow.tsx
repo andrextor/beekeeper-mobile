@@ -15,10 +15,10 @@ type Props = {
   onClose: () => void
 }
 
-function Notice({ children }: { children: string }) {
+function Notice({ text }: { text: string }) {
   return (
     <View className="rounded-card border-2 border-accent p-3">
-      <Text className="font-sans text-body text-text">{children}</Text>
+      <Text className="font-sans text-body text-text">{text}</Text>
     </View>
   )
 }
@@ -60,7 +60,7 @@ export function DictationFlow({ visible, room, onDone, onClose }: Props) {
     >
       {plan?.kind === 'needs_offline_pack' ? (
         <View className="gap-2">
-          <Notice>Para dictar sin señal, descarga el paquete de voz en español.</Notice>
+          <Notice text="Para dictar sin señal, descarga el paquete de voz en español." />
           <Button
             variant="secondary"
             icon={CloudDownload}
@@ -72,9 +72,7 @@ export function DictationFlow({ visible, room, onDone, onClose }: Props) {
       ) : null}
       {plan?.kind === 'denied' ? (
         <View className="gap-2">
-          <Notice>
-            Necesitamos el micrófono para dictar. Mientras tanto, sigue con los toques.
-          </Notice>
+          <Notice text="Necesitamos el micrófono para dictar. Mientras tanto, sigue con los toques." />
           {plan.canAskAgain ? null : (
             <Button
               variant="secondary"
@@ -87,7 +85,7 @@ export function DictationFlow({ visible, room, onDone, onClose }: Props) {
       ) : null}
       {plan?.kind === 'unavailable' ? (
         <View className="gap-2">
-          <Notice>Dictado no disponible en este teléfono. Puedes escribir el texto.</Notice>
+          <Notice text="Dictado no disponible en este teléfono. Puedes escribir el texto." />
           <Button
             variant="secondary"
             label="Escribir"
@@ -100,8 +98,9 @@ export function DictationFlow({ visible, room, onDone, onClose }: Props) {
           Sin el paquete sin conexión, el teléfono usa el servicio de voz de Google.
         </Text>
       ) : null}
-      {dictation.nearlyFull ? (
-        <Notice>Queda poco espacio para dictar en esta revisión.</Notice>
+      {dictation.nearlyFull ? <Notice text="Queda poco espacio para dictar." /> : null}
+      {dictation.preparing ? (
+        <Text className="text-center font-sans text-body text-muted">Preparando el micrófono…</Text>
       ) : null}
       <FormError message={dictation.error} />
     </DictationSheet>
