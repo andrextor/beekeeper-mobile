@@ -1,6 +1,6 @@
 # M12 · APK release, OTA updates, local DB upgrade safety, install guide — spec
 
-Date: 2026-10-25 · Revised: 2026-10-26 (after M1–M11, D1 live) · Branch: `chore/m12-distribution` · Status: **awaiting OK** · Version: 1.0.0
+Date: 2026-10-25 · Revised: 2026-10-26 (after M1–M11, D1 live) · Branch: `chore/m12-distribution` · Status: **approved** (Iván, 2026-10-26) · Version: 1.0.0
 
 ## Problem
 

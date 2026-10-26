@@ -1,6 +1,6 @@
 # M12 · Distribution — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-12-distribution-design.md` · Branch: `chore/m12-distribution` · Status: **awaiting OK** (revised 2026-10-26)
+Spec: `docs/superpowers/specs/ok-2026-10-25-mobile-12-distribution-design.md` · Branch: `chore/m12-distribution` · Status: **approved** (Iván, 2026-10-26)
 
 New dependency (approval asked here): `expo-updates` (`pnpm expo install`). Machine tools on Iván's Mac, not project dependencies: `gh` (`brew install gh`), `eas-cli` via `npx eas-cli@latest`.
 
