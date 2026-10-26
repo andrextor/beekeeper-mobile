@@ -12,6 +12,8 @@ import { Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useSession } from '@/features/auth/session'
+import { useSyncTriggers } from '@/features/sync/triggers'
+import { useSyncStatus } from '@/features/sync/useSyncStatus'
 import { tapHaptic } from '@/lib/haptics'
 import { color, iconSize, iconStroke } from '@/lib/theme'
 
@@ -42,13 +44,22 @@ function ScanTabButton({ onPress, accessibilityState }: BottomTabBarButtonProps)
 }
 
 export default function TabsLayout() {
-  const insets = useSafeAreaInsets()
   const { state } = useSession()
 
   // "/" is where the app opens: send each auth state to its entry screen.
   if (state.status !== 'signedIn') return <Redirect href="/(auth)/welcome" />
   if (state.memberships.length === 0) return <Redirect href="/(auth)/onboarding" />
   if (!state.activeOrganizationId) return <Redirect href="/organizations" />
+
+  return <SyncedTabs />
+}
+
+/** Sync runs while the tabs exist: signed in with a finca. */
+function SyncedTabs() {
+  const insets = useSafeAreaInsets()
+  useSyncTriggers()
+  const { pending, attention } = useSyncStatus()
+  const waiting = pending + attention
 
   return (
     <Tabs
@@ -73,7 +84,15 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="pending"
-        options={{ title: 'Pendientes', tabBarIcon: tabIcon(CloudUpload) }}
+        options={{
+          title: 'Pendientes',
+          tabBarIcon: tabIcon(CloudUpload),
+          tabBarBadge: waiting > 0 ? waiting : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: attention > 0 ? color.danger : color.accent,
+            color: attention > 0 ? color.onDanger : color.onAccent,
+          },
+        }}
       />
       <Tabs.Screen name="profile" options={{ title: 'Perfil', tabBarIcon: tabIcon(UserRound) }} />
     </Tabs>

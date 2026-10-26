@@ -42,14 +42,16 @@ export function syncLabel(state: SyncState, count?: number): string {
 export function SyncChip({
   state,
   count,
+  label = syncLabel(state, count),
   onPress,
 }: {
   state: SyncState
   count?: number
+  /** Replaces the standard wording, e.g. "Sin conexión — 2 guardados en este dispositivo". */
+  label?: string
   onPress?: () => void
 }) {
   const { icon: Icon, box, text, ink } = look[state]
-  const label = syncLabel(state, count)
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : 'text'}
