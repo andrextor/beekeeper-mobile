@@ -112,11 +112,13 @@ function fromSql(column: string, value: SqlValue): unknown {
 
 /** Server row → SQLite values for the table's columns (columns the app does not know are dropped). */
 export function toLocal(table: SyncedTable, row: Record<string, unknown>): LocalRow {
-  return Object.fromEntries(columns[table].map((c) => [c, toSql(row[c])]))
+  const cols: readonly string[] = columns[table]
+  return Object.fromEntries(cols.map((c) => [c, toSql(row[c])]))
 }
 
 export function fromLocal<T extends SyncedTable>(table: T, row: LocalRow): ServerRow<T> {
-  const server = Object.fromEntries(columns[table].map((c) => [c, fromSql(c, row[c] ?? null)]))
+  const cols: readonly string[] = columns[table]
+  const server = Object.fromEntries(cols.map((c) => [c, fromSql(c, row[c] ?? null)]))
   return server as unknown as ServerRow<T>
 }
 
@@ -125,7 +127,6 @@ export function toPayload(
   table: SyncedTable,
   row: Record<string, unknown>,
 ): Record<string, unknown> {
-  return Object.fromEntries(
-    columns[table].filter((c) => !serverOwned.has(c)).map((c) => [c, row[c] ?? null]),
-  )
+  const cols: readonly string[] = columns[table]
+  return Object.fromEntries(cols.filter((c) => !serverOwned.has(c)).map((c) => [c, row[c] ?? null]))
 }
