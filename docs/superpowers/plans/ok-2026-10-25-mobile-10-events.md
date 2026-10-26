@@ -1,6 +1,6 @@
 # M10 · Events — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-10-events-design.md` · Branch: `feat/m10-events` · Status: **approved** (Iván, 2026-10-26)
+Spec: `docs/superpowers/specs/ok-2026-10-25-mobile-10-events-design.md` · Branch: `feat/m10-events` · Status: **approved** (Iván, 2026-10-26)
 
 No new dependencies (Zod and field controls exist from M1/M7).
 

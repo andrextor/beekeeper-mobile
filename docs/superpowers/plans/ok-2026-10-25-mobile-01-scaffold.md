@@ -1,6 +1,6 @@
 # M1 · Scaffold and design system — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-01-scaffold-design.md` · Branch: `feat/m1-scaffold` · Status: **approved** (Iván, 2026-10-26)
+Spec: `docs/superpowers/specs/ok-2026-10-25-mobile-01-scaffold-design.md` · Branch: `feat/m1-scaffold` · Status: **approved** (Iván, 2026-10-26)
 
 New dependencies (approval asked here): `expo`, `expo-router`, `expo-dev-client`, `expo-font`, `expo-haptics`, `expo-keep-awake`, `expo-status-bar`, `react-native-safe-area-context`, `react-native-screens`, `react-native-svg`, `lucide-react-native`, `@expo-google-fonts/plus-jakarta-sans`, `@expo-google-fonts/inter`, `nativewind`, `tailwindcss`, `zod`; dev: `typescript`, `@types/react`, `@biomejs/biome`, `jest`, `jest-expo`, `@types/jest`. All Expo packages via `pnpm expo install`.
 

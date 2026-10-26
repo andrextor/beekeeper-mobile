@@ -1,6 +1,6 @@
 # M3 · Local database and sync engine — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-03-local-db-sync-design.md` · Branch: `feat/m3-local-db-sync` · Status: **approved** (Iván, 2026-10-26)
+Spec: `docs/superpowers/specs/ok-2026-10-25-mobile-03-local-db-sync-design.md` · Branch: `feat/m3-local-db-sync` · Status: **approved** (Iván, 2026-10-26)
 
 New dependencies (approved): `expo-sqlite`, `expo-network`. Both are native: they need a new development build, which waits for the single build of the phone pass at the end (Iván, 2026-10-26: phone tests run when the modules are done, not per module).
 

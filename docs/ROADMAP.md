@@ -17,6 +17,6 @@ Starts when the backend phase of `beekeeper` (B1–B6) is done; it can use the l
 | M11 | Members: invite codes for reviewers, roles, leave organization | `mobile-11-members` | B2 | 0.11.0 |
 | M12 | APK release, OTA updates, local DB upgrade safety, install guide | `mobile-12-distribution` | D1 | 1.0.0 |
 
-Specs: `docs/superpowers/specs/2026-10-25-<slug>-design.md` · Plans: `docs/superpowers/plans/2026-10-25-<slug>.md`.
+Specs: `docs/superpowers/specs/[ok-]2026-10-25-<slug>-design.md` · Plans: `docs/superpowers/plans/[ok-]2026-10-25-<slug>.md` (`ok-` once approved).
 
 Pilot definition of done = overview §10 checklist (`../beekeeper/docs/landak-apiario-overview.md`), verified at M12.
