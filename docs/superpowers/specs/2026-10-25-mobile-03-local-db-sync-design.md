@@ -89,7 +89,7 @@ Why per organization: a cursor shared by all organizations would skip the whole 
 
 Memberships are hard-deleted and not in the cursor pull (`api.md` → Organizations): if an organization disappeared from `my_memberships()` (removed by an owner or the admin, left from another phone, or soft-deleted: since B7 a deleted organization grants nothing, RLS returns none of its rows and refuses inserts and upserts with `42501`), its local rows and `sync_state` rows are deleted, except rows with pending outbox entries, which become `failed_permanent` with "Ya no tienes acceso a esta finca.". A changed `role` takes effect in the UI at once.
 
-`profiles_cache` pulls `profiles` (RLS: yourself and co-members) with its own cursor. When `members_cache` gains an organization, the `profiles` cursor is reset to `1970-01-01` (the new co-members' profiles are older than it; the table is tiny).
+`profiles_cache` pulls `profiles` (RLS: yourself and co-members) with its own cursor. When `members_cache` gains an organization, the `profiles` cursor is reset to `1970-01-01` (the new co-members' profiles are older than it; the table is tiny). When an organization is purged, the whole `profiles_cache` is cleared and its cursor reset too (B7: former co-members' profiles are no longer readable; the next pull refills the rest).
 
 ### Triggers
 
