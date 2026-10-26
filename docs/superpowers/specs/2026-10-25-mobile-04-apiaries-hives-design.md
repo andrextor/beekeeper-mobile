@@ -17,7 +17,7 @@ An owner registers their sites ("Vallecito 1") and the hives in each, with the f
 
 ### Screens
 
-**Apiarios tab** (`(tabs)/apiaries.tsx`): search field (name or farm), list of `apiaries` of the active organization where `deleted_at is null`, ordered by name. Item: name (Arsenal 20), farm name · place, "N colmenas activas", last inspection relative (from local `inspections`). Owner: floating "Nuevo apiario" button (56 dp, bottom right, thumb zone). Empty state: owner "Crea tu primer apiario" + button; reviewer "Este apicultor aún no tiene apiarios.".
+**Apiarios tab** (`(tabs)/apiaries.tsx`): search field (name or farm), list of `apiaries` of the active organization where `deleted_at is null`, ordered by name. Item: name (Plus Jakarta Sans 20), farm name · place, "N colmenas activas", last inspection relative (from local `inspections`). Owner: floating "Nuevo apiario" button (56 dp, bottom right, thumb zone). Empty state: owner "Crea tu primer apiario" + button; reviewer "Este apicultor aún no tiene apiarios.".
 
 **Apiary detail** (`apiary/[id]/index.tsx`): header with facts (farm, place, altitude, flora, water, notes; "Ver en mapa" opens `geo:` intent only when coordinates exist). Hive list with chips **Activas** (default) / **Todas**; item: name, status badge, type, queen color dot, last inspection, attention badge from the last inspection's `attention_level`. Owner: "Nueva colmena", "Editar apiario".
 

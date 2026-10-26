@@ -14,7 +14,7 @@ Top to bottom:
 
 | Block | Content |
 |-------|---------|
-| Header | Apiary › hive name (Arsenal 26), status badge (DESIGN.md hive status), `SyncChip` for the hive's pending rows |
+| Header | Apiary › hive name (Plus Jakarta Sans 26), status badge (DESIGN.md hive status), `SyncChip` for the hive's pending rows |
 | Attention card (only if any) | Last inspection `attention_level` `soon`/`urgent` (`clock` / `siren`, `honey` / `danger`), `next_inspection_on` due or overdue ("Revisión atrasada 3 días"), active treatment (`treatment` event with `ends_on` ≥ today) |
 | Last inspection facts | "Última revisión hace 12 días · por Ana" + up to 4 facts: Fuerza, Reina (vista / no vista / no revisado), Cría (cuadros), Reservas |
 | **Nueva revisión** | Full-width 72-dp `primary` button, `clipboard-check` icon, fixed above the tab bar (thumb zone) |

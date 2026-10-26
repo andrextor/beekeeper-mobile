@@ -37,14 +37,14 @@ Rules: no text lighter than `stone-700`; `sprout` and `pollen` are decorative on
 
 ## Typography
 
-Arsenal (headings, hive names, big numbers) and Inter (everything else), via `@expo-google-fonts/arsenal` and `@expo-google-fonts/inter`. The app respects the system font scale up to 1.3× without breaking layouts.
+Plus Jakarta Sans (headings, hive names, big numbers) and Inter (everything else), via `@expo-google-fonts/plus-jakarta-sans` and `@expo-google-fonts/inter`. The app respects the system font scale up to 1.3× without breaking layouts.
 
 | Role | Size (sp) | Font |
 |------|-----------|------|
 | Field button label | 22, 600 | Inter |
-| Field value (stepper, scale) | 32, 700 | Arsenal |
-| Screen title | 26, 700 | Arsenal |
-| Section title | 20, 700 | Arsenal |
+| Field value (stepper, scale) | 32, 700 | Plus Jakarta Sans |
+| Screen title | 26, 700 | Plus Jakarta Sans |
+| Section title | 20, 700 | Plus Jakarta Sans |
 | Body | 17 | Inter |
 | Caption | 15 | Inter (minimum anywhere) |
 
@@ -61,7 +61,7 @@ Arsenal (headings, hive names, big numbers) and Inter (everything else), via `@e
 
 ## Field mode (inspection screen)
 
-- Sticky header: apiary › hive name (Arsenal 26), last inspection "hace 12 días", sync chip.
+- Sticky header: apiary › hive name (Plus Jakarta Sans 26), last inspection "hace 12 días", sync chip.
 - **Action grid** (2 columns, 96-dp tiles, `honey` background, `deep` icon 36 + label 22): 🎤 Dictar · 📷 Foto · 📝 Nota 1 · 📝 Nota 2 · ➕ Nota · ✅ Terminar.
 - Below, structured fields as big controls only: `ScaleField` (1–5, five 64-dp circles), `TriStateField` (Sí / No / No revisado, three 72-dp segments), `StepperField` (− value +, 72-dp buttons), `ChipSelect` (64-dp chips, wraps), never a dropdown or a keyboard unless the user taps "Escribir".
 - Every tap gives haptic feedback (`expo-haptics` light); saving gives success haptic + "Guardado en este dispositivo" toast for 3 s with "Deshacer".

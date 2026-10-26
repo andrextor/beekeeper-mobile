@@ -28,7 +28,7 @@ The repo is empty. Every later module needs the app shell, the route tree, the d
 | Navigation | Expo Router, routes in `src/app/` |
 | Styling | NativeWind: the release that supports Tailwind 4 **if it is stable at scaffold time**, otherwise NativeWind v4 + Tailwind 3. The plan's first task checks and records which one |
 | Icons | `lucide-react-native` + `react-native-svg` |
-| Fonts | `@expo-google-fonts/arsenal`, `@expo-google-fonts/inter` via `expo-font` |
+| Fonts | `@expo-google-fonts/plus-jakarta-sans`, `@expo-google-fonts/inter` via `expo-font` |
 | Feedback | `expo-haptics`, `expo-keep-awake` |
 | Validation | `zod` |
 | Tests | `jest-expo` for pure logic (`*.test.ts` next to the file) |

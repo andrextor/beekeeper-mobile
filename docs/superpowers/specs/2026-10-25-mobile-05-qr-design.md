@@ -28,7 +28,7 @@ The QR encodes `landak://h/<qr_code>`. The scanner also accepts a bare 10-char c
 ### Label generation
 
 - **`qrcode-generator`** (pure JS, already used by Iván in `neoteam-social-run`) produces one SVG string per code. The same string renders on screen (`SvgXml` from `react-native-svg`, already installed with Lucide) and goes into print HTML.
-- Label content: hive name (Arsenal, large), QR (error correction `M`, quiet zone 4 modules), the code as text in groups `ABCDE-FGHIJ` (for manual entry if the QR is damaged), "Landak Apiario". **No apiary name, location or organization.**
+- Label content: hive name (Plus Jakarta Sans, large), QR (error correction `M`, quiet zone 4 modules), the code as text in groups `ABCDE-FGHIJ` (for manual entry if the QR is damaged), "Landak Apiario". **No apiary name, location or organization.**
 - **`expo-print`** `printToFileAsync({ html })` → PDF, then **`expo-sharing`** `shareAsync` (WhatsApp, Drive, a print shop). Also `Print.printAsync` for a printer on the phone. Works offline.
 - Two layouts in `src/features/qr/label-html.ts`:
   - Single label 6 × 8 cm (hive screen → "Etiqueta QR").

@@ -14,7 +14,7 @@ Landak Apiario Android app: offline-first hive management. Flow: scan a hive's Q
 
 ## Stack
 
-Expo (React Native, New Architecture) + TypeScript + Expo Router · NativeWind (Tailwind) · `lucide-react-native` · Arsenal + Inter (`@expo-google-fonts/*`) · `expo-sqlite` (local source of truth) · `@supabase/supabase-js` · `expo-camera` (QR + photos) · `expo-image-manipulator` · `expo-speech-recognition` (on-device Spanish) · Zod · jest-expo · EAS Build (APK) + EAS Update (OTA fixes). Decided in `docs/superpowers/specs/2026-10-25-mobile-01-scaffold-design.md`.
+Expo (React Native, New Architecture) + TypeScript + Expo Router · NativeWind (Tailwind) · `lucide-react-native` · Plus Jakarta Sans + Inter (`@expo-google-fonts/*`) · `expo-sqlite` (local source of truth) · `@supabase/supabase-js` · `expo-camera` (QR + photos) · `expo-image-manipulator` · `expo-speech-recognition` (on-device Spanish) · Zod · jest-expo · EAS Build (APK) + EAS Update (OTA fixes). Decided in `docs/superpowers/specs/2026-10-25-mobile-01-scaffold-design.md`.
 
 ## Architecture
 
