@@ -1,26 +1,26 @@
 # M11 · Members — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-11-members-design.md` · Branch: `feat/m11-members` · Status: **awaiting OK**
+Spec: `docs/superpowers/specs/2026-10-25-mobile-11-members-design.md` · Branch: `feat/m11-members` · Status: **awaiting OK** (revised 2026-10-26)
 
-No new dependencies (`Share` is part of React Native).
+No new dependencies (`Share` is part of React Native). No migration.
 
-1. **API + errors** — `src/features/members/api.ts` (typed wrappers for the five RPCs + members/invites selects), `src/features/members/errors.ts` + `errors.test.ts` (every `detail`, unknown → server message → generic).
-2. **Cache** — `src/db/migrations/0004_org_members_cache.ts`, `src/features/members/cache.ts` (offline read-only list, replaced whole per organization) + test on the M3 test database.
-3. **Members screen** — `src/app/members.tsx`, `MemberRow.tsx` ("Desactivado" badge), `PendingInvites.tsx`, offline banner and disabled actions.
-4. **Invite** — `src/app/invite.tsx` (label + role → `create_invite`), success view with the code, "Copiar código" and the `Share.share` message (`src/features/members/inviteMessage.ts` + test).
-5. **Member actions** — `MemberActionsSheet.tsx` (change role, remove), confirmation sheet for removal.
-6. **Leave organization** — `src/features/members/leave.ts` (pending-outbox guard, local wipe for the organization, switch membership) + `leave.test.ts`.
-7. **Role refresh** — re-read `my_memberships()` after actions and on app focus; role-dependent UI reacts.
-8. **Release** — `chore(release): 0.11.0`. Check: `pnpm ci:check`.
+1. **API** — `src/features/members/api.ts`: `fetchMembers` (Zod-validated, owners first), `fetchInvites`, `createInvite`, `revokeInvite`, `setMemberRole`, `removeMember`; `sortMembers` + `api.test.ts`.
+2. **Invite message** — `src/features/members/invite-message.ts` + test (finca name, code, expiry date).
+3. **Members screen** — `src/app/members.tsx` (list, "Tú", "Desactivado", pending codes, offline notice + Reintentar), `src/features/members/MemberRow.tsx`; Perfil gets "Personas de la finca"; route in `_layout.tsx`.
+4. **Invite** — `src/app/invite.tsx`: label + role chips → `create_invite` → code view + `Share.share`.
+5. **Member actions** — `src/features/members/MemberSheet.tsx` (change role, remove with a second step); "Cancelar código" on pending codes.
+6. **Leave** — `src/features/members/leave.ts` (`pendingForFinca`), leave sheet on the members screen (Sincronizar primero / Salir igual) → `remove_member` + `syncNow`; `src/features/sync/pull.ts` purge also deletes the finca's photo files.
+7. **Release** — `chore(release): 0.11.0`, CHANGELOG, row 10 in `docs/phone-pass.md`. Check: `pnpm ci:check`.
 
 ## How Iván tests it
 
-1. Owner phone online: Perfil → Personas → Invitar persona → "Ayudante", Revisor → the code appears → Compartir por WhatsApp → send it to yourself.
-2. Second phone: install, Crear cuenta with any email + password → Tengo un código → paste the code → lands in "Finca Landak" as Revisor, sees the hives, cannot see "Invitar persona". Using the same code on a third account → "El código no es válido…".
-3. Owner: change the helper to Propietario → second phone shows owner controls after reopening the screen; change back to Revisor.
-4. Owner tries to leave while being the only owner → "La finca debe tener al menos un propietario.".
-5. Airplane mode on the owner phone → list still visible, buttons disabled, offline message.
-6. Reviewer phone: create an inspection offline, then try "Salir" → blocked by the unsynced warning; sync, leave → the organization's data disappears from that phone.
-7. Owner: create another code and cancel it → gone from the list; typing it later → "El código no es válido…".
-8. Admin panel: change the helper's role in Finca Landak → on the helper's phone, after the next sync, the owner controls appear or disappear; Admin → Quitar de la finca → after the next sync the organization and its data are gone from the helper's phone.
-9. Once A7 is merged: Admin deactivates the helper → the owner's Personas shows "Desactivado" on that row.
+Row 10 of `docs/phone-pass.md`:
+
+1. Owner phone online: Perfil → Personas de la finca → Invitar persona → "Ayudante", Revisor → the code appears → Compartir por WhatsApp → send it to yourself.
+2. Second phone: Crear cuenta → Tengo un código → the code → lands in the finca as Revisor, sees the hives, no "Invitar persona". The same code on a third account → "El código no es válido…".
+3. Owner: Ayudante → Hacer propietario → the second phone shows owner controls after the next sync; back to Revisor.
+4. Owner (only owner) → Salir de esta finca → "La finca debe tener al menos un propietario" (server message).
+5. Airplane mode → Personas shows the offline notice; Reintentar after airplane off loads the list.
+6. Reviewer phone: an inspection offline, then Salir → warning with the count; Sincronizar primero, then Salir → the finca and its photos are gone from that phone.
+7. Owner: another code → Cancelar código → gone; typing it → "El código no es válido…".
+8. Admin panel: change the helper's role / remove them → after the next sync the helper's phone follows. Admin deactivates the helper → Personas shows "Desactivado".
