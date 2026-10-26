@@ -1,6 +1,6 @@
 # M8 · Voice dictation, Spanish field parser and confirmation — spec
 
-Date: 2026-10-25 · Branch: `feat/m8-voice` · Status: **awaiting OK** · Version: 0.8.0
+Date: 2026-10-25 · Branch: `feat/m8-voice` · Status: **awaiting OK** (reviewed 2026-10-26 after M7) · Version: 0.8.0
 
 ## Problem
 
@@ -34,6 +34,7 @@ Audio is not recorded or stored in V1 (privacy, storage). Recording audio offlin
 
 ### Dictation sheet (`src/components/field/DictationSheet.tsx`)
 
+- M1 already ships `DictationSheet` (props `listening`, `transcript`, toggle, use, close); this module extends it rather than writing a new one.
 - Full-height sheet: live transcript (20 sp, interim text in `stone-700`, final in `deep`), a pulsing `mic` while listening, one 96-dp **Detener** button, "Listo" when stopped.
 - Text can be edited by hand after stopping ("Corregir texto" opens the keyboard).
 - Used from: the Dictar tile (inspection fields) and inside the Note sheet (M7) for notes (no parsing, `source: 'voice'`).
@@ -53,7 +54,7 @@ type Proposal = {
 }
 ```
 
-Pipeline: normalize (lowercase, strip accents, collapse spaces; keep a char map back to the original for spans) → split into clauses (`.`, `,`, `;`, ` y luego `, ` tambien `) → per clause run every rule → resolve conflicts (same field twice: the last mention wins, confidence drops to `medium`).
+Pipeline: normalize with M4's `fold` (`src/lib/text.ts`: lowercase and Spanish accents, one character for one, no `String.prototype.normalize`, which Hermes may lack), so a span in the normalized text is the same span in the original; rules match runs of spaces with `\s+` instead of collapsing them → split into clauses (`.`, `,`, `;`, ` y luego `, ` tambien `) → per clause run every rule → resolve conflicts (same field twice: the last mention wins, confidence drops to `medium`).
 
 Numbers: `numbers.ts` turns Spanish words into integers 0–99 ("un/uno/una", "dos" … "quince", "dieciséis" … "veintinueve", "treinta y dos", "cuarenta"…) and accepts digits. "medio/media" → ignored (no half frames).
 
@@ -92,7 +93,7 @@ Anything not matched stays only in the transcript.
 - "Aceptar todo" (96 dp) at the bottom; "Volver a dictar".
 - A proposal that conflicts with a value already set in the draft shows both ("Antes: Suficientes → Ahora: Pocas").
 - Accepted proposals are merged **into the draft only** (M7), `source` becomes `voice`, `transcript` is appended (several dictations in one inspection are joined with a newline). The column holds ≤ 10000 characters: past ~9000 the sheet says "Queda poco espacio para dictar en esta revisión" and at 10000 it stops listening; the transcript is never cut silently. The inspection is saved only by Terminar (M7). Nothing is auto-saved from an inference.
-- A `feeding_event` accepted here is stored in the draft and written at Terminar as a `hive_events` `feeding` row in the same transaction (M7 finish extended).
+- A `feeding_event` accepted here is stored in the draft and written at Terminar as a `hive_events` `feeding` row in the same transaction (M7 finish extended). Drafts gain an `events` column (local migration `0004_draft_events.ts`, JSON array like `notes`); Deshacer treats these events like the notes (removed if never sent, soft-deleted with the inspection otherwise).
 
 ## Rejected alternatives
 
