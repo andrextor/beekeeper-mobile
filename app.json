@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Landak Apiario",
+    "slug": "landak-apiario",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "landak",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "co.landak.apiario",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0c6511",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 96
+        }
+      ],
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
