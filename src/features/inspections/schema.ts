@@ -140,5 +140,6 @@ export const emptyInspection = (inspectedAt: string): InspectionDraft => ({
   notes: null,
 })
 
-/** A note's text: 1..2000 characters (B4 `hive_events_details_check`). */
-export const noteText = z.string().trim().min(1).max(2000, 'Máximo 2000 caracteres.')
+/** Free text up to `max` (a note event: 2000, B4 `hive_events_details_check`; the inspection's notes: 4000). */
+export const noteText = (max = 2000) =>
+  z.string().trim().min(1, 'Escribe la nota.').max(max, `Máximo ${max} caracteres.`)

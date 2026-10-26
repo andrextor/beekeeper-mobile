@@ -1,5 +1,4 @@
 import { fieldErrors } from '@/lib/form'
-import { addDays } from './next-date'
 import { emptyInspection, inspectionSchema, noteText } from './schema'
 import { varroaLoadPercent } from './varroa'
 
@@ -53,8 +52,9 @@ describe('inspectionSchema', () => {
   })
 
   it('checks a note text', () => {
-    expect(noteText.safeParse(' ').success).toBe(false)
-    expect(noteText.safeParse('x'.repeat(2001)).success).toBe(false)
+    expect(noteText().safeParse(' ').success).toBe(false)
+    expect(noteText().safeParse('x'.repeat(2001)).success).toBe(false)
+    expect(noteText(4000).safeParse('x'.repeat(2001)).success).toBe(true)
   })
 })
 
@@ -63,10 +63,5 @@ describe('helpers', () => {
     expect(varroaLoadPercent(7, 300)).toBe(2.3)
     expect(varroaLoadPercent(7, null)).toBeNull()
     expect(varroaLoadPercent(7, 0)).toBeNull()
-  })
-
-  it('adds calendar days across months', () => {
-    expect(addDays('2026-10-26', 7)).toBe('2026-11-02')
-    expect(addDays('2026-12-28', 14)).toBe('2027-01-11')
   })
 })

@@ -1,18 +1,10 @@
+import { daysBetween } from '@/lib/dates'
 import { formatCalendarDate, plural } from '@/lib/format'
 import { isRecord } from '@/lib/guards'
 
 export type AttentionItem = {
   kind: 'urgent' | 'soon' | 'overdue' | 'due_today' | 'treatment'
   text: string
-}
-
-/** Whole days from `from` to `to`, both "YYYY-MM-DD" (calendar days, no time zone involved). */
-export function daysBetween(from: string, to: string): number {
-  const utc = (day: string) => {
-    const [y = 0, m = 1, d = 1] = day.split('-').map(Number)
-    return Date.UTC(y, m - 1, d)
-  }
-  return Math.round((utc(to) - utc(from)) / 86_400_000)
 }
 
 type LastInspection = { attention_level: string | null; next_inspection_on: string | null }

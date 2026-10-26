@@ -1,5 +1,5 @@
 import { formatCalendarDate } from '@/lib/format'
-import { daysBetween, hiveAttention } from './attention'
+import { hiveAttention } from './attention'
 
 const today = '2026-10-26'
 
@@ -32,12 +32,5 @@ describe('hiveAttention', () => {
     expect(items).toEqual([
       { kind: 'treatment', text: `Tratamiento Apivar hasta el ${formatCalendarDate(today)}` },
     ])
-  })
-})
-
-describe('daysBetween', () => {
-  it('counts calendar days across months', () => {
-    expect(daysBetween('2026-10-30', '2026-11-02')).toBe(3)
-    expect(daysBetween('2026-11-02', '2026-10-30')).toBe(-3)
   })
 })

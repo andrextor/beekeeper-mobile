@@ -13,6 +13,7 @@ const dateTimeFormat = new Intl.DateTimeFormat(locale, {
   hour: 'numeric',
   minute: '2-digit',
 })
+const timeFormat = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' })
 const numberFormat = new Intl.NumberFormat(locale)
 
 const isValid = (date: Date) => !Number.isNaN(date.getTime())
@@ -29,6 +30,12 @@ export function formatCalendarDate(date: string): string {
   if (!match) return date
   const parsed = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
   return isValid(parsed) ? dateFormat.format(parsed) : date
+}
+
+/** "9:40 a. m." */
+export function formatTime(iso: string): string {
+  const date = new Date(iso)
+  return isValid(date) ? timeFormat.format(date) : iso
 }
 
 export function formatDateTime(iso: string): string {
