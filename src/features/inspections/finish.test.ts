@@ -121,4 +121,36 @@ describe('finishDraft', () => {
       ),
     ).toBe(1)
   })
+
+  it('undoing an edit removes the notes the edit added', async () => {
+    const db = await database()
+    expect((await finishDraft(db, await draftWithNote(db), 'u-1', now)).ok).toBe(true)
+    const edit = await openEditDraft(db, 'i-1', iso)
+    if (!edit) throw new Error('no edit draft')
+    const added = { id: 'n-3', slot: 3, text: 'Nueva', source: 'text' as const, at: iso }
+    const outcome = await finishDraft(
+      db,
+      { ...edit.draft, notes: [...edit.draft.notes, added] },
+      'u-1',
+      now,
+    )
+    if (!outcome.ok) throw new Error('not saved')
+    await undoFinish(db, outcome.finished)
+    expect(await count(db, "select count(*) as n from hive_events where id = 'n-3'")).toBe(0)
+    expect(
+      await count(
+        db,
+        "select count(*) as n from hive_events where id = 'n-1' and deleted_at is null",
+      ),
+    ).toBe(1)
+  })
+
+  it('refuses to save an edit of an inspection deleted meanwhile', async () => {
+    const db = await database()
+    expect((await finishDraft(db, await draftWithNote(db), 'u-1', now)).ok).toBe(true)
+    const edit = await openEditDraft(db, 'i-1', iso)
+    if (!edit) throw new Error('no edit draft')
+    await db.runAsync("update inspections set deleted_at = '2026-10-26T16:00:00.000Z'")
+    expect((await finishDraft(db, edit.draft, 'u-1', now)).ok).toBe(false)
+  })
 })

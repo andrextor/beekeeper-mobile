@@ -29,7 +29,8 @@ const subset = (labels: Readonly<Record<string, string>>) =>
     )
     .transform((values) => (values?.length ? values : null))
 
-const withSample = new Set(['alcohol_wash', 'sugar_roll'])
+/** Varroa methods that need the sample size (B4). */
+export const methodsWithSample: ReadonlySet<string> = new Set(['alcohol_wash', 'sugar_roll'])
 
 /**
  * Every B4 check on `inspections`, run before Terminar so the outbox never carries a row the server
@@ -100,7 +101,11 @@ export const inspectionSchema = (now: Date) =>
           message: 'Elige cómo contaste la varroa.',
         })
       }
-      if (v.varroa_method && withSample.has(v.varroa_method) && v.varroa_sample_size === null) {
+      if (
+        v.varroa_method &&
+        methodsWithSample.has(v.varroa_method) &&
+        v.varroa_sample_size === null
+      ) {
         ctx.addIssue({
           code: 'custom',
           path: ['varroa_sample_size'],

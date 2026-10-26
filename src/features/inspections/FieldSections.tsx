@@ -24,7 +24,7 @@ import {
   weatherLabels,
 } from '@/lib/labels'
 import { color, iconSize } from '@/lib/theme'
-import type { InspectionDraft } from './schema'
+import { type InspectionDraft, methodsWithSample } from './schema'
 import { varroaLoadPercent } from './varroa'
 
 export type SectionKey = 'colony' | 'brood' | 'health' | 'work'
@@ -69,7 +69,6 @@ const nextChoices = {
   '21': 'En 21 días',
   other: 'Otra',
 } as const
-const withSample = new Set(['alcohol_wash', 'sugar_roll'])
 
 type Props = {
   fields: InspectionDraft
@@ -222,11 +221,12 @@ export function FieldSections({
           value={single(f.varroa_method)}
           onChange={(v) => {
             const method = v[0] ?? null
-            const sample = method && withSample.has(method) ? (f.varroa_sample_size ?? 300) : null
+            const sample =
+              method && methodsWithSample.has(method) ? (f.varroa_sample_size ?? 300) : null
             onChange({ varroa_method: method, varroa_sample_size: sample })
           }}
         />
-        {f.varroa_method && withSample.has(f.varroa_method) ? (
+        {f.varroa_method && methodsWithSample.has(f.varroa_method) ? (
           <StepperField
             label="Abejas en la muestra"
             value={f.varroa_sample_size}
@@ -293,7 +293,8 @@ export function FieldSections({
         {nextChoice === 'other' && daysAhead !== null ? (
           <StepperField
             label="En cuántos días"
-            value={daysAhead}
+            // A date already past (an old draft or edit) shows no count until one is chosen.
+            value={daysAhead >= 1 ? Math.min(daysAhead, 90) : null}
             onChange={(v) =>
               onChange({ next_inspection_on: v === null ? null : addDays(today, v) })
             }

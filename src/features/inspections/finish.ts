@@ -47,6 +47,13 @@ export async function finishDraft(
 
   const at = now.toISOString()
   const saved = await savedRows(db, draft.id)
+  // Deleted elsewhere while this edit was open: saving it would bring it back.
+  if (draft.is_edit && saved.inspection?.deleted_at) {
+    return {
+      ok: false,
+      problems: { inspected_at: 'Esta revisión fue eliminada. Descarta la edición.' },
+    }
+  }
   const inspection: ServerRow<'inspections'> = {
     ...parsed.data,
     id: draft.id,
@@ -105,7 +112,33 @@ export async function finishDraft(
  */
 export async function undoFinish(db: Db, { draft, before }: Finished): Promise<void> {
   const putBack = (tx: Db) => writeDraft(tx, draft)
-  if (before) return saveRows(db, before, putBack)
+  if (before) {
+    // Notes added by the edit did not exist before it: they go too.
+    const added = draft.notes.filter((n) => !before.some((b) => b.row.id === n.id))
+    const sent = new Set(
+      (
+        await db.getAllAsync<{ id: string }>(
+          `select id from hive_events where _on_server = 1 and id in (${added.map(() => '?').join(', ') || "''"})`,
+          added.map((n) => n.id),
+        )
+      ).map((r) => r.id),
+    )
+    const now = new Date().toISOString()
+    const soft = added.filter((n) => sent.has(n.id))
+    const softRows = (
+      await Promise.all(
+        soft.map((n) =>
+          db.getFirstAsync<LocalRow>('select * from hive_events where id = ?', [n.id]),
+        ),
+      )
+    ).flatMap((r): Write[] =>
+      r ? [{ table: 'hive_events', row: { ...fromLocal('hive_events', r), deleted_at: now } }] : [],
+    )
+    return saveRows(db, [...before, ...softRows], async (tx) => {
+      for (const n of added) if (!sent.has(n.id)) await removeLocal(tx, 'hive_events', n.id)
+      await putBack(tx)
+    })
+  }
   const row = await db.getFirstAsync<LocalRow>('select * from inspections where id = ?', [draft.id])
   if (!row) return db.transaction(() => putBack(db))
   const inspection = fromLocal('inspections', row)

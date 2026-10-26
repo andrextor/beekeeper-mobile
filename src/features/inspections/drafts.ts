@@ -41,10 +41,18 @@ const toDraft = (row: DraftRow): Draft => ({
   updated_at: row.updated_at,
 })
 
-/** Inside a caller's transaction (Terminar's undo puts the draft back in the same one). */
-export async function writeDraft(db: Db, draft: Draft): Promise<void> {
+/**
+ * Inside a caller's transaction (Terminar's undo puts the draft back in the same one). `replace`
+ * wins over another new draft of the hive (one opened during the undo window, empty in practice);
+ * `ignore` keeps the existing one (two screens opening at once).
+ */
+export async function writeDraft(
+  db: Db,
+  draft: Draft,
+  conflict: 'replace' | 'ignore' = 'replace',
+): Promise<void> {
   await db.runAsync(
-    `insert into inspection_drafts
+    `insert or ${conflict} into inspection_drafts
          (id, organization_id, hive_id, is_edit, payload, notes, created_at, updated_at)
        values (?, ?, ?, ?, ?, ?, ?, ?)`,
     [
@@ -61,7 +69,7 @@ export async function writeDraft(db: Db, draft: Draft): Promise<void> {
 }
 
 async function insertDraft(db: Db, draft: Draft): Promise<void> {
-  await db.transaction(() => writeDraft(db, draft))
+  await db.transaction(() => writeDraft(db, draft, 'ignore'))
 }
 
 export async function getDraft(db: Db, id: string): Promise<Draft | null> {
@@ -96,7 +104,9 @@ export async function openDraft(
     updated_at: input.now,
   }
   await insertDraft(db, draft)
-  return { draft, resumed: false }
+  // Another screen may have created the hive's draft meanwhile: that one wins.
+  const kept = await findNewDraft(db, input.hiveId)
+  return kept && kept.id !== draft.id ? { draft: kept, resumed: true } : { draft, resumed: false }
 }
 
 /** A saved inspection copied into a draft (same ids), next to any new draft of its hive. */
@@ -170,10 +180,7 @@ export async function discardDraft(db: Db, id: string): Promise<void> {
 
 /** Puts a discarded draft back exactly as it was (Deshacer of "Descartar"). */
 export async function restoreDraft(db: Db, draft: Draft): Promise<void> {
-  await db.transaction(async () => {
-    await db.runAsync('delete from inspection_drafts where id = ?', [draft.id])
-    await writeDraft(db, draft)
-  })
+  await db.transaction(() => writeDraft(db, draft))
 }
 
 /** The next free note slot: 1 and 2 have their own tiles, "Nota +" takes 3, 4… */
