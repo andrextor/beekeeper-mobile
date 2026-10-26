@@ -1,6 +1,6 @@
 # M8 · Voice — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-08-voice-design.md` · Branch: `feat/m8-voice` · Status: **awaiting OK** (reviewed 2026-10-26 after M7)
+Spec: `docs/superpowers/specs/2026-10-25-mobile-08-voice-design.md` · Branch: `feat/m8-voice` · Status: **approved** (Iván, 2026-10-26)
 
 New dependency (approval asked here): `expo-speech-recognition` (native, config plugin in `app.json`; joins the single development build of the final phone pass, Iván 2026-10-26).
 

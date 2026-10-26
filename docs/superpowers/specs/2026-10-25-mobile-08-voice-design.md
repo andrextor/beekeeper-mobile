@@ -1,6 +1,6 @@
 # M8 · Voice dictation, Spanish field parser and confirmation — spec
 
-Date: 2026-10-25 · Branch: `feat/m8-voice` · Status: **awaiting OK** (reviewed 2026-10-26 after M7) · Version: 0.8.0
+Date: 2026-10-25 · Branch: `feat/m8-voice` · Status: **approved** (Iván, 2026-10-26) · Version: 0.8.0
 
 ## Problem
 
