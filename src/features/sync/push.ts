@@ -1,3 +1,5 @@
+import { File } from 'expo-file-system'
+
 import type { Db } from '@/db/db'
 import type { SyncedTable } from '@/db/mapping'
 import { applyServerRows } from '@/db/write'
@@ -5,17 +7,40 @@ import { errorCode, messageFor } from '@/lib/errors'
 import { isRecord } from '@/lib/guards'
 import { newQrCode } from '@/lib/qr-code'
 import { classify, retryDelayMs } from './classify'
+import { photoUploadAllowed } from './network-policy'
 import { type OutboxEntry, pushSteps, type Step } from './order'
+import { preparePhoto } from './push-photos'
 import { replaceTakenQrCode } from './relabel'
-import { client, fetchServerRow, withTimeout } from './server'
+import { client, fetchServerRow, withTimeout, within } from './server'
 
-type Answer = { data: unknown; error: unknown; status: number }
+/** `message` replaces the generic Spanish text (Storage errors carry none of ours). */
+type Answer = { data: unknown; error: unknown; status: number; message?: string }
 
 let forcedFailure = false
 
 /** Dev panel: while on, every push fails as if there were no signal. */
 export function setForcedFailure(on: boolean): void {
   forcedFailure = on
+}
+
+/** One Storage upload; `upsert` lets a retry overwrite this person's own file (B5). */
+async function uploadFile(
+  path: string,
+  localUri: string,
+): Promise<{ error: unknown; status?: number }> {
+  try {
+    const body = await new File(localUri).arrayBuffer()
+    const { error } = await within(
+      client.storage
+        .from('hive-photos')
+        .upload(path, body, { contentType: 'image/jpeg', upsert: true }),
+      60_000,
+    )
+    const status = isRecord(error) && typeof error.status === 'number' ? error.status : undefined
+    return { error, status }
+  } catch (error) {
+    return { error, status: undefined }
+  }
 }
 
 async function send(table: SyncedTable, payload: Record<string, unknown>): Promise<Answer> {
@@ -72,6 +97,14 @@ async function mustWait(db: Db, { entry, payload }: Step): Promise<boolean> {
   for (const [table, column] of parents[entry.table_name]) {
     if ((await onServer(db, table, payload[column])) === 0) return true
   }
+  // A photo taken in field mode waits for Terminar: its inspection is still a draft (no row).
+  if (
+    entry.table_name === 'photos' &&
+    typeof payload.inspection_id === 'string' &&
+    (await onServer(db, 'inspections', payload.inspection_id)) === null
+  ) {
+    return true
+  }
   // A relabel event never reaches the server before the code it announces.
   if (entry.table_name === 'hive_events' && payload.type === 'qr_relabel') {
     const hive = await db.getFirstAsync(
@@ -112,7 +145,7 @@ async function settle(db: Db, step: Step, answer: Answer, now: Date): Promise<'g
     if (await replaceTakenQrCode(db, entry.row_id, newQrCode())) return 'go'
   }
   const verdict = classify(answer.error, answer.status, rowOnServer)
-  const message = messageFor(answer.error)
+  const message = answer.message ?? messageFor(answer.error)
   const code = errorCode(answer.error) ?? String(answer.status)
   if (verdict === 'retry') {
     const next = new Date(now.getTime() + retryDelayMs(entry.attempts + 1)).toISOString()
@@ -162,19 +195,46 @@ export async function retryNow(db: Db): Promise<void> {
 export async function pushOutbox(db: Db): Promise<void> {
   const entries = await db.getAllAsync<OutboxEntry>(
     `select o.id, o.table_name, o.row_id, o.payload, o.attempts, o.created_at,
-       coalesce(a._on_server, h._on_server, i._on_server, e._on_server, 0) as on_server
+       coalesce(a._on_server, h._on_server, i._on_server, e._on_server, p._on_server, 0) as on_server
      from outbox o
      left join apiaries a on o.table_name = 'apiaries' and a.id = o.row_id
      left join hives h on o.table_name = 'hives' and h.id = o.row_id
      left join inspections i on o.table_name = 'inspections' and i.id = o.row_id
      left join hive_events e on o.table_name = 'hive_events' and e.id = o.row_id
-     where o.state = 'pending' and o.next_attempt_at <= ? and o.table_name != 'photos'`,
-    // ponytail: photos wait for M9's uploader (file → thumbnail → row).
+     left join photos p on o.table_name = 'photos' and p.id = o.row_id
+     where o.state = 'pending' and o.next_attempt_at <= ?`,
     [new Date().toISOString()],
   )
+  const photosAllowed = await photoUploadAllowed(db)
+  // An entry dropped by an earlier step (a photo deleted before upload) has nothing left to push.
+  const dropped = new Set<string>()
   for (const step of pushSteps(entries)) {
-    if (await mustWait(db, step)) continue
+    if (dropped.has(step.entry.id) || (await mustWait(db, step))) continue
+    const photo = step.entry.table_name === 'photos'
+    if (photo) {
+      const prepared = await preparePhoto(db, step, { upload: uploadFile, allowed: photosAllowed })
+      if (prepared.kind === 'wait') continue
+      if (prepared.kind === 'done') {
+        dropped.add(step.entry.id)
+        continue
+      }
+      if (prepared.kind === 'failed') {
+        const failure = {
+          data: null,
+          error: prepared.error,
+          status: prepared.status ?? 0,
+          message: prepared.message,
+        }
+        if ((await settle(db, step, failure, new Date())) === 'stop') return
+        continue
+      }
+    }
     const answer = await send(step.entry.table_name, step.payload)
+    if (photo && !answer.error) {
+      await db.transaction(async () => {
+        await db.runAsync("update photos set upload_step = 'row' where id = ?", [step.entry.row_id])
+      })
+    }
     if ((await settle(db, step, answer, new Date())) === 'stop') return
   }
 }
