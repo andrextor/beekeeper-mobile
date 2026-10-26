@@ -55,7 +55,7 @@ All of this goes through B2 RPCs, which check roles at the moment of the call an
 | `detail` | Message |
 |----------|---------|
 | `not_owner` | Solo el propietario de la finca puede hacer esto. |
-| `organization_deleted` | Esta finca fue eliminada. |
+| `organization_deleted` | Esta finca fue eliminada. (also starts a sync: the finca leaves `my_memberships()` and M3 purges it) |
 | `invalid_label` | El nombre puede tener hasta 80 caracteres. |
 | `invalid_role` | Elige Revisor o Propietario. |
 | `last_owner` | La finca debe tener al menos un propietario. |
