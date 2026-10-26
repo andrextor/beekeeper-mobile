@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-26
+
+### Added
+
+- Over-the-air fixes with `expo-updates` (channels `preview` and `production`, runtime by native fingerprint): Inicio shows **Hay una actualización → Reiniciar ahora**, never restarting by itself.
+- **Hay una nueva versión de la app → Descargar** on Inicio when `latest.json` of `andrextor/beekeeper-releases` lists a newer APK; the invite message carries the same stable APK link.
+- **No pudimos actualizar los datos** screen with **Enviar respaldo** when the local database cannot migrate after an update (the failed step rolls back and the file is shared as is).
+- A test that walks every local migration from version 1 with unsent rows and an open draft.
+- `pnpm release:apk [--cloud]`: builds the preview APK, writes `latest.json` and publishes the GitHub release with the CHANGELOG notes; `pnpm release:ota "…"` publishes a JS-only fix with the D1 values, never the local `.env`.
+- `docs/install.md` (beekeepers), `docs/release.md` (publishing, keystore backup, OTA rules), pilot checklist in `docs/phone-pass.md`.
+
+### Changed
+
+- `eas.json`: `preview` APK and `production` AAB profiles against the live backend (D1); Android `versionCode` 3.
+- Storage and overlay permissions are blocked: the gallery uses the system photo picker.
+
 ## [0.11.0] - 2026-10-26
 
 ### Added

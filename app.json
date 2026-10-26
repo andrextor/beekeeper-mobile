@@ -2,14 +2,14 @@
   "expo": {
     "name": "Landak Apiario",
     "slug": "landak-apiario",
-    "version": "0.11.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "landak",
     "userInterfaceStyle": "light",
     "android": {
       "package": "co.landak.apiario",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "backgroundColor": "#0c6511",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
