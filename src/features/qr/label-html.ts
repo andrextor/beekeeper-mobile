@@ -9,7 +9,7 @@ export type PrintPage = { html: string; width: number; height: number }
 
 const pt = (mm: number) => Math.round((mm * 72) / 25.4)
 
-const escape = (text: string) => text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
+const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
 const style = (pageWidth: number, pageHeight: number) => `
   @page { size: ${pageWidth}mm ${pageHeight}mm; margin: 0; }
@@ -27,7 +27,7 @@ const style = (pageWidth: number, pageHeight: number) => `
 
 function label({ name, qr_code }: LabelHive): string {
   return `<div class="label">
-    <div class="name">${escape(name)}</div>
+    <div class="name">${escapeHtml(name)}</div>
     <div class="qr">${qrSvg(qr_code)}</div>
     <div class="code">${groupedQrCode(qr_code)}</div>
     <div class="brand">Landak Apiario</div>
