@@ -1,6 +1,6 @@
 # M11 · Members — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-11-members-design.md` · Branch: `feat/m11-members` · Status: **awaiting OK** (revised 2026-10-26)
+Spec: `docs/superpowers/specs/2026-10-25-mobile-11-members-design.md` · Branch: `feat/m11-members` · Status: **approved** (2026-10-26)
 
 No new dependencies (`Share` is part of React Native). No migration.
 

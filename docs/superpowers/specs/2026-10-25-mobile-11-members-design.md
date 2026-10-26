@@ -1,6 +1,6 @@
 # M11 · Members: invite reviewers, roles, leave organization — spec
 
-Date: 2026-10-25 · Revised: 2026-10-26 (after M3–M10) · Branch: `feat/m11-members` · Status: **awaiting OK** · Version: 0.11.0
+Date: 2026-10-25 · Revised: 2026-10-26 (after M3–M10) · Branch: `feat/m11-members` · Status: **approved** · Version: 0.11.0
 
 ## Problem
 
