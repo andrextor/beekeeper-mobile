@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { ScrollView, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { cx } from '@/lib/cx'
 
@@ -13,9 +13,12 @@ type Props = {
 }
 
 export function Screen({ children, scroll = true, field = false }: Props) {
-  const bg = field ? 'bg-bg' : 'bg-bg-soft'
+  const insets = useSafeAreaInsets()
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className={cx('flex-1', bg)}>
+    <View
+      style={{ paddingTop: insets.top }}
+      className={cx('flex-1', field ? 'bg-bg' : 'bg-bg-soft')}
+    >
       {scroll ? (
         <ScrollView
           contentContainerClassName="gap-4 p-4 pb-8"
@@ -26,6 +29,6 @@ export function Screen({ children, scroll = true, field = false }: Props) {
       ) : (
         <View className="flex-1 gap-4 p-4">{children}</View>
       )}
-    </SafeAreaView>
+    </View>
   )
 }
