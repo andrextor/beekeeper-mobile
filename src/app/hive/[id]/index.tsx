@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { SyncChip } from '@/components/ui/SyncChip'
-import { useRole } from '@/features/auth/session'
+import { useRole, useSession } from '@/features/auth/session'
 import { AttentionCard } from '@/features/hives/AttentionCard'
 import { hiveAttention } from '@/features/hives/attention'
 import { HiveFacts } from '@/features/hives/HiveFacts'
@@ -30,18 +30,20 @@ import {
   useHiveQueue,
   useLatestInspection,
 } from '@/features/hives/queries'
-import { localDay } from '@/features/hives/schema'
 import { TimelineList } from '@/features/hives/TimelineList'
 import { useTimeline } from '@/features/hives/useTimeline'
 import { DraftCard, useDrafts } from '@/features/inspections/DraftCard'
 import { PhotoGrid } from '@/features/photos/PhotoGrid'
 import { usePhotos } from '@/features/photos/queries'
+import { localDay } from '@/lib/dates'
 import { hiveStatusLabels, label } from '@/lib/labels'
 
 export default function HiveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const owner = useRole() === 'owner'
+  const { state } = useSession()
+  const userId = state.status === 'signedIn' ? state.session.user.id : null
   const { hive, loading } = useHive(id)
   const today = localDay()
   const { latest, loading: latestLoading } = useLatestInspection(id)
@@ -144,7 +146,10 @@ export default function HiveScreen() {
             }
           />
         </View>
-        <TimelineList timeline={timeline} />
+        <TimelineList
+          timeline={timeline}
+          canEditEvent={(createdBy) => owner || createdBy === userId}
+        />
       </Screen>
       <View
         className="border-t border-border bg-bg px-4 pt-3"

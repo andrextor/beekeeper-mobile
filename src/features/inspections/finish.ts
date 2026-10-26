@@ -44,6 +44,8 @@ export async function finishDraft(
   draft: Draft,
   userId: string,
   now: Date = new Date(),
+  /** Hive effects of the draft's events apply only to someone who is owner when finishing (B3). */
+  owner = true,
 ): Promise<FinishOutcome> {
   const parsed = inspectionSchema(now).safeParse(draft.fields)
   if (!parsed.success) return { ok: false, problems: fieldErrors(parsed.error) }
@@ -124,7 +126,7 @@ export async function finishDraft(
       : null
 
   // Effects of events recorded during the inspection (an owner's queen change, transfer…).
-  const patches = draft.events.flatMap((e) => e.hivePatches ?? [])
+  const patches = owner ? draft.events.flatMap((e) => e.hivePatches ?? []) : []
   const hivesBefore: Write[] = (
     await patchedHives(
       db,
@@ -150,11 +152,10 @@ export async function undoFinish(
   db: Db,
   { draft, before, hivesBefore = [] }: Finished,
 ): Promise<void> {
-  // The hives go back too: their changes came from this inspection's events.
+  // The hives go back too, in the same transaction: their changes came from this inspection's events.
   const putBack = async (tx: Db) => {
     await writeDraft(tx, draft)
   }
-  if (hivesBefore.length) await saveRows(db, hivesBefore)
   if (before) {
     // Notes and events added by the edit did not exist before it: they go too.
     const added = [...draft.notes, ...draft.events].filter(
@@ -179,23 +180,26 @@ export async function undoFinish(
     ).flatMap((r): Write[] =>
       r ? [{ table: 'hive_events', row: { ...fromLocal('hive_events', r), deleted_at: now } }] : [],
     )
-    return saveRows(db, [...before, ...softRows], async (tx) => {
+    return saveRows(db, [...hivesBefore, ...before, ...softRows], async (tx) => {
       for (const n of added) if (!sent.has(n.id)) await removeLocal(tx, 'hive_events', n.id)
       await putBack(tx)
     })
   }
   const row = await db.getFirstAsync<LocalRow>('select * from inspections where id = ?', [draft.id])
-  if (!row) return db.transaction(() => putBack(db))
+  if (!row) return saveRows(db, hivesBefore, putBack)
   const inspection = fromLocal('inspections', row)
   if (row._on_server !== 1) {
-    return db.transaction(async () => {
-      await removeLocal(db, 'inspections', draft.id, { keepPhotos: true })
-      await putBack(db)
+    return saveRows(db, hivesBefore, async (tx) => {
+      await removeLocal(tx, 'inspections', draft.id, { keepPhotos: true })
+      await putBack(tx)
     })
   }
   await saveRows(
     db,
-    [{ table: 'inspections', row: { ...inspection, deleted_at: new Date().toISOString() } }],
+    [
+      ...hivesBefore,
+      { table: 'inspections', row: { ...inspection, deleted_at: new Date().toISOString() } },
+    ],
     putBack,
   )
 }

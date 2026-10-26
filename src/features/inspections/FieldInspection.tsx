@@ -50,6 +50,8 @@ type Props = {
   hiveName: string
   lastInspection: string
   userId: string
+  /** Owner now (B3): only then do the draft's events change hives at Terminar. */
+  owner: boolean
   today: string
   onBack: () => void
   onFinished: (finished: Finished) => void
@@ -68,6 +70,7 @@ export function FieldInspection({
   hiveName,
   lastInspection,
   userId,
+  owner,
   today,
   onBack,
   onFinished,
@@ -140,7 +143,13 @@ export function FieldInspection({
     try {
       // Whatever Terminar decides, the draft first holds every tap made before it.
       await flush()
-      const outcome = await finishDraft(await getDb(), { ...draft, ...latest.current }, userId)
+      const outcome = await finishDraft(
+        await getDb(),
+        { ...draft, ...latest.current },
+        userId,
+        new Date(),
+        owner,
+      )
       if (!outcome.ok) {
         setProblems(outcome.problems)
         scroll.current?.scrollTo({ y: 0, animated: true })

@@ -58,5 +58,3 @@ export const emptyHive = (apiaryId: string, name: string): HiveDraft => ({
   status: 'active',
   notes: '',
 })
-
-export { localDay } from '@/lib/dates'

@@ -187,10 +187,23 @@ describe('finishDraft', () => {
       at: iso,
       hivePatches: [{ hiveId: 'h-1', patch: { queen_year: 2026 } }],
     }
-    const outcome = await finishDraft(db, { ...draft, events: [queen] }, 'u-1', now)
+    const transfer = {
+      id: 't-1',
+      type: 'transfer',
+      details: { from_apiary_id: 'a', to_apiary_id: 'b' },
+      at: iso,
+      hivePatches: [{ hiveId: 'h-1', patch: { apiary_id: 'b' } }],
+    }
+    const outcome = await finishDraft(db, { ...draft, events: [queen, transfer] }, 'u-1', now)
     if (!outcome.ok) throw new Error('not saved')
-    expect(await db.getFirstAsync('select queen_year from hives')).toEqual({ queen_year: 2026 })
+    expect(await db.getFirstAsync('select queen_year, apiary_id from hives')).toEqual({
+      queen_year: 2026,
+      apiary_id: 'b',
+    })
     await undoFinish(db, outcome.finished)
-    expect(await db.getFirstAsync('select queen_year from hives')).toEqual({ queen_year: 2024 })
+    expect(await db.getFirstAsync('select queen_year, apiary_id from hives')).toEqual({
+      queen_year: 2024,
+      apiary_id: 'a',
+    })
   })
 })

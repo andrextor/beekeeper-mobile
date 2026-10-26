@@ -11,7 +11,7 @@ import { Screen } from '@/components/ui/Screen'
 import { useLocalRead } from '@/db/useLocalQuery'
 import { useSession } from '@/features/auth/session'
 import { hivesToVisit, latestInspections, openTasks, recentActivity } from '@/features/hives/home'
-import { localDay } from '@/features/hives/schema'
+import { localDay } from '@/lib/dates'
 import { formatRelative, plural } from '@/lib/format'
 
 const shown = 50

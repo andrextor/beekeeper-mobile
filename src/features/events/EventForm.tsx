@@ -48,7 +48,7 @@ type Props = {
   newHiveId: string | null
   onCreateHive: (origin: 'split' | 'swarm_capture') => void
   onSave: (result: EventResult) => Promise<void>
-  onDelete?: () => void
+  onDelete?: () => void | Promise<void>
 }
 
 const single = (value: unknown) => (typeof value === 'string' && value ? [value] : [])
@@ -99,10 +99,13 @@ export function EventForm(props: Props) {
 
   const save = async () => {
     if (saving) return
-    const checked = checkDetails(
-      type,
-      type === 'transfer' ? { ...details, from_apiary_id: hive.apiary_id } : details,
-    )
+    // A new transfer starts where the hive is now; an edit keeps the origin it recorded.
+    const filled =
+      type === 'transfer' && !editing ? { ...details, from_apiary_id: hive.apiary_id } : details
+    // A swarm that was not captured has no new hive.
+    const coherent =
+      type === 'swarm' && filled.captured !== true ? { ...filled, new_hive_id: null } : filled
+    const checked = checkDetails(type, coherent)
     if (!checked.ok) return setError(checked.message)
     setError(null)
     setSaving(true)
@@ -306,7 +309,9 @@ export function EventForm(props: Props) {
       <ChipSelect
         label="Apiario de destino *"
         options={Object.fromEntries(
-          props.apiaries.filter((a) => a.id !== hive.apiary_id).map((a) => [a.id, a.name]),
+          props.apiaries
+            .filter((a) => editing || a.id !== hive.apiary_id)
+            .map((a) => [a.id, a.name]),
         )}
         value={single(details.to_apiary_id)}
         onChange={(v) => set('to_apiary_id', v[0] ?? null)}
@@ -382,7 +387,12 @@ export function EventForm(props: Props) {
           <Notice text="Editar o eliminar este evento no cambia la colmena; si hace falta, edita la colmena." />
         ) : null}
         {props.onDelete ? (
-          <Button variant="danger" icon={Trash2} label="Eliminar evento" onPress={props.onDelete} />
+          <Button
+            variant="danger"
+            icon={Trash2}
+            label="Eliminar evento"
+            onPress={() => void props.onDelete?.()}
+          />
         ) : null}
       </Screen>
       <View

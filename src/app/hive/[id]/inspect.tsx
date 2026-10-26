@@ -7,11 +7,11 @@ import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { useRole, useSession } from '@/features/auth/session'
 import { useHive, useLatestInspection } from '@/features/hives/queries'
-import { localDay } from '@/features/hives/schema'
 import { type Draft, openDraft, openEditDraft } from '@/features/inspections/drafts'
 import { FieldInspection } from '@/features/inspections/FieldInspection'
 import { type Finished, undoFinish } from '@/features/inspections/finish'
 import { exclusive } from '@/features/sync/triggers'
+import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
 import { formatLastInspection, formatTime } from '@/lib/format'
 import { uuid } from '@/lib/ids'
@@ -104,6 +104,7 @@ export default function InspectScreen() {
       hiveName={hive.name}
       lastInspection={formatLastInspection(latest?.inspection.inspected_at ?? null)}
       userId={userId}
+      owner={owner}
       today={localDay()}
       onBack={() => router.back()}
       onFinished={finished}

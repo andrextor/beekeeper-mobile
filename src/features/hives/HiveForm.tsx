@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
 import { fieldErrors } from '@/lib/form'
 import {
@@ -24,7 +25,7 @@ import { ColonyStartField } from './ColonyStartField'
 import { nextHiveName } from './next-name'
 import { QueenColorField } from './QueenColorField'
 import { type Hive, useHiveNames } from './queries'
-import { type HiveDraft, type HiveFields, hiveSchema, localDay } from './schema'
+import { type HiveDraft, type HiveFields, hiveSchema } from './schema'
 
 const marked = { yes: 'Sí', no: 'No', unknown: 'No sé' } as const
 const races = ['Africanizada', 'Italiana', 'Carniola']

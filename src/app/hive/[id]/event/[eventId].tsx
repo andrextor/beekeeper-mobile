@@ -12,6 +12,7 @@ import { EventForm, type EventResult } from '@/features/events/EventForm'
 import { useEvent, useRecentProducts } from '@/features/events/queries'
 import { isEventType } from '@/features/events/schemas'
 import { useHive, useHiveNames } from '@/features/hives/queries'
+import { messageFor } from '@/lib/errors'
 import { isRecord } from '@/lib/guards'
 
 /** Edit or delete an event: its author or an owner (B4 RLS). Hive effects are not re-applied. */
@@ -37,7 +38,11 @@ export default function EditEventScreen() {
   if (!isEventType(event.type)) return <NotAvailable icon={Lock} title="Este evento no se edita." />
 
   const write = async (patch: Partial<ServerRow<'hive_events'>>) =>
-    saveRow(await getDb(), 'hive_events', { ...event, ...patch })
+    saveRow(await getDb(), 'hive_events', {
+      ...event,
+      ...patch,
+      updated_at: new Date().toISOString(),
+    })
 
   const save = async ({ details, occurredAt }: EventResult) => {
     await write({
@@ -64,12 +69,21 @@ export default function EditEventScreen() {
       newHiveId={null}
       onCreateHive={() => {}}
       onSave={save}
-      onDelete={() => {
-        void write({ deleted_at: new Date().toISOString() })
+      onDelete={async () => {
+        // Said only once the phone has it ("Guardado en este dispositivo" rule).
+        try {
+          await write({ deleted_at: new Date().toISOString() })
+        } catch (e) {
+          showToast(messageFor(e), { tone: 'danger' })
+          return
+        }
         router.back()
         showToast('Evento eliminado', {
           durationMs: 5000,
-          onUndo: () => void write({ deleted_at: null }),
+          onUndo: () =>
+            void write({ deleted_at: null }).catch((e: unknown) =>
+              showToast(messageFor(e), { tone: 'danger' }),
+            ),
         })
       }}
     />

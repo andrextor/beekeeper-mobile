@@ -1,21 +1,8 @@
-import {
-  ClipboardCheck,
-  Combine,
-  Crown,
-  Droplet,
-  type LucideIcon,
-  Package,
-  QrCode,
-  Skull,
-  Split,
-  StickyNote,
-  Syringe,
-  Truck,
-  Wind,
-} from 'lucide-react-native'
+import { ClipboardCheck } from 'lucide-react-native'
 import { Pressable, Text, View } from 'react-native'
 
 import { SyncChip } from '@/components/ui/SyncChip'
+import { eventIcon } from '@/lib/event-icons'
 import { eventSummary } from '@/lib/event-summary'
 import { formatDateTime } from '@/lib/format'
 import { isRecord } from '@/lib/guards'
@@ -24,28 +11,20 @@ import { inspectionSourceLabels, label } from '@/lib/labels'
 import { color, iconSize } from '@/lib/theme'
 import type { TimelineItem } from './timeline'
 
-// DESIGN.md domain glyphs; types without one there use the closest Lucide icon.
-const eventIcons: Readonly<Record<string, LucideIcon>> = {
-  note: StickyNote,
-  feeding: Droplet,
-  treatment: Syringe,
-  queen_change: Crown,
-  harvest: Package,
-  split: Split,
-  merge: Combine,
-  transfer: Truck,
-  swarm: Wind,
-  loss: Skull,
-  qr_relabel: QrCode,
-}
-
 const noteText = (details: unknown) =>
   isRecord(details) && typeof details.text === 'string' ? details.text : ''
 
 /** One row of the history; an inspection opens its full read view. */
-export function TimelineItemView({ item, onOpen }: { item: TimelineItem; onOpen: () => void }) {
+export function TimelineItemView({
+  item,
+  onOpen,
+}: {
+  item: TimelineItem
+  /** `null`: nothing to open (a server item, or an event this person may not edit). */
+  onOpen: (() => void) | null
+}) {
   const inspection = item.kind === 'inspection'
-  const Icon = inspection ? ClipboardCheck : (eventIcons[item.event.type] ?? StickyNote)
+  const Icon = inspection ? ClipboardCheck : eventIcon(item.event.type)
   const title = inspection
     ? `Revisión · ${label(inspectionSourceLabels, item.inspection.source)}`
     : eventSummary(item.event.type, item.event.details)
@@ -53,8 +32,9 @@ export function TimelineItemView({ item, onOpen }: { item: TimelineItem; onOpen:
 
   return (
     <Pressable
-      accessibilityRole="button"
-      onPress={onOpen}
+      accessibilityRole={onOpen ? 'button' : undefined}
+      disabled={!onOpen}
+      onPress={onOpen ?? undefined}
       className="min-h-target flex-row gap-3 rounded-card border border-border bg-surface p-4 active:bg-stone-100"
     >
       <Icon color={color.text} size={iconSize.standard} />

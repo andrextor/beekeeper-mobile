@@ -3,7 +3,15 @@ import { fromLocal, type LocalRow, type ServerRow } from '@/db/mapping'
 
 export type SyncMark = 'synced' | 'pending' | 'attention'
 
-type Common = { id: string; at: string; createdBy: string; author: string | null; sync: SyncMark }
+type Common = {
+  id: string
+  at: string
+  createdBy: string
+  author: string | null
+  sync: SyncMark
+  /** From the server's history (first download running): not on the phone, nothing to open. */
+  remote?: boolean
+}
 
 export type TimelineItem =
   | (Common & {
