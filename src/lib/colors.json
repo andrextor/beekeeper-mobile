@@ -15,5 +15,12 @@
     "900": "#1f1d19"
   },
   "danger": "#b42318",
-  "successBg": "#e7f4e4"
+  "successBg": "#e7f4e4",
+  "queen": {
+    "white": "#ffffff",
+    "yellow": "#facc15",
+    "red": "#dc2626",
+    "green": "#16a34a",
+    "blue": "#2563eb"
+  }
 }

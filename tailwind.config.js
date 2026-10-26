@@ -27,6 +27,7 @@ module.exports = {
       danger: c.danger,
       'on-danger': c.white,
       'success-bg': c.successBg,
+      queen: c.queen,
     },
     fontFamily: {
       display: ['PlusJakartaSans_700Bold'],
