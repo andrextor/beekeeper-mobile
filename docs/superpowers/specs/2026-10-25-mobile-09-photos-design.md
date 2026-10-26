@@ -1,6 +1,6 @@
 # M9 · Photos: capture, resize, thumbnail, queue, upload, view — spec
 
-Date: 2026-10-25 · Branch: `feat/m9-photos` · Status: **awaiting OK** (reviewed 2026-10-26 after M8) · Version: 0.9.0
+Date: 2026-10-25 · Branch: `feat/m9-photos` · Status: **approved** (Iván, 2026-10-26) · Version: 0.9.0
 
 ## Problem
 
