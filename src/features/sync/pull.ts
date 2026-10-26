@@ -68,7 +68,7 @@ async function syncMembers(db: Db, memberships: Membership[]): Promise<void> {
   const current = new Set(memberships.map((m) => m.organization_id))
   const removed = known.filter((id) => !current.has(id))
   const gained = memberships.some((m) => !known.includes(m.organization_id))
-  const files = removed.length ? await purgedPhotoFiles(db, removed) : []
+  let files: (string | null)[] = []
 
   await db.transaction(async () => {
     await db.runAsync('delete from members_cache')
@@ -78,6 +78,8 @@ async function syncMembers(db: Db, memberships: Membership[]): Promise<void> {
         [m.organization_id, m.organization_name, m.role],
       )
     }
+    // Read with the purge, so a photo queued meanwhile keeps its files along with its row.
+    if (removed.length > 0) files = await purgedPhotoFiles(db, removed)
     for (const id of removed) await purge(db, id)
     // Former co-members are no longer readable (B7); new co-members' profiles predate the cursor.
     if (removed.length > 0) await db.runAsync('delete from profiles_cache')
@@ -86,7 +88,11 @@ async function syncMembers(db: Db, memberships: Membership[]): Promise<void> {
     }
   })
   // After the commit: a rolled-back purge must still find its photos.
-  deletePhotoFiles(...files)
+  try {
+    deletePhotoFiles(...files)
+  } catch {
+    // ponytail: a file that cannot be deleted stays orphaned; a folder sweep can collect it later.
+  }
 }
 
 /** Files of the photos `purge` deletes (the ones still in the outbox stay with their row). */

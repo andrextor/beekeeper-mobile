@@ -11,7 +11,7 @@ import { FormError } from '@/components/ui/FormError'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { useRole, useSession } from '@/features/auth/session'
+import { useActiveMembership } from '@/features/auth/session'
 import { createInvite, type NewInvite } from '@/features/members/api'
 import { inviteMessage } from '@/features/members/invite-message'
 import type { Role } from '@/features/sync/members'
@@ -27,19 +27,14 @@ const roleHelp: Record<Role, string> = {
 
 /** The plain code exists only in `create_invite`'s answer: shown here once, never stored. */
 export default function InviteScreen() {
-  const { state } = useSession()
-  const owner = useRole() === 'owner'
-  const active =
-    state.status === 'signedIn'
-      ? state.memberships.find((m) => m.organization_id === state.activeOrganizationId)
-      : undefined
+  const active = useActiveMembership()
   const [label, setLabel] = useState('')
   const [role, setRole] = useState<Role>('reviewer')
   const [created, setCreated] = useState<NewInvite | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  if (!owner || !active)
+  if (active?.role !== 'owner')
     return <NotAvailable icon={Lock} title="Solo el propietario puede invitar personas." />
 
   const create = async () => {

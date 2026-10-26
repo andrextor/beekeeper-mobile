@@ -5,8 +5,8 @@ import { Text } from 'react-native'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { ListItem } from '@/components/ui/ListItem'
+import { RoleBadge } from '@/components/ui/RoleBadge'
 import { Screen } from '@/components/ui/Screen'
-import { RoleBadge } from '@/features/auth/RoleBadge'
 import { useSession } from '@/features/auth/session'
 
 export default function OrganizationsScreen() {

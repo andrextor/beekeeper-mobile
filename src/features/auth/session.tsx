@@ -173,13 +173,16 @@ export function useSession(): SessionContext {
   return context
 }
 
-/** Role in the active finca; the UI hides what RLS would refuse, the server still decides. */
-export function useRole(): Role | null {
+/** The active finca's membership (name and role), if any. */
+export function useActiveMembership(): Membership | null {
   const { state } = useSession()
   if (state.status !== 'signedIn') return null
-  return (
-    state.memberships.find((m) => m.organization_id === state.activeOrganizationId)?.role ?? null
-  )
+  return state.memberships.find((m) => m.organization_id === state.activeOrganizationId) ?? null
+}
+
+/** Role in the active finca; the UI hides what RLS would refuse, the server still decides. */
+export function useRole(): Role | null {
+  return useActiveMembership()?.role ?? null
 }
 
 /**

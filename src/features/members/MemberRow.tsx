@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import { Badge } from '@/components/ui/Badge'
 import { ListItem } from '@/components/ui/ListItem'
-import { RoleBadge } from '@/features/auth/RoleBadge'
+import { RoleBadge } from '@/components/ui/RoleBadge'
 import type { Member } from './api'
 
 type Props = { member: Member; me: boolean; onPress?: () => void }

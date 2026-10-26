@@ -1,18 +1,19 @@
 import { router, useFocusEffect } from 'expo-router'
-import { LogOut, UserPlus } from 'lucide-react-native'
+import { LogOut, UserPlus, Users } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
-import { Text, View } from 'react-native'
+import { ActivityIndicator, Text, View } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { FormError } from '@/components/ui/FormError'
+import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
-import { useRole, useSession } from '@/features/auth/session'
+import { useActiveMembership, useSession } from '@/features/auth/session'
 import {
   fetchInvites,
   fetchMembers,
@@ -30,6 +31,7 @@ import { syncNow } from '@/features/sync/triggers'
 import { errorCode, isNetworkError, messageFor } from '@/lib/errors'
 import { formatDate } from '@/lib/format'
 import { roleLabels } from '@/lib/labels'
+import { color } from '@/lib/theme'
 
 type Loaded =
   | { status: 'loading' }
@@ -40,13 +42,11 @@ type Loaded =
 /** Online only: B2 RPCs check roles at call time, so nothing here is queued or cached. */
 export default function MembersScreen() {
   const { state, refreshMemberships } = useSession()
-  const owner = useRole() === 'owner'
-  const organizationId = state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : ''
+  const active = useActiveMembership()
+  const owner = active?.role === 'owner'
+  const organizationId = active?.organization_id ?? ''
   const userId = state.status === 'signedIn' ? state.session.user.id : ''
-  const finca =
-    state.status === 'signedIn'
-      ? state.memberships.find((m) => m.organization_id === organizationId)?.organization_name
-      : undefined
+  const finca = active?.organization_name
   const [loaded, setLoaded] = useState<Loaded>({ status: 'loading' })
   const [chosen, setChosen] = useState<Member | null>(null)
   const [busy, setBusy] = useState(false)
@@ -73,6 +73,8 @@ export default function MembersScreen() {
       void load()
     }, [load]),
   )
+
+  if (!active) return <NotAvailable icon={Users} title="Elige una finca primero." />
 
   /** Runs an action, then reloads the list and this person's own roles. */
   const act = async (action: () => Promise<void>, done: string): Promise<boolean> => {
@@ -115,6 +117,8 @@ export default function MembersScreen() {
     setError(null)
     try {
       await leaveFinca(organizationId, userId)
+      // The sync may have failed after the server call: the fresh list still drops the finca.
+      await refreshMemberships()
       setLeavePending(null)
       showToast(`Saliste de ${finca ?? 'la finca'}`)
       router.dismissTo('/(tabs)')
@@ -201,25 +205,39 @@ export default function MembersScreen() {
               label="Salir de esta finca"
               onPress={async () => {
                 setError(null)
-                setLeavePending(await pendingForFinca(await getDb(), organizationId))
+                try {
+                  setLeavePending(await pendingForFinca(await getDb(), organizationId))
+                } catch (e) {
+                  setError(messageFor(e))
+                }
               }}
             />
           </>
-        ) : null}
+        ) : (
+          <ActivityIndicator color={color.primary} size="large" />
+        )}
       </Screen>
 
       <MemberSheet
+        // A new member opens on the first step, never on a leftover "Quitar".
+        key={chosen?.user_id ?? 'none'}
         member={chosen}
         busy={busy}
         error={error}
         onRole={(role) => void changeRole(role)}
         onRemove={() => void remove()}
-        onClose={() => setChosen(null)}
+        onClose={() => {
+          setChosen(null)
+          setError(null)
+        }}
       />
       <Sheet
         visible={leavePending !== null}
         title="Salir de esta finca"
-        onClose={() => setLeavePending(null)}
+        onClose={() => {
+          setLeavePending(null)
+          setError(null)
+        }}
       >
         <Text className="font-sans text-body text-text">
           {leavePending

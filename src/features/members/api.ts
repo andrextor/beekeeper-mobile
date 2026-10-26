@@ -75,36 +75,47 @@ export async function createInvite(
   role: Role,
   label: string,
 ): Promise<NewInvite> {
-  const { data, error } = await supabase.rpc('create_invite', {
-    p_organization_id: organizationId,
-    p_role: role,
-    ...(label ? { p_label: label } : {}),
-  })
+  const { data, error } = await withTimeout((signal) =>
+    supabase
+      .rpc('create_invite', {
+        p_organization_id: organizationId,
+        p_role: role,
+        ...(label ? { p_label: label } : {}),
+      })
+      .abortSignal(signal),
+  )
   if (error) throw error
-  const invite = data[0]
+  const invite = data?.[0]
   if (!invite) throw new Error('create_invite returned no row')
   return invite
 }
 
 export async function revokeInvite(inviteId: string): Promise<void> {
-  const { error } = await supabase.rpc('revoke_invite', { p_invite_id: inviteId })
+  const { error } = await withTimeout((signal) =>
+    supabase.rpc('revoke_invite', { p_invite_id: inviteId }).abortSignal(signal),
+  )
   if (error) throw error
 }
 
 export async function setMemberRole(organizationId: string, userId: string, role: Role) {
-  const { error } = await supabase.rpc('set_member_role', {
-    p_organization_id: organizationId,
-    p_user_id: userId,
-    p_role: role,
-  })
+  const { error } = await withTimeout((signal) =>
+    supabase
+      .rpc('set_member_role', {
+        p_organization_id: organizationId,
+        p_user_id: userId,
+        p_role: role,
+      })
+      .abortSignal(signal),
+  )
   if (error) throw error
 }
 
 /** Removes someone (owner) or yourself (leave). */
 export async function removeMember(organizationId: string, userId: string): Promise<void> {
-  const { error } = await supabase.rpc('remove_member', {
-    p_organization_id: organizationId,
-    p_user_id: userId,
-  })
+  const { error } = await withTimeout((signal) =>
+    supabase
+      .rpc('remove_member', { p_organization_id: organizationId, p_user_id: userId })
+      .abortSignal(signal),
+  )
   if (error) throw error
 }
