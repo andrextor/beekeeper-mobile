@@ -30,15 +30,15 @@ Sign-in requires network; the screen says so when offline ("Necesitas conexión 
 
 ### Onboarding
 
-`(auth)/onboarding` offers two big choices: **Crear mi apiario** (I am the beekeeper) and **Tengo un código** (someone invited me).
+`(auth)/onboarding` offers two big choices: **Crear mi finca** (I am the beekeeper) and **Tengo un código** (someone invited me).
 
 **Tengo un código** → `(auth)/join`: one field, 8 characters shown as `XXXX-XXXX` (`autoCapitalize="characters"`, `autoCorrect={false}`, 28-sp monospace, paste supported, dash inserted automatically; lowercase, spaces, O/0 and I/L mix-ups are accepted by the server) → `rpc('accept_invite', { p_code })` → returned organization becomes active → Inicio. The same screen is reachable later from the organizations modal ("Unirme con un código") for a second organization.
 
-**Crear mi apiario** → title "Crea tu organización", hint "Es el nombre de tu explotación apícola. Podrás invitar revisores después.", field "Nombre" (prefilled "Apiario de <display name or email prefix>"), optional "Tu nombre" (→ `profiles.display_name`). Submit → `rpc('create_organization', { p_id: uuid(), p_name })`. The client id is generated once and kept in component state, so a retry after a timeout reuses it (the RPC is idempotent for the same owner). Then → Apiarios tab with the empty state "Crea tu primer apiario" (M4).
+**Crear mi finca** → title "Crea tu finca", hint "Es el nombre de tu explotación apícola. Podrás invitar revisores después.", field "Nombre" (prefilled "Finca de <display name or email prefix>"), optional "Tu nombre" (→ `profiles.display_name`). Submit → `rpc('create_organization', { p_id: uuid(), p_name })`. The client id is generated once and kept in component state, so a retry after a timeout reuses it (the RPC is idempotent for the same owner). Then → Apiarios tab with the empty state "Crea tu primer apiario" (M4).
 
 ### Organization switcher
 
-- `organizations` modal from Perfil (and automatically when no active org): list from the local copy of `my_memberships` (name, role badge `Propietario` / `Revisor`), "Crear otra organización" → onboarding.
+- `organizations` modal from Perfil (and automatically when no active org): list from the local copy of `my_memberships` (name, role badge `Propietario` / `Revisor`), "Crear otra finca" → onboarding.
 - The active organization scopes every local query (M3 stores all memberships' data; screens filter by `organization_id`).
 - The role of the active organization drives the UI (`useRole()` → `'owner' | 'reviewer'`).
 

@@ -63,15 +63,15 @@ This table is canonical: every later spec and plan uses exactly these paths. A m
 | `(auth)/welcome.tsx` | Crear cuenta / Ya tengo cuenta | M2 |
 | `(auth)/sign-up.tsx` | Correo + contraseña (nueva cuenta) | M2 |
 | `(auth)/sign-in.tsx` | Correo + contraseña | M2 |
-| `(auth)/onboarding.tsx` | Crear mi apiario / Tengo un código | M2 |
+| `(auth)/onboarding.tsx` | Crear mi finca / Tengo un código | M2 |
 | `(auth)/join.tsx` | Código de invitación `XXXX-XXXX` | M2 |
 | `(tabs)/_layout.tsx` | Bottom tabs | M1 |
 | `(tabs)/index.tsx` | Inicio: last activity, hives needing attention | M1 placeholder → M6 |
 | `(tabs)/apiaries.tsx` | Apiarios list | M4 |
 | `(tabs)/scan.tsx` | Escanear QR | M5 |
 | `(tabs)/pending.tsx` | Pendientes (sync queue) | M3 |
-| `(tabs)/profile.tsx` | Perfil, organización, cerrar sesión | M2 |
-| `organizations.tsx` | Cambiar de organización (modal) | M2 |
+| `(tabs)/profile.tsx` | Perfil, finca, cerrar sesión | M2 |
+| `organizations.tsx` | Cambiar de finca (modal) | M2 |
 | `apiary/new.tsx`, `apiary/[id]/index.tsx`, `apiary/[id]/edit.tsx` | Apiary | M4 |
 | `hive/new.tsx` (`?apiaryId=&origin=&returnTo=`), `hive/[id]/edit.tsx` | Hive form | M4 (prefill params M10) |
 | `hive/[id]/index.tsx` | Hive screen: facts (M4), attention, timeline, photos strip (M6/M9) | M4 → M6 |

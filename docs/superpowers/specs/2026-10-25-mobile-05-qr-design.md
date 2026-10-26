@@ -49,7 +49,7 @@ The QR encodes `landak://h/<qr_code>`. The scanner also accepts a bare 10-char c
 
 ### Lookup sequence (`src/features/qr/lookup.ts`)
 
-1. Local SQLite: `select id from hives where qr_code = ? and deleted_at is null` across every organization on the phone → found: open `/hive/<id>` (switch the active organization if it belongs to another one, with a toast "Cambiaste a <organización>").
+1. Local SQLite: `select id from hives where qr_code = ? and deleted_at is null` across every organization on the phone → found: open `/hive/<id>` (switch the active organization if it belongs to another one, with a toast "Cambiaste a <finca>").
 2. Not found, online: `supabase.from('hives').select('id, organization_id').eq('qr_code', code).is('deleted_at', null).maybeSingle()` under RLS → found: trigger a pull of that organization (it is ours but not synced yet) and open it once the hive row is local (the timeline uses the server fallback of M6 meanwhile).
 3. Not found anywhere:
    - User is owner of the active organization → "Este código no está asignado" with **"Asignar a una colmena"** (pick a hive of the active organization → re-label flow below) and "Volver a escanear".

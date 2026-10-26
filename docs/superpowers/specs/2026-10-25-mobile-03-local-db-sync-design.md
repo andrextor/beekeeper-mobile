@@ -87,7 +87,7 @@ repeated until a page has fewer than 500 rows (cap: 40 pages per table per run, 
 
 Why per organization: a cursor shared by all organizations would skip the whole history of an organization joined later (an invite code, or the admin adding the person, A7), because its rows are older than the cursor. The `organization_id` filter also keeps out rows RLS still returns for a soft-deleted organization (`my_memberships()` hides it, B2; RLS on its rows does not).
 
-Memberships are hard-deleted and not in the cursor pull (`api.md` → Organizations): if an organization disappeared from `my_memberships()` (removed by an owner or the admin, left from another phone, or soft-deleted), its local rows and `sync_state` rows are deleted, except rows with pending outbox entries, which become `failed_permanent` with "Ya no tienes acceso a esta organización.". A changed `role` takes effect in the UI at once.
+Memberships are hard-deleted and not in the cursor pull (`api.md` → Organizations): if an organization disappeared from `my_memberships()` (removed by an owner or the admin, left from another phone, or soft-deleted), its local rows and `sync_state` rows are deleted, except rows with pending outbox entries, which become `failed_permanent` with "Ya no tienes acceso a esta finca.". A changed `role` takes effect in the UI at once.
 
 `profiles_cache` pulls `profiles` (RLS: yourself and co-members) with its own cursor. When `members_cache` gains an organization, the `profiles` cursor is reset to `1970-01-01` (the new co-members' profiles are older than it; the table is tiny).
 

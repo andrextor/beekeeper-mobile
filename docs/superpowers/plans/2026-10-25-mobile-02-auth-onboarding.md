@@ -16,7 +16,7 @@ New dependencies (approval asked here): `@supabase/supabase-js`, `expo-secure-st
 
 Backend: `beekeeper` local stack running (`pnpm db:reset` there); phone on the same Wi-Fi.
 
-1. Crear cuenta with `nuevo1@landak.test` and a 7-character password → "La contraseña debe tener al menos 8 caracteres."; with `colmenas-123` → onboarding → Crear mi apiario → "Mi apiario" created → Apiarios tab empty.
+1. Crear cuenta with `nuevo1@landak.test` and a 7-character password → "La contraseña debe tener al menos 8 caracteres."; with `colmenas-123` → onboarding → Crear mi finca → "Mi finca" created → Apiarios tab empty.
 2. Close the app fully, reopen → still signed in, straight to the app.
 3. Airplane mode, reopen → app opens normally (no sign-in prompt).
 4. Sign out → Ya tengo cuenta → `reviewer@landak.test` / `landak-2026` → lands in "Finca Landak", Perfil shows "Revisor". Wrong password → "Correo o contraseña incorrectos.".

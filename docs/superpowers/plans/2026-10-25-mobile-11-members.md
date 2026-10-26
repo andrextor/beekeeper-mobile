@@ -18,7 +18,7 @@ No new dependencies (`Share` is part of React Native).
 1. Owner phone online: Perfil → Personas → Invitar persona → "Ayudante", Revisor → the code appears → Compartir por WhatsApp → send it to yourself.
 2. Second phone: install, Crear cuenta with any email + password → Tengo un código → paste the code → lands in "Finca Landak" as Revisor, sees the hives, cannot see "Invitar persona". Using the same code on a third account → "El código no es válido…".
 3. Owner: change the helper to Propietario → second phone shows owner controls after reopening the screen; change back to Revisor.
-4. Owner tries to leave while being the only owner → "La organización debe tener al menos un propietario.".
+4. Owner tries to leave while being the only owner → "La finca debe tener al menos un propietario.".
 5. Airplane mode on the owner phone → list still visible, buttons disabled, offline message.
 6. Reviewer phone: create an inspection offline, then try "Salir" → blocked by the unsynced warning; sync, leave → the organization's data disappears from that phone.
 7. Owner: create another code and cancel it → gone from the list; typing it later → "El código no es válido…".

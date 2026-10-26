@@ -8,14 +8,14 @@ The beekeeper (owner) wants other people — a helper, a technician, a family me
 
 ## Decisions
 
-### Screens (Perfil → "Personas de <organización>": `src/app/members.tsx`; invite: `src/app/invite.tsx`)
+### Screens (Perfil → "Personas de <finca>": `src/app/members.tsx`; invite: `src/app/invite.tsx`)
 
 | Screen | Owner | Reviewer |
 |--------|-------|----------|
 | Members list (email, name, role badge, "Tú", "Desactivado" badge when `profiles.deactivated_at` is set, A7) | yes, each row opens actions | yes, read-only |
 | Pending invite codes (label, role, "vence el …") | yes, "Cancelar código" | hidden (RLS does not return them) |
 | "Invitar persona" button (72 dp, bottom) | yes | hidden |
-| "Salir de esta organización" | yes (refused if last owner) | yes |
+| "Salir de esta finca" | yes (refused if last owner) | yes |
 
 ### Invite flow (owner)
 
@@ -26,19 +26,19 @@ Revised 2026-10-25: no email is sent and the email is not verified, so access is
    - Propietario: "Puede hacer todo, incluso invitar y quitar personas."
 2. `rpc('create_invite', { p_organization_id, p_role, p_label })` → `{ invite_id, code, expires_at }`. The plain code exists only in this response: the success screen is the only place it is shown (it is not stored on the phone either).
 3. Success screen: the code in 40-sp monospace (`K7M2-9QXA`), "Vence el 1 de noviembre · sirve una sola vez", **"Compartir por WhatsApp"** (72 dp) → React Native `Share.share` (no extra dependency) with:
-   "Te invité a <organización> en Landak Apiario. Instala la app (<install link from M12>), crea tu cuenta y escribe este código: K7M2-9QXA. Vence el 1 de noviembre."
+   "Te invité a <finca> en Landak Apiario. Instala la app (<install link from M12>), crea tu cuenta y escribe este código: K7M2-9QXA. Vence el 1 de noviembre."
    and "Copiar código". Leaving the screen asks nothing; a lost code is simply cancelled and a new one created.
 4. The code appears in the pending list (label, role, expiry). The invited person creates their own account and types the code in **Tengo un código** (M2 `accept_invite`).
 
 ### Member actions (owner, on a member row)
 
 - **Cambiar rol** → `rpc('set_member_role', …)`.
-- **Quitar de la organización** → `rpc('remove_member', …)`; this is a destructive action outside field mode, so it uses a bottom sheet with the person's email and a 72-dp red "Quitar" button (not a system dialog).
-- Own row: only "Salir de esta organización".
+- **Quitar de la finca** → `rpc('remove_member', …)`; this is a destructive action outside field mode, so it uses a bottom sheet with the person's email and a 72-dp red "Quitar" button (not a system dialog).
+- Own row: only "Salir de esta finca".
 
 ### Leave organization
 
-`rpc('remove_member', { p_organization_id, p_user_id: auth.uid() })`. On success: the app deletes that organization's local rows and photos (it can no longer sync them), switches to another membership or to onboarding (M2). Pending outbox entries for that organization are shown first: "Tienes 3 registros sin sincronizar de esta organización. Sincroniza antes de salir." and leaving is blocked until they sync or the user explicitly discards them.
+`rpc('remove_member', { p_organization_id, p_user_id: auth.uid() })`. On success: the app deletes that organization's local rows and photos (it can no longer sync them), switches to another membership or to onboarding (M2). Pending outbox entries for that organization are shown first: "Tienes 3 registros sin sincronizar de esta finca. Sincroniza antes de salir." and leaving is blocked until they sync or the user explicitly discards them.
 
 ### Online only
 
@@ -54,12 +54,12 @@ All of this goes through B2 RPCs, which check roles at the moment of the call an
 
 | `detail` | Message |
 |----------|---------|
-| `not_owner` | Solo el propietario de la organización puede hacer esto. |
-| `organization_deleted` | Esta organización fue eliminada. |
+| `not_owner` | Solo el propietario de la finca puede hacer esto. |
+| `organization_deleted` | Esta finca fue eliminada. |
 | `invalid_label` | El nombre puede tener hasta 80 caracteres. |
 | `invalid_role` | Elige Revisor o Propietario. |
-| `last_owner` | La organización debe tener al menos un propietario. |
-| `not_member` | Esa persona ya no es parte de la organización. |
+| `last_owner` | La finca debe tener al menos un propietario. |
+| `not_member` | Esa persona ya no es parte de la finca. |
 | `invite_not_pending` | Ese código ya se usó o fue cancelado. |
 | `not_allowed` | No tienes permiso para quitar a esa persona. |
 | `not_signed_in` | Tu sesión terminó. Ingresa de nuevo. |
