@@ -1,6 +1,6 @@
 # M5 · QR: generate, print/share labels, scan → hive, re-label — spec
 
-Date: 2026-10-25 · Branch: `feat/m5-qr` · Status: **awaiting OK** (reviewed 2026-10-26 after M4) · Version: 0.5.0
+Date: 2026-10-25 · Branch: `feat/m5-qr` · Status: **approved** (Iván, 2026-10-26) · Version: 0.5.0
 
 ## Problem
 
