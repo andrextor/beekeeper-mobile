@@ -8,11 +8,17 @@ import { useApiaryNames } from '@/features/apiaries/queries'
 import { useRole, useSession } from '@/features/auth/session'
 import { HiveForm } from '@/features/hives/HiveForm'
 import { emptyHive, type HiveFields } from '@/features/hives/schema'
+import { localDay } from '@/lib/dates'
+import { handBack } from '@/lib/hand-back'
 import { uuid } from '@/lib/ids'
 import { newQrCode } from '@/lib/qr-code'
 
 export default function NewHiveScreen() {
-  const { apiaryId } = useLocalSearchParams<{ apiaryId?: string }>()
+  const { apiaryId, origin, returnTo } = useLocalSearchParams<{
+    apiaryId?: string
+    origin?: string
+    returnTo?: string
+  }>()
   const { state } = useSession()
   const owner = useRole() === 'owner'
   const organizationId = state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : ''
@@ -35,6 +41,12 @@ export default function NewHiveScreen() {
       deleted_at: null,
     })
     showToast('Guardado en este dispositivo')
+    // Started from a split or swarm event (M10): the event form takes the new hive's id.
+    if (returnTo === 'event') {
+      handBack('newHiveId', id)
+      router.back()
+      return
+    }
     router.replace({ pathname: '/hive/[id]', params: { id } })
   }
 
@@ -42,7 +54,12 @@ export default function NewHiveScreen() {
     <HiveForm
       title="Nueva colmena"
       header={<BackButton />}
-      initial={emptyHive(apiaryId ?? '', '')}
+      initial={{
+        ...emptyHive(apiaryId ?? '', ''),
+        ...(origin === 'split' || origin === 'swarm_capture'
+          ? { colony_origin: origin, colony_started_on: localDay() }
+          : {}),
+      }}
       apiaries={apiaries}
       onSave={save}
     />

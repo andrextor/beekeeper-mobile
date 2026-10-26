@@ -41,6 +41,7 @@ export async function remoteTimelinePage(
       // A member who left has no readable profile (the screen says "Antiguo miembro").
       author: row.author_name,
       sync: 'synced' as const,
+      remote: true,
     }
     if (row.kind === 'inspection') {
       const inspection = fromLocal('inspections', toLocal('inspections', recordOf(row.data)))

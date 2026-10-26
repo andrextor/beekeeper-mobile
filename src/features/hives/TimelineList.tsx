@@ -9,7 +9,14 @@ import { TimelineItemView } from './TimelineItemView'
 import type { Timeline } from './useTimeline'
 
 /** History, newest first; "Cargar más" instead of infinite scroll (gloves, bounded work). */
-export function TimelineList({ timeline }: { timeline: Timeline }) {
+export function TimelineList({
+  timeline,
+  canEditEvent,
+}: {
+  timeline: Timeline
+  /** Author or owner (B4): only then does an event open its form. */
+  canEditEvent: (createdBy: string) => boolean
+}) {
   return (
     <View className="gap-3">
       <Text accessibilityRole="header" className="font-display text-section text-text">
@@ -28,7 +35,20 @@ export function TimelineList({ timeline }: { timeline: Timeline }) {
         <TimelineItemView
           key={item.id}
           item={item}
-          onOpen={() => router.push({ pathname: '/inspection/[id]', params: { id: item.id } })}
+          onOpen={
+            item.remote
+              ? null
+              : item.kind === 'inspection'
+                ? () => router.push({ pathname: '/inspection/[id]', params: { id: item.id } })
+                : // A label change (M5) is history only.
+                  item.event.type !== 'qr_relabel' && canEditEvent(item.createdBy)
+                  ? () =>
+                      router.push({
+                        pathname: '/hive/[id]/event/[eventId]',
+                        params: { id: item.event.hive_id, eventId: item.id },
+                      })
+                  : null
+          }
         />
       ))}
       {timeline.hasMore ? (

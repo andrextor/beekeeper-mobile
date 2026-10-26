@@ -4,12 +4,27 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-26
+
+### Added
+
+- `docs/phone-pass.md` gains the M10 row.
+- **Registrar actividad** on the hive screen and an **Actividad** tile in field mode: feeding, treatment (last products as chips), harvest, queen change (colour suggested from the year), split, swarm, merge, transfer, loss and notes, each a taps-first form with Hoy / Ayer / Otra fecha.
+- Owners' events update the hive in the same transaction: the new queen, the destination apiary, the status after a loss (their choice in the form), the merged hive marked Unida. Reviewers see "Avisa al propietario…".
+- Split and captured swarm: **Crear la nueva colmena ahora** opens the hive form prefilled (same apiary, origin, started today) and links the new hive to the event.
+- From field mode the event and its hive effect wait in the draft and are written at **Terminar**; **Deshacer** puts the hive back.
+- Events in the history open their form for their author or an owner: edit, or delete with undo (hive effects are not reverted, the form says so).
+
+### Changed
+
+- Queen colour suggestion and calendar-day helpers moved to `src/lib/` (`queen-color.ts`, `dates.ts`, `pick-day.ts`); `src/lib/hand-back.ts` hands a value back to the screen that opened another.
+
 ## [0.9.1] - 2026-10-26
 
 ### Changed
 
 - Android `versionCode` 2 for the development build that carries every native module so far; the development profile builds only `arm64-v8a` (about half the cloud build time).
-- `docs/phone-pass-0.9.md`: the order and essentials of the phone pass for M2 (steps 8–9) and M3–M9.
+- `docs/phone-pass.md`: the phone test sheet (order and essentials) for M2 steps 8–9 and M3 onwards, run once when the modules are done.
 
 ## [0.9.0] - 2026-10-26
 

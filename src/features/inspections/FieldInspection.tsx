@@ -1,6 +1,15 @@
 import { useKeepAwake } from 'expo-keep-awake'
-import { Camera, CircleCheck, Mic, Plus, StickyNote, TriangleAlert } from 'lucide-react-native'
-import { useEffect, useRef, useState } from 'react'
+import { useFocusEffect } from 'expo-router'
+import {
+  Camera,
+  CircleCheck,
+  ListPlus,
+  Mic,
+  Plus,
+  StickyNote,
+  TriangleAlert,
+} from 'lucide-react-native'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Pressable, ScrollView, type ScrollViewInstance, Text, View } from 'react-native'
 
 import { ActionGrid } from '@/components/field/ActionGrid'
@@ -10,6 +19,8 @@ import { getDb } from '@/db/database'
 import { DictationFlow } from '@/features/voice/DictationFlow'
 import { type Proposal, parseInspection } from '@/features/voice/parser'
 import { messageFor } from '@/lib/errors'
+import { isRecord } from '@/lib/guards'
+import { takeHandBack } from '@/lib/hand-back'
 import { successHaptic } from '@/lib/haptics'
 import { uuid } from '@/lib/ids'
 import { color, iconSize } from '@/lib/theme'
@@ -39,11 +50,15 @@ type Props = {
   hiveName: string
   lastInspection: string
   userId: string
+  /** Owner now (B3): only then do the draft's events change hives at Terminar. */
+  owner: boolean
   today: string
   onBack: () => void
   onFinished: (finished: Finished) => void
   /** Opens the camera for this inspection (its photos link to the draft's id). */
   onPhoto: () => void
+  /** Opens Registrar actividad for this draft; the event comes back through `hand-back`. */
+  onActivity: () => void
 }
 
 const firstWords = (text: string) => (text.length > 18 ? `${text.slice(0, 18)}…` : text)
@@ -55,10 +70,12 @@ export function FieldInspection({
   hiveName,
   lastInspection,
   userId,
+  owner,
   today,
   onBack,
   onFinished,
   onPhoto,
+  onActivity,
 }: Props) {
   useKeepAwake()
   const [fields, setFields] = useState(draft.fields)
@@ -126,7 +143,13 @@ export function FieldInspection({
     try {
       // Whatever Terminar decides, the draft first holds every tap made before it.
       await flush()
-      const outcome = await finishDraft(await getDb(), { ...draft, ...latest.current }, userId)
+      const outcome = await finishDraft(
+        await getDb(),
+        { ...draft, ...latest.current },
+        userId,
+        new Date(),
+        owner,
+      )
       if (!outcome.ok) {
         setProblems(outcome.problems)
         scroll.current?.scrollTo({ y: 0, animated: true })
@@ -141,6 +164,20 @@ export function FieldInspection({
       setSaving(false)
     }
   }
+
+  // An activity recorded from here (M10) comes back as a draft event, written at Terminar.
+  useFocusEffect(
+    // biome-ignore lint/correctness/useExhaustiveDependencies: refs and the draft id only
+    useCallback(() => {
+      const back = takeHandBack('draftEvent')
+      if (!isRecord(back) || back.draftId !== draft.id || !isRecord(back.event)) return
+      latest.current = {
+        ...latest.current,
+        events: [...latest.current.events, back.event as DraftEvent],
+      }
+      schedule()
+    }, [draft.id]),
+  )
 
   // Spec M8 → Confirmation: accepted proposals go into the draft only; Terminar saves them.
   const acceptProposals = (accepted: Proposal[], text: string, change: SectionKey | null) => {
@@ -243,6 +280,7 @@ export function FieldInspection({
           actions={[
             { icon: Mic, label: 'Dictar', onPress: () => setDictating(true) },
             { icon: Camera, label: 'Foto', onPress: onPhoto },
+            { icon: ListPlus, label: 'Actividad', onPress: onActivity },
             slotTile(1),
             slotTile(2),
             {

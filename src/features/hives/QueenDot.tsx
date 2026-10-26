@@ -1,7 +1,7 @@
 import { View } from 'react-native'
 
 import { cx } from '@/lib/cx'
-import type { QueenColor } from './queen-color'
+import type { QueenColor } from '@/lib/queen-color'
 
 const dots: Readonly<Record<QueenColor, string>> = {
   white: 'bg-queen-white',

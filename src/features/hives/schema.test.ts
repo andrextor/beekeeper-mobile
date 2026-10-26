@@ -1,5 +1,6 @@
+import { localDay } from '@/lib/dates'
 import { fieldErrors } from '@/lib/form'
-import { emptyHive, hiveSchema, localDay } from './schema'
+import { emptyHive, hiveSchema } from './schema'
 
 const schema = hiveSchema('2026-10-26')
 

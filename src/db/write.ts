@@ -103,3 +103,19 @@ export async function applyServerRows(
     )
   }
 }
+
+/** Hives as they would be after `patches` (an event's effects); a hive not on the phone is skipped. */
+export async function patchedHives(
+  db: Db,
+  patches: readonly { hiveId: string; patch: Record<string, unknown> }[],
+): Promise<ServerRow<'hives'>[]> {
+  // Several events on one hive (a queen change and a transfer) add up on the same row.
+  const merged = new Map<string, Record<string, unknown>>()
+  for (const { hiveId, patch } of patches) merged.set(hiveId, { ...merged.get(hiveId), ...patch })
+  const rows: ServerRow<'hives'>[] = []
+  for (const [hiveId, patch] of merged) {
+    const row = await db.getFirstAsync<LocalRow>('select * from hives where id = ?', [hiveId])
+    if (row) rows.push({ ...fromLocal('hives', row), ...patch } as ServerRow<'hives'>)
+  }
+  return rows
+}

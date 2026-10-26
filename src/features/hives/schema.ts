@@ -58,9 +58,3 @@ export const emptyHive = (apiaryId: string, name: string): HiveDraft => ({
   status: 'active',
   notes: '',
 })
-
-/** Local calendar day as "YYYY-MM-DD" (not UTC: in Colombia the evening is already tomorrow in UTC). */
-export function localDay(date: Date = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-}

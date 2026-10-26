@@ -14,3 +14,9 @@ export function daysBetween(from: string, to: string): number {
 export function addDays(day: string, days: number): string {
   return new Date(utc(day) + days * 86_400_000).toISOString().slice(0, 10)
 }
+
+/** The phone's calendar day as "YYYY-MM-DD" (not UTC: in Colombia the evening is already tomorrow in UTC). */
+export function localDay(date: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
