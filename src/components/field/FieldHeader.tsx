@@ -26,7 +26,10 @@ export function FieldHeader({
 }: Props) {
   const insets = useSafeAreaInsets()
   return (
-    <View style={{ paddingTop: insets.top + 8 }} className="gap-2 border-b border-border bg-bg px-4 pb-3">
+    <View
+      style={{ paddingTop: insets.top + 8 }}
+      className="gap-2 border-b border-border bg-bg px-4 pb-3"
+    >
       <View className="flex-row items-center gap-2">
         <IconButton icon={ArrowLeft} label="Volver" onPress={onBack} />
         <View className="flex-1">

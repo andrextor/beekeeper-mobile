@@ -6,7 +6,11 @@ import { Screen } from '@/components/ui/Screen'
 export default function ApiariesScreen() {
   return (
     <Screen scroll={false}>
-      <EmptyState icon={MapPin} title="Apiarios" body="Tus apiarios y sus colmenas aparecen aquí." />
+      <EmptyState
+        icon={MapPin}
+        title="Apiarios"
+        body="Tus apiarios y sus colmenas aparecen aquí."
+      />
     </Screen>
   )
 }

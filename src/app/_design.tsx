@@ -35,7 +35,12 @@ import { TextField } from '@/components/ui/TextField'
 import { Toast } from '@/components/ui/Toast'
 import { formatLastInspection } from '@/lib/format'
 import { successHaptic } from '@/lib/haptics'
-import { pestLabels, populationStrengthLabels, temperamentLabels, weatherLabels } from '@/lib/labels'
+import {
+  pestLabels,
+  populationStrengthLabels,
+  temperamentLabels,
+  weatherLabels,
+} from '@/lib/labels'
 
 /** Component gallery for judging sizes with gloves; release builds never reach it. */
 export default function DesignRoute() {
@@ -154,9 +159,19 @@ function Gallery() {
             placeholder="C-12"
             hint="Hasta 40 caracteres"
           />
-          <TextField label="Correo" value="sin-arroba" error="Revisa el correo." onChangeText={noop} />
+          <TextField
+            label="Correo"
+            value="sin-arroba"
+            error="Revisa el correo."
+            onChangeText={noop}
+          />
           <Card className="p-0">
-            <ListItem icon={Hexagon} title="C-12" subtitle="Última revisión hace 3 días" onPress={noop} />
+            <ListItem
+              icon={Hexagon}
+              title="C-12"
+              subtitle="Última revisión hace 3 días"
+              onPress={noop}
+            />
             <ListItem
               icon={Hexagon}
               title="C-13"

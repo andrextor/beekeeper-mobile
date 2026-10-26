@@ -20,10 +20,7 @@ export function Screen({ children, scroll = true, field = false }: Props) {
       className={cx('flex-1', field ? 'bg-bg' : 'bg-bg-soft')}
     >
       {scroll ? (
-        <ScrollView
-          contentContainerClassName="gap-4 p-4 pb-8"
-          keyboardShouldPersistTaps="handled"
-        >
+        <ScrollView contentContainerClassName="gap-4 p-4 pb-8" keyboardShouldPersistTaps="handled">
           {children}
         </ScrollView>
       ) : (
