@@ -1,4 +1,4 @@
-import { fromLocal, type ServerRow, toLocal, toPayload } from './mapping'
+import { fromLocal, normalizeTimestamp, type ServerRow, toLocal, toPayload } from './mapping'
 
 const meta = {
   organization_id: 'org-1',
@@ -126,5 +126,29 @@ describe('row mapping', () => {
     expect(payload).not.toHaveProperty('created_at')
     expect(payload).not.toHaveProperty('updated_at')
     expect(payload).toMatchObject({ id: 'hive-1', deleted_at: null, queen_marked: false })
+  })
+})
+
+describe('normalizeTimestamp', () => {
+  it('writes every UTC timestamp with milliseconds and Z', () => {
+    expect(normalizeTimestamp('2026-10-26T10:00:00.123456+00:00')).toBe('2026-10-26T10:00:00.123Z')
+    expect(normalizeTimestamp('2026-10-26T10:00:00.1+00:00')).toBe('2026-10-26T10:00:00.100Z')
+    expect(normalizeTimestamp('2026-10-26T10:00:00+00:00')).toBe('2026-10-26T10:00:00.000Z')
+    expect(normalizeTimestamp('2026-10-26T10:00:00.123Z')).toBe('2026-10-26T10:00:00.123Z')
+  })
+
+  it('leaves dates and other offsets alone', () => {
+    expect(normalizeTimestamp('2026-10-26')).toBe('2026-10-26')
+    expect(normalizeTimestamp('2026-10-26T10:00:00-05:00')).toBe('2026-10-26T10:00:00-05:00')
+  })
+
+  it('is applied to timestamp columns only', () => {
+    const local = toLocal('hive_events', {
+      id: 'e',
+      occurred_at: '2026-10-26T10:00:00+00:00',
+      type: '2026-10-26T10:00:00+00:00',
+    })
+    expect(local.occurred_at).toBe('2026-10-26T10:00:00.000Z')
+    expect(local.type).toBe('2026-10-26T10:00:00+00:00')
   })
 })
