@@ -5,11 +5,11 @@ import { supabase } from '@/lib/supabase'
 // Push and pull reach any synced table by name; the typed client cannot express that.
 export const client = supabase as unknown as SupabaseClient
 
-/** For calls that take no abort signal: give up waiting after 15 s (the call itself may go on). */
-export function within<T>(promise: PromiseLike<T>): Promise<T> {
+/** For calls that take no abort signal: give up waiting after `ms` (the call itself may go on). */
+export function within<T>(promise: PromiseLike<T>, ms = 15_000): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | null = null
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error('Network request failed: timeout')), 15_000)
+    timer = setTimeout(() => reject(new Error('Network request failed: timeout')), ms)
   })
   return Promise.race([Promise.resolve(promise), timeout]).finally(() => {
     if (timer) clearTimeout(timer)

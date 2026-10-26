@@ -8,6 +8,7 @@ import { ChipSelect } from '@/components/field/ChipSelect'
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { NotAvailable } from '@/components/ui/NotAvailable'
 import { ApiaryFacts, mapUrl } from '@/features/apiaries/ApiaryFacts'
 import { useApiary } from '@/features/apiaries/queries'
 import { useRole } from '@/features/auth/session'
@@ -25,14 +26,8 @@ export default function ApiaryScreen() {
   const [all, setAll] = useState(false)
   const hives = useHives(id, all)
 
-  if (!apiary) {
-    return (
-      <View className="flex-1 gap-4 bg-bg-soft p-4" style={{ paddingTop: insets.top + 16 }}>
-        <BackButton />
-        {loading ? null : <EmptyState icon={MapPin} title="Este apiario ya no existe." />}
-      </View>
-    )
-  }
+  if (!apiary)
+    return loading ? null : <NotAvailable icon={MapPin} title="Este apiario ya no existe." />
 
   const map = mapUrl(apiary)
   const edit = () => router.push({ pathname: '/apiary/[id]/edit', params: { id } })
