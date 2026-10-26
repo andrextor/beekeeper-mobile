@@ -24,7 +24,7 @@ import {
   setMemberRole,
 } from '@/features/members/api'
 import { leaveFinca, pendingForFinca } from '@/features/members/leave'
-import { memberName, MemberRow } from '@/features/members/MemberRow'
+import { MemberRow, memberName } from '@/features/members/MemberRow'
 import { MemberSheet } from '@/features/members/MemberSheet'
 import type { Role } from '@/features/sync/members'
 import { syncNow } from '@/features/sync/triggers'
