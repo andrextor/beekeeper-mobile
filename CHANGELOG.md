@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-10-26
+
+### Changed
+
+- Android `versionCode` 2 for the development build that carries every native module so far; the development profile builds only `arm64-v8a` (about half the cloud build time).
+- `docs/phone-pass-0.9.md`: the order and essentials of the phone pass for M2 (steps 8–9) and M3–M9.
+
 ## [0.9.0] - 2026-10-26
 
 ### Added
