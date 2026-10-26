@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-26
+
+### Added
+
+- **Personas de la finca** (Perfil): members with role, "Tú" and "Desactivado"; owners see unused codes with **Cancelar código**, change roles and remove people (second step in the sheet).
+- **Invitar persona**: optional label and role → a single-use code shown once, shared with **Compartir por WhatsApp**.
+- **Salir de esta finca**: warns with the finca's unsent changes, then the next sync purges it and switches finca.
+- `docs/phone-pass.md` gains the M11 row.
+
+### Fixed
+
+- Losing a finca also deletes its photo files from the phone, not only the rows.
+
 ## [0.10.0] - 2026-10-26
 
 ### Added
