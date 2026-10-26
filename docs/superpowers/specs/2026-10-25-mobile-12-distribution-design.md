@@ -1,10 +1,22 @@
 # M12 · APK release, OTA updates, local DB upgrade safety, install guide — spec
 
-Date: 2026-10-25 · Branch: `chore/m12-distribution` · Status: **awaiting OK** · Version: 1.0.0
+Date: 2026-10-25 · Revised: 2026-10-26 (after M1–M11, D1 live) · Branch: `chore/m12-distribution` · Status: **awaiting OK** · Version: 1.0.0
 
 ## Problem
 
 The pilot needs an APK that a beekeeper installs without a computer, updates without losing a single offline record, and that Iván can fix quickly. Play Store comes later; for now distribution is a file shared by link or WhatsApp.
+
+## Revision 2026-10-26 (what changed against the code and D1)
+
+- **Identity is done** since M1/M5: name, slug, package `co.landak.apiario`, scheme `landak`, EAS project id. M12 only adds `runtimeVersion`, the updates URL and `android.blockedPermissions` (read from `npx expo config --type introspect`).
+- **`versionCode` stays local** (`appVersionSource: local`, +1 by hand in the release commit, as AGENTS.md says); no remote `autoIncrement`.
+- **Supabase values in `eas.json`**: D1 is live (`https://dhacyrwngqegqjffpten.supabase.co`). The publishable key is public by design (it ships inside every APK), so the `preview` profile carries both values in `env`; no EAS secrets to keep in step. `development` keeps reading `.env` (local stack).
+- **No backup copy before migrating.** `migrate` already runs every step in one transaction: a failing migration rolls back and leaves the file exactly as the previous version wrote it. What was missing is the screen: when the database cannot open, the app shows "No pudimos actualizar los datos" with **Enviar respaldo** (shares `landak.db` with `expo-sharing`, already installed) instead of failing on every screen.
+- **One upgrade test instead of a fixture file per version**: a test builds a database at `user_version` 1, writes an apiary, a hive, an inspection and their outbox entries, adds a draft at 2, then migrates step by step to the latest and asserts every row, outbox entry and draft is intact. Every future migration runs through it without new fixtures.
+- **APK version check** compares `latest.json`'s `version` with `Constants.expoConfig.version` (no `expo-application`).
+- **Invite message** (M11) gains the stable APK link.
+- **Pilot checklist** becomes a section of `docs/phone-pass.md` instead of a third doc.
+- **`gh` is not installed** on Iván's Mac; `scripts/release-apk.sh` needs it for `gh release create` (`brew install gh` + `gh auth login`, a machine tool, not a project dependency).
 
 ## Decisions
 
