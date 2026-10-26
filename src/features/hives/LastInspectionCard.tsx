@@ -4,24 +4,22 @@ import { Card } from '@/components/ui/Card'
 import { Fact } from '@/components/ui/Fact'
 import { formatLastInspection } from '@/lib/format'
 import { label, observedLabels, storesLabels } from '@/lib/labels'
-import type { TimelineItem } from './timeline'
-
-type InspectionItem = Extract<TimelineItem, { kind: 'inspection' }>
+import type { LatestInspection } from './queries'
 
 /** "Última revisión hace 12 días · por Ana" and the four facts that matter at the hive. */
-export function LastInspectionCard({ item }: { item: InspectionItem | null }) {
-  if (!item) {
+export function LastInspectionCard({ latest }: { latest: LatestInspection | null }) {
+  if (!latest) {
     return (
       <Card>
         <Text className="font-sans text-body text-muted">Sin revisiones todavía.</Text>
       </Card>
     )
   }
-  const { inspection } = item
+  const { inspection, author } = latest
   return (
     <Card className="gap-3">
       <Text className="font-sans-semibold text-body text-text">
-        {`${formatLastInspection(inspection.inspected_at)} · por ${item.author ?? 'Antiguo miembro'}`}
+        {`${formatLastInspection(inspection.inspected_at)} · por ${author ?? 'Antiguo miembro'}`}
       </Text>
       <View className="flex-row flex-wrap gap-x-6 gap-y-3">
         <Fact

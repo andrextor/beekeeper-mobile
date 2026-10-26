@@ -22,7 +22,12 @@ import { AttentionCard } from '@/features/hives/AttentionCard'
 import { hiveAttention } from '@/features/hives/attention'
 import { HiveFacts } from '@/features/hives/HiveFacts'
 import { LastInspectionCard } from '@/features/hives/LastInspectionCard'
-import { useHive, useHiveAttentionData, useHiveQueue } from '@/features/hives/queries'
+import {
+  useActiveTreatments,
+  useHive,
+  useHiveQueue,
+  useLatestInspection,
+} from '@/features/hives/queries'
 import { localDay } from '@/features/hives/schema'
 import { TimelineList } from '@/features/hives/TimelineList'
 import { useTimeline } from '@/features/hives/useTimeline'
@@ -35,17 +40,16 @@ export default function HiveScreen() {
   const owner = useRole() === 'owner'
   const { hive, loading } = useHive(id)
   const today = localDay()
-  const attention = useHiveAttentionData(id, today)
+  const { latest, loading: latestLoading } = useLatestInspection(id)
+  const treatments = useActiveTreatments(id, today)
   const queue = useHiveQueue(id)
-  const timeline = useTimeline(id, hive?.organization_id ?? '')
+  const timeline = useTimeline(id, hive?.organization_id ?? null)
   const [showFacts, setShowFacts] = useState(false)
-  const drafts = useDrafts(id)
+  const drafts = useDrafts({ hiveId: id })
   const newDraft = drafts.find((d) => !d.is_edit)
 
   if (!hive)
     return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
-
-  const lastInspection = timeline.items.find((i) => i.kind === 'inspection') ?? null
 
   return (
     <View className="flex-1 bg-bg-soft">
@@ -83,8 +87,8 @@ export default function HiveScreen() {
             }
           />
         ))}
-        <AttentionCard items={hiveAttention(attention.last, attention.treatments, today)} />
-        <LastInspectionCard item={lastInspection?.kind === 'inspection' ? lastInspection : null} />
+        <AttentionCard items={hiveAttention(latest?.inspection ?? null, treatments, today)} />
+        {latestLoading ? null : <LastInspectionCard latest={latest} />}
         <Button
           variant="secondary"
           icon={showFacts ? ChevronUp : ChevronDown}
