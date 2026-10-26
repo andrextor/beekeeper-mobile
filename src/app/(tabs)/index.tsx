@@ -1,5 +1,5 @@
 import { router } from 'expo-router'
-import { CalendarClock, CircleCheck, ListTodo, ScanQrCode } from 'lucide-react-native'
+import { CalendarClock, CircleCheck, Hexagon, ListTodo, ScanQrCode } from 'lucide-react-native'
 import { type ReactNode, useState } from 'react'
 import { Text, View } from 'react-native'
 
