@@ -1,11 +1,12 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, KeyRound, LogOut } from 'lucide-react-native'
+import { KeyRound, LogOut } from 'lucide-react-native'
 import { useRef, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
+import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
 import { createOrganization, includesFinca, updateDisplayName } from '@/features/auth/organizations'
@@ -48,7 +49,7 @@ export default function OnboardingScreen() {
         Empecemos
       </Text>
       <Choice
-        icon={Hexagon}
+        icon={Honeycomb}
         title="Crear mi finca"
         body="Soy el apicultor: registro mis apiarios y colmenas."
         onPress={() => setCreating(true)}
@@ -92,7 +93,7 @@ function Choice({
   body,
   onPress,
 }: {
-  icon: typeof Hexagon
+  icon: typeof Honeycomb
   title: string
   body: string
   onPress: () => void

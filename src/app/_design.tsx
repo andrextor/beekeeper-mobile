@@ -2,7 +2,6 @@ import { Redirect, router } from 'expo-router'
 import {
   Camera,
   CircleCheck,
-  Hexagon,
   Inbox,
   Mic,
   Plus,
@@ -27,6 +26,7 @@ import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { IconButton } from '@/components/ui/IconButton'
+import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
@@ -141,7 +141,7 @@ function Gallery() {
           <Button label="Guardando" loading onPress={noop} />
           <Button label="Desactivado" disabled onPress={noop} />
           <View className="flex-row gap-3">
-            <IconButton icon={Hexagon} label="Colmena" onPress={noop} />
+            <IconButton icon={Honeycomb} label="Colmena" onPress={noop} />
             <IconButton icon={Plus} label="Agregar" variant="accent" onPress={noop} />
           </View>
         </Section>
@@ -175,13 +175,13 @@ function Gallery() {
           />
           <Card className="p-0">
             <ListItem
-              icon={Hexagon}
+              icon={Honeycomb}
               title="C-12"
               subtitle="Última revisión hace 3 días"
               onPress={noop}
             />
             <ListItem
-              icon={Hexagon}
+              icon={Honeycomb}
               title="C-13"
               subtitle="Sin revisiones"
               trailing={<Badge label="Urgente" tone="danger" />}

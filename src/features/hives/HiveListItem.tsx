@@ -1,7 +1,7 @@
-import { Hexagon } from 'lucide-react-native'
 import { Pressable, Text, View } from 'react-native'
 
 import { Badge, type BadgeTone } from '@/components/ui/Badge'
+import { Honeycomb } from '@/components/ui/icons'
 import { formatLastInspection } from '@/lib/format'
 import {
   attentionLevelLabels,
@@ -29,7 +29,7 @@ export function HiveListItem({ hive, onPress }: { hive: HiveSummary; onPress: ()
       onPress={onPress}
       className="min-h-target flex-row items-center gap-3 rounded-card border border-border bg-surface p-4 active:bg-stone-100"
     >
-      <Hexagon color={color.text} size={iconSize.standard} />
+      <Honeycomb color={color.text} size={iconSize.standard} />
       <View className="flex-1 gap-1">
         <View className="flex-row flex-wrap items-center gap-2">
           <Text className="font-display text-section text-text">{hive.name}</Text>

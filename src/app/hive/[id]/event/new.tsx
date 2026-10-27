@@ -1,9 +1,9 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
-import { Hexagon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
 import { Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { showToast } from '@/components/ui/ToastHost'
@@ -48,7 +48,7 @@ export default function NewEventScreen() {
   )
 
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
   const userId = state.status === 'signedIn' ? state.session.user.id : ''
 
   if (!type || !isEventType(type)) {

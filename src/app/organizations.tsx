@@ -1,9 +1,10 @@
 import { router } from 'expo-router'
-import { Hexagon, KeyRound, Plus } from 'lucide-react-native'
+import { KeyRound, Plus } from 'lucide-react-native'
 import { Text } from 'react-native'
 
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { RoleBadge } from '@/components/ui/RoleBadge'
 import { Screen } from '@/components/ui/Screen'
@@ -27,7 +28,7 @@ export default function OrganizationsScreen() {
         {state.memberships.map((m) => (
           <ListItem
             key={m.organization_id}
-            icon={Hexagon}
+            icon={Honeycomb}
             title={m.organization_name}
             subtitle={m.organization_id === state.activeOrganizationId ? 'Finca actual' : undefined}
             trailing={<RoleBadge role={m.role} />}

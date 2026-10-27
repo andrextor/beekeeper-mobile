@@ -1,4 +1,4 @@
-import { Hexagon, Save, Trash2 } from 'lucide-react-native'
+import { Save, Trash2 } from 'lucide-react-native'
 import { type ReactNode, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -7,6 +7,7 @@ import { ChipSelect } from '@/components/field/ChipSelect'
 import { StepperField } from '@/components/field/StepperField'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
+import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
 import { localDay } from '@/lib/dates'
@@ -373,7 +374,7 @@ export function EventForm(props: Props) {
           ) : (
             <Button
               variant="accent"
-              icon={Hexagon}
+              icon={Honeycomb}
               label="Crear la nueva colmena ahora"
               onPress={() => props.onCreateHive(type === 'split' ? 'split' : 'swarm_capture')}
             />

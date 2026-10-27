@@ -51,7 +51,7 @@ Plus Jakarta Sans (headings, hive names, big numbers) and Inter (everything else
 
 ## Icons
 
-`lucide-react-native` (+ `react-native-svg`), stroke 2.25 in field mode for legibility. Sizes: 24 standard, 36 in field buttons, 56 in the scan button. Same domain glyphs as the admin: hive `hexagon`, apiary `map-pin`, inspection `clipboard-check`, note `sticky-note`, photo `camera`, voice `mic`, QR `scan-qr-code` (scan) / `qr-code` (label), feeding `droplet`, treatment `syringe`, harvest `package`, queen `crown`, sync `cloud-upload`/`cloud-check`.
+`lucide-react-native` (+ `react-native-svg`), stroke 2.25 in field mode for legibility. Sizes: 24 standard, 36 in field buttons, 56 in the scan button. Same domain glyphs as the admin: hive `Honeycomb` (three cells, `src/components/ui/icons.ts`; the admin still draws `hexagon`), apiary `map-pin`, inspection `clipboard-check`, note `sticky-note`, photo `camera`, voice `mic`, QR `scan-qr-code` (scan) / `qr-code` (label), feeding `droplet`, treatment `syringe`, harvest `package`, queen `crown`, sync `cloud-upload`/`cloud-check`.
 
 ## Layout and touch
 

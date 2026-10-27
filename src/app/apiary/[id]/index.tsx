@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, MapPin, Navigation, Pencil, Plus, Printer } from 'lucide-react-native'
+import { MapPin, Navigation, Pencil, Plus, Printer } from 'lucide-react-native'
 import { useState } from 'react'
 import { FlatList, Linking, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -9,6 +9,7 @@ import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FormError } from '@/components/ui/FormError'
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { ApiaryFacts, mapUrl } from '@/features/apiaries/ApiaryFacts'
 import { useApiary } from '@/features/apiaries/queries'
@@ -104,7 +105,7 @@ export default function ApiaryScreen() {
         }
         ListEmptyComponent={
           <EmptyState
-            icon={Hexagon}
+            icon={Honeycomb}
             title={all ? 'Este apiario no tiene colmenas.' : 'No hay colmenas activas.'}
           />
         }

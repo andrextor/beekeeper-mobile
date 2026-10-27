@@ -1,11 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, Lock, ScanQrCode, Sparkles } from 'lucide-react-native'
+import { Lock, ScanQrCode, Sparkles } from 'lucide-react-native'
 import { useState } from 'react'
 import { Text, View } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { showToast } from '@/components/ui/ToastHost'
@@ -28,7 +29,7 @@ export default function RelabelScreen() {
   if (!owner)
     return <NotAvailable icon={Lock} title="Solo el propietario puede cambiar la etiqueta." />
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
 
   const apply = async (code: string) => {
     setScanning(false)

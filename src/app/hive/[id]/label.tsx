@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, Printer, RefreshCw, Share2 } from 'lucide-react-native'
+import { Printer, RefreshCw, Share2 } from 'lucide-react-native'
 import { useState } from 'react'
 import { Text, View } from 'react-native'
 
@@ -7,6 +7,7 @@ import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { FormError } from '@/components/ui/FormError'
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { useRole } from '@/features/auth/session'
@@ -26,7 +27,7 @@ export default function HiveLabelScreen() {
   const [error, setError] = useState<string | null>(null)
 
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
 
   const run = async (kind: 'share' | 'print') => {
     setBusy(kind)

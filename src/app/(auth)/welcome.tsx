@@ -1,8 +1,8 @@
 import { router } from 'expo-router'
-import { Hexagon } from 'lucide-react-native'
 import { Text, View } from 'react-native'
 
 import { Button } from '@/components/ui/Button'
+import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { color, iconSize } from '@/lib/theme'
 
@@ -10,7 +10,7 @@ export default function WelcomeScreen() {
   return (
     <Screen scroll={false}>
       <View className="flex-1 justify-center gap-4">
-        <Hexagon color={color.primary} size={iconSize.hero} />
+        <Honeycomb color={color.primary} size={iconSize.hero} />
         <Text accessibilityRole="header" className="font-display text-title text-text">
           Landak Apiario
         </Text>

@@ -10,6 +10,7 @@ import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { useCallback, useEffect, useState } from 'react'
+import { LogBox } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import { DbError } from '@/components/ui/DbError'
@@ -19,6 +20,12 @@ import { SessionProvider, useSession } from '@/features/auth/session'
 import { color } from '@/lib/theme'
 
 SplashScreen.preventAutoHideAsync()
+
+// Both come from inside expo-router / React Navigation, not from app code: nothing to migrate here.
+LogBox.ignoreLogs([
+  'ImageBackground is deprecated',
+  'navigation.isFocused() was called while rendering',
+])
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({

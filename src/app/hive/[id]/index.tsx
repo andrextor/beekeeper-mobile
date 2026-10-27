@@ -4,7 +4,6 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardCheck,
-  Hexagon,
   ListPlus,
   Pencil,
   QrCode,
@@ -16,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackButton } from '@/components/ui/BackButton'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { SyncChip } from '@/components/ui/SyncChip'
@@ -56,7 +56,7 @@ export default function HiveScreen() {
   const newDraft = drafts.find((d) => !d.is_edit)
 
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
 
   return (
     <View className="flex-1 bg-bg-soft">
