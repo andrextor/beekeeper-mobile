@@ -19,7 +19,7 @@ import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { SyncChip } from '@/components/ui/SyncChip'
-import { useRole, useSession } from '@/features/auth/session'
+import { useCanRecord, useRole, useSession } from '@/features/auth/session'
 import { AttentionCard } from '@/features/hives/AttentionCard'
 import { hiveAttention } from '@/features/hives/attention'
 import { HiveFacts } from '@/features/hives/HiveFacts'
@@ -42,6 +42,7 @@ export default function HiveScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const owner = useRole() === 'owner'
+  const canRecord = useCanRecord()
   const { state } = useSession()
   const userId = state.status === 'signedIn' ? state.session.user.id : null
   const { hive, loading } = useHive(id)
@@ -80,7 +81,7 @@ export default function HiveScreen() {
         ) : queue.pending > 0 ? (
           <SyncChip state="pending" count={queue.pending} />
         ) : null}
-        {drafts.map((d) => (
+        {(canRecord ? drafts : []).map((d) => (
           <DraftCard
             key={d.id}
             draft={d}
@@ -101,12 +102,14 @@ export default function HiveScreen() {
           onPress={() => setShowFacts((v) => !v)}
         />
         {showFacts ? <HiveFacts hive={hive} /> : null}
-        <Button
-          variant="accent"
-          icon={ListPlus}
-          label="Registrar actividad"
-          onPress={() => router.push({ pathname: '/hive/[id]/event/new', params: { id } })}
-        />
+        {canRecord ? (
+          <Button
+            variant="accent"
+            icon={ListPlus}
+            label="Registrar actividad"
+            onPress={() => router.push({ pathname: '/hive/[id]/event/new', params: { id } })}
+          />
+        ) : null}
         <Button
           variant="secondary"
           icon={QrCode}
@@ -133,33 +136,39 @@ export default function HiveScreen() {
               }
             />
           ) : null}
-          <Button
-            variant="secondary"
-            icon={Camera}
-            label={photos.length ? 'Ver todas las fotos' : 'Tomar foto'}
-            onPress={() =>
-              photos.length
-                ? router.push({ pathname: '/hive/[id]/photos', params: { id } })
-                : router.push({ pathname: '/hive/[id]/camera', params: { id } })
-            }
-          />
+          {photos.length || canRecord ? (
+            <Button
+              variant="secondary"
+              icon={Camera}
+              label={photos.length ? 'Ver todas las fotos' : 'Tomar foto'}
+              onPress={() =>
+                photos.length
+                  ? router.push({ pathname: '/hive/[id]/photos', params: { id } })
+                  : router.push({ pathname: '/hive/[id]/camera', params: { id } })
+              }
+            />
+          ) : (
+            <Text className="font-sans text-body text-muted">Esta colmena aún no tiene fotos.</Text>
+          )}
         </View>
         <TimelineList
           timeline={timeline}
-          canEditEvent={(createdBy) => owner || createdBy === userId}
+          canEditEvent={(createdBy) => canRecord && (owner || createdBy === userId)}
         />
       </Screen>
-      <View
-        className="border-t border-border bg-bg px-4 pt-3"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        <Button
-          icon={ClipboardCheck}
-          label={newDraft ? 'Continuar revisión' : 'Nueva revisión'}
-          className="min-h-field"
-          onPress={() => router.push({ pathname: '/hive/[id]/inspect', params: { id } })}
-        />
-      </View>
+      {canRecord ? (
+        <View
+          className="border-t border-border bg-bg px-4 pt-3"
+          style={{ paddingBottom: insets.bottom + 12 }}
+        >
+          <Button
+            icon={ClipboardCheck}
+            label={newDraft ? 'Continuar revisión' : 'Nueva revisión'}
+            className="min-h-field"
+            onPress={() => router.push({ pathname: '/hive/[id]/inspect', params: { id } })}
+          />
+        </View>
+      ) : null}
     </View>
   )
 }

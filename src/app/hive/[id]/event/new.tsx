@@ -10,7 +10,8 @@ import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import type { ServerRow } from '@/db/mapping'
 import { useApiaryNames } from '@/features/apiaries/queries'
-import { useRole, useSession } from '@/features/auth/session'
+import { ReadOnly } from '@/features/auth/ReadOnly'
+import { useCanRecord, useRole, useSession } from '@/features/auth/session'
 import { EventForm, type EventResult } from '@/features/events/EventForm'
 import { hiveEffects } from '@/features/events/effects'
 import { useRecentProducts } from '@/features/events/queries'
@@ -33,6 +34,7 @@ export default function NewEventScreen() {
   }>()
   const { state } = useSession()
   const owner = useRole() === 'owner'
+  const canRecord = useCanRecord()
   const { hive, loading } = useHive(id)
   const apiaries = useApiaryNames(hive?.organization_id ?? '')
   const apiaryHives = useHiveNames(hive?.apiary_id ?? '').names
@@ -47,6 +49,7 @@ export default function NewEventScreen() {
     }, []),
   )
 
+  if (!canRecord) return <ReadOnly />
   if (!hive)
     return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
   const userId = state.status === 'signedIn' ? state.session.user.id : ''
