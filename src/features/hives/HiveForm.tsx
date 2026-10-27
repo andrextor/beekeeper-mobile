@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { Title } from '@/components/ui/Title'
 import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
 import { fieldErrors } from '@/lib/form'
@@ -120,9 +119,8 @@ export function HiveForm({
 
   return (
     <View className="flex-1 bg-bg-soft">
-      <Screen>
+      <Screen hero={{ title }}>
         {header}
-        <Title text={title} />
         <TextField
           label="Nombre *"
           value={name}

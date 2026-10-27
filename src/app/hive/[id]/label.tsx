@@ -10,7 +10,6 @@ import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
-import { Title } from '@/components/ui/Title'
 import { useRole } from '@/features/auth/session'
 import { useHive } from '@/features/hives/queries'
 import { singleLabelHtml } from '@/features/qr/label-html'
@@ -45,9 +44,8 @@ export default function HiveLabelScreen() {
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Etiqueta QR' }}>
       <BackButton />
-      <Title text="Etiqueta QR" />
       <Card className="items-center gap-3">
         <Text className="font-display text-title text-text">{hive.name}</Text>
         <View className="rounded-card bg-white p-2">
