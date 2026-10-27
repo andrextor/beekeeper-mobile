@@ -47,7 +47,7 @@ Spec: `docs/superpowers/specs/ok-2026-10-26-mobile-14-viewer-role-design.md` · 
      - `docs/ROADMAP.md`: M14 row.
      - `docs/phone-pass.md`: new section 12, the steps below.
 
-6. **WhatsApp directly** (addendum, waiting for OK). `feat(members): Compartir por WhatsApp opens WhatsApp with the invite`
+6. **WhatsApp directly** (addendum, approved). `feat(members): Compartir por WhatsApp opens WhatsApp with the invite`
    - **Files:**
      - `src/app/invite.tsx`: `Linking.openURL('whatsapp://send?text=…')`, falling back to `Share.share` on any failure.
      - `docs/install.md`: the code lasts 30 days.

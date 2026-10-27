@@ -57,7 +57,7 @@ Screens:
 - **Invitar persona** (`src/app/invite.tsx`): the chips offer the three roles, Revisor is the default, and the help line follows the chosen chip.
 - **Person sheet** (`MemberSheet`): the "Hacer revisor / Hacer propietario" toggle can't express three roles. It becomes the same chips, preselected on the current role, with the help line and a **Cambiar rol** button. The button is disabled while the chosen role equals the current one. "Quitar de la finca" and "Cerrar" stay. The server keeps the last-owner rule, and its message passes through as it does today.
 
-### 6. Addendum (Iván, 2026-10-26, waiting for OK): WhatsApp opens directly; codes last 30 days
+### 6. Addendum (Iván, 2026-10-26, approved): WhatsApp opens directly; codes last 30 days
 
 - **WhatsApp directly.** In `src/app/invite.tsx`, "Compartir por WhatsApp" calls `Linking.openURL('whatsapp://send?text=' + encodeURIComponent(inviteMessage(...)))`.
   - If WhatsApp is missing or `openURL` rejects, it falls back to `Share.share` with the same message, so the owner can still pick SMS, email or any other app.

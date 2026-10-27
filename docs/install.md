@@ -13,7 +13,7 @@ Guía para apicultores. Toma unos 5 minutos y necesita internet solo para descar
 
 ## Ingresar
 
-- **Si te invitaron:** toca **Crear cuenta**, escribe tu correo y una contraseña, y luego **Tengo un código** con el código que te mandaron (por ejemplo `K7M2-9QXA`). Sirve una sola vez y vence en 7 días.
+- **Si te invitaron:** toca **Crear cuenta**, escribe tu correo y una contraseña, y luego **Tengo un código** con el código que te mandaron (por ejemplo `K7M2-9QXA`). Sirve una sola vez y vence en 30 días.
 - **Si ya tienes cuenta:** **Ingresar** con tu correo y contraseña.
 - **Si eres el dueño y empiezas:** **Crear cuenta** y luego **Crear mi finca**.
 

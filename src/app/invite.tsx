@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 import { Lock, Share2 } from 'lucide-react-native'
 import { useState } from 'react'
-import { Share, Text } from 'react-native'
+import { Linking, Share, Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
@@ -18,6 +18,15 @@ import { RolePicker } from '@/features/members/RolePicker'
 import type { Role } from '@/features/sync/members'
 import { messageFor } from '@/lib/errors'
 import { formatDate } from '@/lib/format'
+
+/** WhatsApp straight away; without it (or if it refuses) the system share menu. */
+async function shareByWhatsApp(message: string) {
+  try {
+    await Linking.openURL(`whatsapp://send?text=${encodeURIComponent(message)}`)
+  } catch {
+    await Share.share({ message })
+  }
+}
 
 /** The plain code exists only in `create_invite`'s answer: shown here once, never stored. */
 export default function InviteScreen() {
@@ -64,9 +73,9 @@ export default function InviteScreen() {
           label="Compartir por WhatsApp"
           className="min-h-field"
           onPress={() =>
-            void Share.share({
-              message: inviteMessage(active.organization_name, created.code, created.expires_at),
-            })
+            void shareByWhatsApp(
+              inviteMessage(active.organization_name, created.code, created.expires_at),
+            )
           }
         />
         <Button variant="secondary" label="Listo" onPress={() => router.back()} />
