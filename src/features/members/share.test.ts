@@ -14,7 +14,7 @@ describe('shareByWhatsApp', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('opens WhatsApp with the message encoded', async () => {
-    openURL.mockResolvedValue(true)
+    openURL.mockResolvedValue(undefined)
     await shareByWhatsApp('Código: K7M2 & más')
     expect(openURL).toHaveBeenCalledWith(
       `whatsapp://send?text=${encodeURIComponent('Código: K7M2 & más')}`,
@@ -24,7 +24,7 @@ describe('shareByWhatsApp', () => {
 
   it('falls back to the share menu when WhatsApp is missing', async () => {
     openURL.mockRejectedValue(new Error('No Activity found'))
-    share.mockResolvedValue({ action: 'sharedAction' })
+    share.mockResolvedValue({ action: 'sharedAction', activityType: undefined })
     await shareByWhatsApp('hola')
     expect(share).toHaveBeenCalledWith({ message: 'hola' })
   })
