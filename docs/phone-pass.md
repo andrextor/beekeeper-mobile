@@ -97,7 +97,7 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 - [ ] 9.8 ➜ Toca una actividad → edítala → bórrala → Deshacer. ✓ Vuelve.
 
 ### 10. Personas e invitaciones (M11) — owner con conexión
-- [ ] 10.1 ➜ Perfil → **Personas de la finca** → **Invitar persona** → "Ayudante", Revisor. ✓ Muestra el código → **Compartir por WhatsApp** ✓ abre WhatsApp directo con el mensaje (sin WhatsApp: el menú de compartir); mándatelo a ti mismo. Anota el código.
+- [ ] 10.1 ➜ Perfil → **Personas de la finca** → **Invitar persona** → "Ayudante", Revisor. ✓ Muestra el código → **Compartir por WhatsApp** ✓ abre WhatsApp directo con el mensaje (sin WhatsApp: el menú de compartir); **Compartir de otra forma** abre el menú siempre. Mándatelo a ti mismo. Anota el código.
 - [ ] 10.2 ➜ Cierra sesión → Crear cuenta nueva → **Tengo un código** → escribe el código. ✓ Entras a Finca Landak como Revisor, sin "Invitar persona".
 - [ ] 10.3 ➜ Otra cuenta nueva con el mismo código. ✓ "El código no es válido…".
 - [ ] 10.4 ➜ Como owner: Personas → Ayudante → chip **Propietario** → **Cambiar rol**. ✓ Al entrar como Ayudante (tras sincronizar) tiene botones de propietario. Devuélvelo a Revisor.
