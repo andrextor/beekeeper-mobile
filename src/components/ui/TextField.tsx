@@ -44,7 +44,7 @@ export function TextField({ label, hint, error, trailing, onFocus, onBlur, ...in
             ref={ref}
             accessibilityLabel={label}
             accessibilityHint={error ?? hint}
-            placeholderTextColor={color.muted}
+            placeholderTextColor={color.placeholder}
             className="min-h-7 p-0 font-sans text-body text-text"
             onFocus={(e) => {
               setFocused(true)

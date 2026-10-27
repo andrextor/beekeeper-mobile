@@ -4,6 +4,8 @@ import colors from './colors.json'
 export const color = {
   text: colors.deep,
   muted: colors.stone['700'],
+  /** Lighter than `muted` so an empty field never reads as filled in. */
+  placeholder: colors.stone['500'],
   primary: colors.leaf,
   onPrimary: colors.white,
   accent: colors.honey,
