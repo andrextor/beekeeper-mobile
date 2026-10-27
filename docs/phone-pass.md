@@ -28,7 +28,7 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 **Trucos en el 📱**
 - **Cambiar de usuario**: pestaña **Perfil** → **Cerrar sesión** → **Iniciar sesión** con el otro. Cerrar sesión borra los datos del teléfono: hazlo solo con **Pendientes** vacío.
 - **Matar la app**: botón de apps recientes (el cuadrado o deslizar desde abajo y sostener) → desliza la app fuera.
-- **Modo avión**: desliza desde arriba → ícono del avión.
+- **Modo avión**: desliza desde arriba → ícono del avión. **Revisa que el Wi-Fi quede apagado también**: si alguna vez prendiste el Wi-Fi en modo avión, Android lo vuelve a prender solo, y con Wi-Fi la app sigue llegando al Mac y sincroniza (verás el ícono de Wi-Fi junto al avión).
 - **Con la app de desarrollo, el modo avión también corta Metro y el Supabase del Mac.** La app sigue funcionando porque ya cargó, pero **no la recargues** (ni `r` en Metro ni sacudir el teléfono) mientras estés en modo avión: quedaría en blanco. Al quitar el modo avión y prender el Wi-Fi vuelve sola. Si la matas en modo avión, al abrirla puede pedir el servidor: quita el modo avión y elige el servidor de nuevo; los datos siguen ahí.
 
 ### 1. Cuentas (M2)
@@ -40,7 +40,7 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 
 ### 2. Sincronización (M3) — 📱 entra como `owner@landak.test`
 - [x] 2.1 📱 Abajo, pestaña **Pendientes**. ✓ Arriba dice "Sincronizado".
-- [ ] 2.2 📱 Activa el **modo avión** → pestaña **Apiarios** → **Nuevo apiario** → ponle un nombre → **Guardar** → ábrelo → **Nueva colmena** → nombre → **Guardar**. ✓ Cada guardado dice "Guardado en este dispositivo". ➜ Pestaña **Pendientes**. ✓ "Sin conexión — 2 guardados en este dispositivo".
+- [ ] 2.2 📱 Activa el **modo avión** y apaga el **Wi-Fi** (arriba no debe quedar el ícono de Wi-Fi) → pestaña **Apiarios** → **Nuevo apiario** → ponle un nombre → **Guardar** → ábrelo → **Nueva colmena** → nombre → **Guardar**. ✓ Cada guardado dice "Guardado en este dispositivo". ➜ Pestaña **Pendientes**. ✓ "Sin conexión — 2 guardados en este dispositivo".
 - [ ] 2.3 📱 Sigue en modo avión: mata la app y ábrela. ✓ El apiario y la colmena siguen en **Apiarios**.
 - [ ] 2.4 📱 Quita el modo avión **y prende el Wi-Fi** (el Supabase está en tu Mac: solo se llega por el Wi-Fi de la casa, no con datos móviles) → espera unos segundos en **Pendientes**. ✓ "Sincronizado". 🗄️ Studio → tablas `apiaries` y `hives`. ✓ El apiario y la colmena aparecen **una sola vez** cada uno.
 - [ ] 2.5 📱 **Perfil** → **Galería de componentes** (solo en la app de desarrollo) → sección "Sincronización (pruebas)" → toca **Forzar error** hasta que diga "activado" → crea un apiario. ➜ **Pendientes**. ✓ El registro aparece con "Intento 1 · …". ➜ Vuelve a la galería y déjalo en "apagado". ✓ Se sincroniza.
