@@ -7,17 +7,16 @@ import { Text, View } from 'react-native'
 import { ChipSelect } from '@/components/field/ChipSelect'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { FormError } from '@/components/ui/FormError'
 import { RoleBadge } from '@/components/ui/RoleBadge'
 import { Screen } from '@/components/ui/Screen'
-import { Sheet } from '@/components/ui/Sheet'
 import { TextField } from '@/components/ui/TextField'
 import { Title } from '@/components/ui/Title'
 import { Toast } from '@/components/ui/Toast'
 import { getDb } from '@/db/database'
 import { useLocalQuery } from '@/db/useLocalQuery'
 import { updateDisplayName } from '@/features/auth/organizations'
-import { signOut, useActiveMembership, useSession } from '@/features/auth/session'
+import { SignOutSheet } from '@/features/auth/SignOutSheet'
+import { useActiveMembership, useSession } from '@/features/auth/session'
 import { mobileDataSetting, writeSetting } from '@/features/sync/network-policy'
 import { pendingCount } from '@/features/sync/pending'
 import { syncNow } from '@/features/sync/triggers'
@@ -34,8 +33,6 @@ export default function ProfileScreen() {
   const [savingName, setSavingName] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [signOutPending, setSignOutPending] = useState<number | null>(null)
-  const [signOutError, setSignOutError] = useState<string | null>(null)
-  const [signingOut, setSigningOut] = useState(false)
 
   const userId = state.status === 'signedIn' ? state.session.user.id : null
 
@@ -73,18 +70,6 @@ export default function ProfileScreen() {
       setNameError(isNetworkError(e) ? offlineEdit : messageFor(e))
     } finally {
       setSavingName(false)
-    }
-  }
-
-  const confirmSignOut = async () => {
-    setSigningOut(true)
-    setSignOutError(null)
-    try {
-      await signOut()
-    } catch (e) {
-      setSignOutError(isNetworkError(e) ? 'Necesitas conexión para cerrar sesión.' : messageFor(e))
-    } finally {
-      setSigningOut(false)
     }
   }
 
@@ -170,36 +155,15 @@ export default function ProfileScreen() {
         ) : null}
       </Screen>
 
-      <Sheet
-        visible={signOutPending !== null}
-        title="Cerrar sesión"
+      <SignOutSheet
+        pending={signOutPending}
         onClose={() => setSignOutPending(null)}
-      >
-        <Text className="font-sans text-body text-text">
-          {signOutPending
-            ? `Tienes ${signOutPending} registros sin sincronizar. Si cierras sesión se perderán.`
-            : 'Se borrarán de este teléfono los datos de tu finca. Vuelven al ingresar de nuevo.'}
-        </Text>
-        <FormError message={signOutError} />
-        {signOutPending ? (
-          <Button
-            label="Sincronizar primero"
-            onPress={() => {
-              setSignOutPending(null)
-              void syncNow()
-              router.navigate('/pending')
-            }}
-          />
-        ) : (
-          <Button variant="ghost" label="Cancelar" onPress={() => setSignOutPending(null)} />
-        )}
-        <Button
-          variant="danger"
-          label={signOutPending ? 'Cerrar sesión igual' : 'Cerrar sesión'}
-          loading={signingOut}
-          onPress={confirmSignOut}
-        />
-      </Sheet>
+        onSyncFirst={() => {
+          setSignOutPending(null)
+          void syncNow()
+          router.navigate('/pending')
+        }}
+      />
       <Toast message={toast} onHide={() => setToast(null)} />
     </View>
   )

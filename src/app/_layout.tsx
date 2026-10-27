@@ -21,10 +21,11 @@ import { color } from '@/lib/theme'
 
 SplashScreen.preventAutoHideAsync()
 
-// Both come from inside expo-router / React Navigation, not from app code: nothing to migrate here.
+// Both come from inside expo-router / React Navigation, not from app code. The focus one is
+// pinned to the router's own root screen, so the same mistake in an app screen still shows.
 LogBox.ignoreLogs([
   'ImageBackground is deprecated',
-  'navigation.isFocused() was called while rendering',
+  "navigation.isFocused() was called while rendering the screen '__root'",
 ])
 
 export default function RootLayout() {
