@@ -21,8 +21,8 @@ export function AttentionCard({ items }: { items: AttentionItem[] }) {
     <View
       accessibilityRole="alert"
       className={cx(
-        'gap-3 rounded-card border-2 p-4',
-        danger ? 'border-danger bg-surface' : 'border-accent bg-surface',
+        'gap-3 rounded-card p-4',
+        danger ? 'bg-danger-soft' : 'bg-accent-soft',
       )}
     >
       {items.map((item) => {

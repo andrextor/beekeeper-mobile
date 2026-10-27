@@ -29,7 +29,7 @@ export function Sheet({ visible, title, onClose, children }: Props) {
         />
         <View
           style={{ paddingBottom: insets.bottom + 16 }}
-          className="gap-4 rounded-t-3xl bg-bg px-4 pt-3"
+          className="gap-4 rounded-t-sheet bg-bg-soft px-4 pt-3"
         >
           <View className="h-1.5 w-12 self-center rounded-full bg-stone-300" />
           <Text accessibilityRole="header" className="font-display text-section text-text">

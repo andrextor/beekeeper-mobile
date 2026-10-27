@@ -17,6 +17,7 @@ export const color = {
   onPrimarySoft: colors.onPrimarySoft,
   onDangerSoft: colors.onDangerSoft,
   mist: colors.mist,
+  sprout: colors.sprout,
 } as const
 
 /** RN `boxShadow` (New Architecture); NativeWind's shadow classes do not reach Android. */

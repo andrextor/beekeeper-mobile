@@ -1,6 +1,8 @@
 import { ClipboardCheck } from 'lucide-react-native'
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
+import { Card } from '@/components/ui/Card'
+import { IconTile } from '@/components/ui/IconTile'
 import { SyncChip } from '@/components/ui/SyncChip'
 import { eventIcon } from '@/lib/event-icons'
 import { eventSummary } from '@/lib/event-summary'
@@ -8,7 +10,6 @@ import { formatDateTime } from '@/lib/format'
 import { isRecord } from '@/lib/guards'
 import { inspectionSummary } from '@/lib/inspection-summary'
 import { inspectionSourceLabels, label } from '@/lib/labels'
-import { color, iconSize } from '@/lib/theme'
 import type { TimelineItem } from './timeline'
 
 const noteText = (details: unknown) =>
@@ -31,13 +32,8 @@ export function TimelineItemView({
   const author = item.author ?? 'Antiguo miembro'
 
   return (
-    <Pressable
-      accessibilityRole={onOpen ? 'button' : undefined}
-      disabled={!onOpen}
-      onPress={onOpen ?? undefined}
-      className="min-h-target flex-row gap-3 rounded-card border border-border bg-surface p-4 active:bg-stone-100"
-    >
-      <Icon color={color.text} size={iconSize.standard} />
+    <Card onPress={onOpen ?? undefined} className="min-h-target flex-row gap-3">
+      <IconTile icon={Icon} tone={inspection ? 'primary' : 'accent'} />
       <View className="flex-1 gap-1">
         <Text className="font-sans-semibold text-body text-text" numberOfLines={inspection ? 1 : 2}>
           {title}
@@ -60,6 +56,6 @@ export function TimelineItemView({
         {item.sync === 'pending' ? <SyncChip state="pending" /> : null}
         {item.sync === 'attention' ? <SyncChip state="attention" /> : null}
       </View>
-    </Pressable>
+    </Card>
   )
 }

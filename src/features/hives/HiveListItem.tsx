@@ -1,6 +1,8 @@
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
 import { Badge, type BadgeTone } from '@/components/ui/Badge'
+import { Card } from '@/components/ui/Card'
+import { IconTile } from '@/components/ui/IconTile'
 import { Honeycomb } from '@/components/ui/icons'
 import { formatLastInspection } from '@/lib/format'
 import {
@@ -10,7 +12,6 @@ import {
   label,
   queenColorLabels,
 } from '@/lib/labels'
-import { color, iconSize } from '@/lib/theme'
 import { QueenDot } from './QueenDot'
 import type { HiveSummary } from './queries'
 
@@ -24,12 +25,8 @@ export function HiveListItem({ hive, onPress }: { hive: HiveSummary; onPress: ()
   const soon = hive.attention_level === 'soon'
   const type = hive.hive_type ? label(hiveTypeLabels, hive.hive_type) : null
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      className="min-h-target flex-row items-center gap-3 rounded-card border border-border bg-surface p-4 active:bg-stone-100"
-    >
-      <Honeycomb color={color.text} size={iconSize.standard} />
+    <Card onPress={onPress} className="min-h-target flex-row items-center gap-3">
+      <IconTile icon={Honeycomb} tone={urgent ? 'danger' : soon ? 'accent' : 'primary'} />
       <View className="flex-1 gap-1">
         <View className="flex-row flex-wrap items-center gap-2">
           <Text className="font-display text-section text-text">{hive.name}</Text>
@@ -63,6 +60,6 @@ export function HiveListItem({ hive, onPress }: { hive: HiveSummary; onPress: ()
           {formatLastInspection(hive.last_inspection)}
         </Text>
       </View>
-    </Pressable>
+    </Card>
   )
 }

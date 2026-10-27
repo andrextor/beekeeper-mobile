@@ -63,7 +63,7 @@ function Header({ status }: { status: SyncStatus }) {
       />
       <FormError message={status.error} />
       {waitingPhotos > 0 && !onWifi ? (
-        <View className="gap-2 rounded-card border-2 border-accent p-3">
+        <View className="gap-2 rounded-card bg-accent-soft p-3">
           <Text className="font-sans-semibold text-body text-text">
             {`${plural(waitingPhotos, 'foto esperando', 'fotos esperando')} Wi-Fi`}
           </Text>

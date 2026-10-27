@@ -251,7 +251,7 @@ export function FieldInspection({
       >
         <FormError message={failure} />
         {Object.keys(problems).length ? (
-          <View accessibilityRole="alert" className="gap-3 rounded-card border-2 border-danger p-4">
+          <View accessibilityRole="alert" className="gap-3 rounded-card bg-danger-soft p-4">
             <View className="flex-row items-center gap-2">
               <TriangleAlert color={color.danger} size={iconSize.field} />
               <Text className="flex-1 font-sans-semibold text-field-label text-text">

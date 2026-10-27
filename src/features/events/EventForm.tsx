@@ -66,7 +66,7 @@ const ownerNotice = 'Avisa al propietario para que actualice la colmena.'
 
 function Notice({ text }: { text: string }) {
   return (
-    <View className="rounded-card border-2 border-accent p-3">
+    <View className="rounded-card bg-accent-soft p-3">
       <Text className="font-sans text-body text-text">{text}</Text>
     </View>
   )
