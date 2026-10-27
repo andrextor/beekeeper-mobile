@@ -22,7 +22,7 @@
       },
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://dhacyrwngqegqjffpten.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "PASTE_SB_PUBLISHABLE_KEY"
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_WKOEhnuPNOuRFnA4y0RPbA_6C6ZS8I5"
       }
     },
     "production": {
