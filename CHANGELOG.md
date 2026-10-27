@@ -11,6 +11,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - A button that starts disabled (Ingresar, Cambiar rol…) no longer remounts when it turns on; in the dev build, typing the password on Iniciar sesión crashed with "Couldn't find a LinkingContext context".
 - Placeholders (`nombre@correo.com`…) are a lighter gray, so an empty field no longer looks filled in.
 - An apiary with no details no longer shows an empty white card under Volver.
+- Cámaras de cría, Alzas and Alzas retiradas: the first + gives 1, not 0 (− still reaches 0, then "Sin dato").
 
 ### Changed
 

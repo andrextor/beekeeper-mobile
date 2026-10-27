@@ -163,6 +163,7 @@ export function HiveForm({
             onChange={(v) => set('brood_boxes', v)}
             min={0}
             max={5}
+            start={1}
           />
           <StepperField
             label="Alzas"
@@ -170,6 +171,7 @@ export function HiveForm({
             onChange={(v) => set('supers', v)}
             min={0}
             max={10}
+            start={1}
           />
         </Group>
         <Group title="Colonia">
