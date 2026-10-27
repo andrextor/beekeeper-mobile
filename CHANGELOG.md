@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-26
+
+### Changed
+
+- Every screen outside field mode opens with the dark honeycomb band (spec M15): Iniciar sesión, Crear cuenta, Tengo un código, Empecemos, Apiarios, Pendientes, Perfil, fincas, Personas, Invitar, apiary and hive forms, Etiqueta QR, Fotos, Cambiar etiqueta, Revisión and activities. Lists scroll the band away; long titles moved their context (hive, finca) to the small line above.
+- "¿Olvidaste tu contraseña?" is a link, like "Crear cuenta" (shared `TextLink`).
+- App icon and splash use the honeycomb mark in honey on the deep band color, replacing the placeholder hexagon. Needs a new APK.
+
 ## [1.2.1] - 2026-10-26
 
 ### Fixed
