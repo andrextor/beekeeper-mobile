@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { Title } from '@/components/ui/Title'
 import { PasswordField } from '@/features/auth/PasswordField'
 import { errorCode, messageFor, minPasswordLength, passwordTooShort } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
@@ -42,9 +41,8 @@ export default function SignUpScreen() {
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Crear cuenta' }}>
       <BackButton />
-      <Title text="Crear cuenta" />
       <TextField
         label="Tu correo"
         value={email}

@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
@@ -8,7 +8,7 @@ import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { TextField } from '@/components/ui/TextField'
-import { Title } from '@/components/ui/Title'
+import { TextLink } from '@/components/ui/TextLink'
 import { PasswordField } from '@/features/auth/PasswordField'
 import { lastSignedInEmail } from '@/features/auth/session'
 import { pendingCount } from '@/features/sync/pending'
@@ -61,9 +61,8 @@ export default function SignInScreen() {
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Iniciar sesión' }}>
       <BackButton />
-      <Title text="Iniciar sesión" />
       <TextField
         label="Tu correo"
         value={email}
@@ -89,11 +88,9 @@ export default function SignInScreen() {
         disabled={!email.trim() || !password}
         onPress={submit}
       />
-      <Button
-        variant="secondary"
-        label="¿Olvidaste tu contraseña?"
-        onPress={() => setForgot(true)}
-      />
+      <View className="items-center">
+        <TextLink label="¿Olvidaste tu contraseña?" onPress={() => setForgot(true)} />
+      </View>
 
       <Sheet visible={forgot} title="¿Olvidaste tu contraseña?" onClose={() => setForgot(false)}>
         <Text className="font-sans text-body text-text">
