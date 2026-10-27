@@ -2,12 +2,10 @@ import { router } from 'expo-router'
 import { MapPin, Plus, SearchX } from 'lucide-react-native'
 import { useState } from 'react'
 import { FlatList, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ListHero } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { Title } from '@/components/ui/Title'
 import { ApiaryListItem } from '@/features/apiaries/ApiaryListItem'
 import { useApiaries } from '@/features/apiaries/queries'
 import { useRole, useSession } from '@/features/auth/session'
@@ -15,7 +13,6 @@ import { fold } from '@/lib/text'
 import { color } from '@/lib/theme'
 
 export default function ApiariesScreen() {
-  const insets = useSafeAreaInsets()
   const { state } = useSession()
   const owner = useRole() === 'owner'
   const organizationId = state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : ''
@@ -42,14 +39,13 @@ export default function ApiariesScreen() {
   )
 
   return (
-    <View className="flex-1 bg-bg-soft" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-bg-soft">
       <FlatList
         data={shown}
         keyExtractor={(apiary) => apiary.id}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
-          <View className="gap-4 pb-4">
-            <Title text="Apiarios" />
+          <ListHero hero={{ title: 'Apiarios' }}>
             {apiaries.length > 0 ? (
               <TextField
                 label="Buscar"
@@ -59,7 +55,7 @@ export default function ApiariesScreen() {
                 autoCorrect={false}
               />
             ) : null}
-          </View>
+          </ListHero>
         }
         ListEmptyComponent={loading ? undefined : empty}
         renderItem={({ item }) => (
