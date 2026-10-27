@@ -11,7 +11,6 @@ import { FormError } from '@/components/ui/FormError'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
-import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { useActiveMembership, useSession } from '@/features/auth/session'
@@ -132,9 +131,8 @@ export default function MembersScreen() {
 
   return (
     <View className="flex-1">
-      <Screen>
+      <Screen hero={{ title: 'Personas', eyebrow: finca }}>
         <BackButton />
-        <Title text={`Personas de ${finca ?? 'la finca'}`} />
         {loaded.status === 'offline' ? (
           <ErrorState
             title="Sin conexión"

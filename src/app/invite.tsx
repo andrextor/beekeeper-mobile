@@ -10,7 +10,6 @@ import { FormError } from '@/components/ui/FormError'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { Title } from '@/components/ui/Title'
 import { useActiveMembership } from '@/features/auth/session'
 import { createInvite, type NewInvite } from '@/features/members/api'
 import { inviteMessage } from '@/features/members/invite-message'
@@ -60,9 +59,8 @@ export default function InviteScreen() {
     }
 
     return (
-      <Screen>
+      <Screen hero={{ title: 'Código listo' }}>
         <BackButton />
-        <Title text="Código listo" />
         <Card className="items-center gap-3">
           <Text selectable className="font-mono text-code text-text">
             {created.code}
@@ -94,9 +92,8 @@ export default function InviteScreen() {
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Invitar persona' }}>
       <BackButton />
-      <Title text="Invitar persona" />
       <TextField
         label="¿Para quién es? (opcional)"
         value={label}

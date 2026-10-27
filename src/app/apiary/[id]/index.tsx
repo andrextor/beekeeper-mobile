@@ -2,7 +2,6 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { MapPin, Navigation, Pencil, Plus, Printer } from 'lucide-react-native'
 import { useState } from 'react'
 import { FlatList, Linking, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ChipSelect } from '@/components/field/ChipSelect'
 import { BackButton } from '@/components/ui/BackButton'
@@ -11,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
-import { Title } from '@/components/ui/Title'
+import { ListHero } from '@/components/ui/Screen'
 import { ApiaryFacts, mapUrl } from '@/features/apiaries/ApiaryFacts'
 import { useApiary } from '@/features/apiaries/queries'
 import { useRole } from '@/features/auth/session'
@@ -27,7 +26,6 @@ const filters = { active: 'Activas', all: 'Todas' } as const
 
 export default function ApiaryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const insets = useSafeAreaInsets()
   const owner = useRole() === 'owner'
   const { apiary, loading } = useApiary(id)
   const [all, setAll] = useState(false)
@@ -56,14 +54,13 @@ export default function ApiaryScreen() {
   const edit = () => router.push({ pathname: '/apiary/[id]/edit', params: { id } })
 
   return (
-    <View className="flex-1 bg-bg-soft" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-bg-soft">
       <FlatList
         data={hives}
         keyExtractor={(hive) => hive.id}
         ListHeaderComponent={
-          <View className="gap-4 pb-4">
+          <ListHero hero={{ title: apiary.name }}>
             <BackButton />
-            <Title text={apiary.name} />
             <ApiaryFacts apiary={apiary} />
             {map ? (
               <Button
@@ -100,7 +97,7 @@ export default function ApiaryScreen() {
               value={[all ? 'all' : 'active']}
               onChange={(value) => setAll(value[0] === 'all')}
             />
-          </View>
+          </ListHero>
         }
         ListEmptyComponent={
           <EmptyState
