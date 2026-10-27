@@ -2,8 +2,6 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { Lock } from 'lucide-react-native'
 import { useState } from 'react'
 import { FlatList, Text, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -11,8 +9,8 @@ import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { NotAvailable } from '@/components/ui/NotAvailable'
+import { ListHero } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
-import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { useRole, useSession } from '@/features/auth/session'
 import { type FincaHive, useFincaHives } from '@/features/hives/queries'
@@ -25,7 +23,6 @@ import { color } from '@/lib/theme'
 export default function AssignCodeScreen() {
   const params = useLocalSearchParams<{ code?: string }>()
   const code = parseQrPayload(params.code ?? '')
-  const insets = useSafeAreaInsets()
   const { state } = useSession()
   const owner = useRole() === 'owner'
   const hives = useFincaHives(state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : '')
@@ -54,18 +51,17 @@ export default function AssignCodeScreen() {
   }
 
   return (
-    <View className="flex-1 bg-bg-soft" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-bg-soft">
       <FlatList
         data={hives}
         keyExtractor={(hive) => hive.id}
         ListHeaderComponent={
-          <View className="gap-4 pb-4">
+          <ListHero hero={{ title: 'Asignar etiqueta' }}>
             <BackButton />
-            <Title text="Asignar etiqueta" />
             <Text className="font-sans text-body text-text">
               {`Elige la colmena que llevará el código ${groupedQrCode(code)}.`}
             </Text>
-          </View>
+          </ListHero>
         }
         ListEmptyComponent={<EmptyState icon={Honeycomb} title="Tu finca aún no tiene colmenas." />}
         renderItem={({ item }) => (

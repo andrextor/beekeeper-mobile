@@ -126,6 +126,15 @@ Necesita el backend con B8: en `../beekeeper`, en `main`, `pnpm db:reset`. Usa a
 - [ ] 12.6 ➜ Modo avión. ✓ Todo lo ya cargado se sigue leyendo.
 - [ ] 12.7 ➜ Owner lo devuelve a Revisor → en el teléfono del observador, desliza para sincronizar o abre de nuevo la app. ✓ Vuelven los botones sin cerrar sesión.
 
+### 13. Panal en todas las pantallas (M15)
+- [ ] 13.1 ➜ Cierra sesión → Bienvenida → **Iniciar sesión**. ✓ Franja oscura con panal y el título en blanco; el formulario sube como hoja clara; "Volver" arriba de la hoja. ✓ "¿Olvidaste tu contraseña?" es un link y abre su hoja.
+- [ ] 13.2 ➜ Crear cuenta, Tengo un código, Empecemos y Crea tu finca. ✓ La misma franja.
+- [ ] 13.3 ➜ Pestañas Apiarios, Pendientes y Perfil. ✓ Franja arriba; en Apiarios y Pendientes sube con la lista; Buscar sigue funcionando; en Pendientes desliza hacia abajo y sincroniza.
+- [ ] 13.4 ➜ Perfil → Tus fincas, Personas (la finca en la línea pequeña), Invitar persona y Código listo. ✓ Franja.
+- [ ] 13.5 ➜ Un apiario (lista de colmenas), Nuevo / Editar apiario, Nueva / Editar colmena, Etiqueta QR, Fotos, Cambiar etiqueta (la colmena en la línea pequeña), una Revisión y Registrar actividad (tipo arriba, colmena en la línea pequeña). ✓ Franja y Volver en la hoja.
+- [ ] 13.6 ➜ Nueva revisión (modo campo), Escanear y la cámara. ✓ Igual que antes: sin franja.
+- [ ] 13.7 Con el APK nuevo (no OTA): ✓ El ícono en el cajón de apps es el panal ámbar sobre fondo azul oscuro, también con forma circular o de gota; con íconos temáticos (Android 13+) se ve el panal en monocromo. ✓ El splash es azul oscuro con el panal.
+
 ## Pilot checklist (overview §10)
 
 Filled with the first preview APK against D1 (`docs/release.md`), not the dev build. Every row needs evidence: a date, a screenshot, a row count.

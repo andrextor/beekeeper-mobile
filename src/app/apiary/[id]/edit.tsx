@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
-import { Title } from '@/components/ui/Title'
 import { showToast, undoFailed } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { saveRow } from '@/db/write'
@@ -54,9 +53,8 @@ export default function EditApiaryScreen() {
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Editar apiario' }}>
       <BackButton />
-      <Title text="Editar apiario" />
       <ApiaryForm
         initial={toDraft(apiary)}
         otherNames={names.filter((n) => n.id !== id).map((n) => n.name)}

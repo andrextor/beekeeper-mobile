@@ -3,12 +3,10 @@ import { router } from 'expo-router'
 import { RefreshCw } from 'lucide-react-native'
 import { useRef, useState } from 'react'
 import { Text, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
+import { ListHero } from '@/components/ui/Screen'
 import { SyncChip } from '@/components/ui/SyncChip'
-import { Title } from '@/components/ui/Title'
 import { Toast } from '@/components/ui/Toast'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
@@ -51,8 +49,7 @@ function Header({ status }: { status: SyncStatus }) {
     organizationId: state.status === 'signedIn' ? (state.activeOrganizationId ?? '') : '',
   })
   return (
-    <View className="gap-4">
-      <Title text="Pendientes" />
+    <ListHero hero={{ title: 'Pendientes' }}>
       <StatusChip status={status} />
       <Button
         icon={RefreshCw}
@@ -99,7 +96,7 @@ function Header({ status }: { status: SyncStatus }) {
           }
         />
       ))}
-    </View>
+    </ListHero>
   )
 }
 
@@ -116,7 +113,6 @@ function review(entry: PendingEntry) {
 }
 
 export default function PendingScreen() {
-  const insets = useSafeAreaInsets()
   const status = useSyncStatus()
   const entries = usePendingEntries()
   const [discarding, setDiscarding] = useState<PendingEntry | null>(null)
@@ -164,7 +160,7 @@ export default function PendingScreen() {
   }
 
   return (
-    <View className="flex-1 bg-bg-soft" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-bg-soft">
       <PendingList
         entries={entries.filter((e) => e.id !== discarding?.id)}
         header={<Header status={status} />}

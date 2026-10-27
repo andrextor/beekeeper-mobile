@@ -11,7 +11,6 @@ import { IconTile } from '@/components/ui/IconTile'
 import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { Title } from '@/components/ui/Title'
 import { createOrganization, includesFinca, updateDisplayName } from '@/features/auth/organizations'
 import { SignOutSheet } from '@/features/auth/SignOutSheet'
 import { useSession } from '@/features/auth/session'
@@ -61,8 +60,7 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <Screen>
-      <Title text="Empecemos" />
+    <Screen hero={{ title: 'Empecemos' }}>
       <Choice
         icon={Honeycomb}
         title="Crear mi finca"
@@ -151,9 +149,8 @@ function CreateFinca({
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Crea tu finca' }}>
       <BackButton onPress={onBack} />
-      <Title text="Crea tu finca" />
       <Text className="font-sans text-body text-muted">
         Es el nombre de tu explotación apícola. Podrás invitar revisores después.
       </Text>

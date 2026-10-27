@@ -7,7 +7,6 @@ import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { RoleBadge } from '@/components/ui/RoleBadge'
 import { Screen } from '@/components/ui/Screen'
-import { Title } from '@/components/ui/Title'
 import { useSession } from '@/features/auth/session'
 
 export default function OrganizationsScreen() {
@@ -20,8 +19,7 @@ export default function OrganizationsScreen() {
   }
 
   return (
-    <Screen>
-      <Title text="Tus fincas" />
+    <Screen hero={{ title: 'Tus fincas' }}>
       <Card className="overflow-hidden p-0">
         {state.memberships.map((m) => (
           <ListItem

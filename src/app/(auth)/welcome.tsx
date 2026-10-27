@@ -1,11 +1,12 @@
 import { router } from 'expo-router'
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Button } from '@/components/ui/Button'
 import { HoneycombPattern } from '@/components/ui/HoneycombPattern'
 import { Honeycomb } from '@/components/ui/icons'
 import { useLightStatusBar } from '@/components/ui/Screen'
+import { TextLink } from '@/components/ui/TextLink'
 import { color, shadow } from '@/lib/theme'
 
 /** Most people arrive with an account (made by the admin, or to use an invite): sign-in leads. */
@@ -40,15 +41,7 @@ export default function WelcomeScreen() {
         <Button label="Iniciar sesión" onPress={() => router.push('/sign-in')} />
         <View className="flex-row items-center justify-center">
           <Text className="font-sans text-body text-muted">¿No tienes cuenta?</Text>
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => router.push('/sign-up')}
-            className="min-h-target justify-center px-2 active:opacity-70"
-          >
-            <Text className="font-sans-bold text-body text-on-primary-soft underline">
-              Crear cuenta
-            </Text>
-          </Pressable>
+          <TextLink label="Crear cuenta" onPress={() => router.push('/sign-up')} />
         </View>
       </View>
     </View>

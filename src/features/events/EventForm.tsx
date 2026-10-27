@@ -10,7 +10,6 @@ import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { Title } from '@/components/ui/Title'
 import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
 import { formatCalendarDate } from '@/lib/format'
@@ -350,8 +349,7 @@ export function EventForm(props: Props) {
 
   return (
     <View className="flex-1 bg-bg-soft">
-      <Screen>
-        <Title text={`${label(eventTypeLabels, type)} · ${hive.name}`} />
+      <Screen hero={{ title: label(eventTypeLabels, type), eyebrow: hive.name }}>
         <ChipSelect
           label="Cuándo"
           options={{

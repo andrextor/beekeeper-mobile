@@ -1,7 +1,6 @@
 import { Redirect, router } from 'expo-router'
 import { BackButton } from '@/components/ui/BackButton'
 import { Screen } from '@/components/ui/Screen'
-import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { saveRow } from '@/db/write'
@@ -37,9 +36,8 @@ export default function NewApiaryScreen() {
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Nuevo apiario' }}>
       <BackButton />
-      <Title text="Nuevo apiario" />
       <ApiaryForm otherNames={names.map((n) => n.name)} onSave={save} />
     </Screen>
   )

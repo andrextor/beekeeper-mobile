@@ -6,7 +6,6 @@ import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
-import { Title } from '@/components/ui/Title'
 import { formatInviteCode, isCompleteInviteCode } from '@/features/auth/invite-code'
 import { acceptInvite, includesFinca } from '@/features/auth/organizations'
 import { useSession } from '@/features/auth/session'
@@ -45,9 +44,8 @@ export default function JoinScreen() {
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Tengo un código' }}>
       <BackButton />
-      <Title text="Tengo un código" />
       <Text className="font-sans text-body text-muted">
         Escribe o pega el código de 8 caracteres que te envió el propietario de la finca.
       </Text>

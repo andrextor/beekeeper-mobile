@@ -6,7 +6,6 @@ import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Screen } from '@/components/ui/Screen'
-import { Title } from '@/components/ui/Title'
 import { useCanRecord } from '@/features/auth/session'
 import { PhotoGrid } from '@/features/photos/PhotoGrid'
 import { usePhotos } from '@/features/photos/queries'
@@ -21,9 +20,8 @@ export default function HivePhotosScreen() {
   const photos = usePhotos({ hiveId: id }, limit)
   const canRecord = useCanRecord()
   return (
-    <Screen>
+    <Screen hero={{ title: 'Fotos' }}>
       <BackButton />
-      <Title text="Fotos" />
       {canRecord ? (
         <Button
           variant="accent"

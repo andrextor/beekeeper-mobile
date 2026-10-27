@@ -10,7 +10,6 @@ import { Card } from '@/components/ui/Card'
 import { RoleBadge } from '@/components/ui/RoleBadge'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
-import { Title } from '@/components/ui/Title'
 import { Toast } from '@/components/ui/Toast'
 import { getDb } from '@/db/database'
 import { useLocalQuery } from '@/db/useLocalQuery'
@@ -75,8 +74,7 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1">
-      <Screen>
-        <Title text="Perfil" />
+      <Screen hero={{ title: 'Perfil' }}>
         <Card className="gap-3">
           <Text className="font-sans text-caption text-muted">Correo</Text>
           <Text className="font-sans-semibold text-body text-text">{state.session.user.email}</Text>

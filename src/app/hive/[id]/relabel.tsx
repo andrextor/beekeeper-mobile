@@ -9,7 +9,6 @@ import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
-import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { useRole } from '@/features/auth/session'
 import { useHive } from '@/features/hives/queries'
@@ -60,9 +59,8 @@ export default function RelabelScreen() {
   }
 
   return (
-    <Screen>
+    <Screen hero={{ title: 'Cambiar etiqueta', eyebrow: hive.name }}>
       <BackButton />
-      <Title text={`Cambiar etiqueta de ${hive.name}`} />
       <Text className="font-sans text-body text-text">
         La etiqueta anterior deja de funcionar. El historial de la colmena se conserva y anota el
         cambio.
