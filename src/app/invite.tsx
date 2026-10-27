@@ -2,6 +2,7 @@ import { router } from 'expo-router'
 import { Lock, Share2 } from 'lucide-react-native'
 import { useState } from 'react'
 import { Share, Text } from 'react-native'
+
 import { ChipSelect } from '@/components/field/ChipSelect'
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'

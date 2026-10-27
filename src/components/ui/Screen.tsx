@@ -21,15 +21,19 @@ type Props = {
   hero?: Hero
 }
 
-function HeroBand({ title, eyebrow, children }: Hero) {
-  const insets = useSafeAreaInsets()
-  // The band sits under the status bar: light icons while this screen is in front.
+/** For screens with a dark top: light status-bar icons while the screen is in front. */
+export function useLightStatusBar() {
   useFocusEffect(
     useCallback(() => {
       setStatusBarStyle('light')
       return () => setStatusBarStyle('dark')
     }, []),
   )
+}
+
+function HeroBand({ title, eyebrow, children }: Hero) {
+  const insets = useSafeAreaInsets()
+  useLightStatusBar()
   return (
     <View style={{ paddingTop: insets.top + 24 }} className="overflow-hidden bg-deep px-4 pb-12">
       <HoneycombPattern />

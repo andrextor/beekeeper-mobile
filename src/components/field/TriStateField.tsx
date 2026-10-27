@@ -1,5 +1,6 @@
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
+import { PressScale } from '@/components/ui/PressScale'
 import { cx } from '@/lib/cx'
 import { withTap } from '@/lib/haptics'
 import { observedLabels } from '@/lib/labels'
@@ -31,20 +32,20 @@ export function TriStateField<T extends string = Observed>({
         {options.map((option) => {
           const selected = option === value
           return (
-            <Pressable
+            <PressScale
               key={option}
               accessibilityRole="radio"
               accessibilityState={{ selected }}
               onPress={withTap(() => onChange(selected ? null : option))}
               className={cx(
-                'min-h-field flex-1 items-center justify-center rounded-button border-2 px-1 active:opacity-80',
+                'min-h-field flex-1 items-center justify-center rounded-button border-2 px-1',
                 choiceBox(selected),
               )}
             >
               <Text className="text-center font-sans-semibold text-body text-text">
                 {labels[option]}
               </Text>
-            </Pressable>
+            </PressScale>
           )
         })}
       </View>

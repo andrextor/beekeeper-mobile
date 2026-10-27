@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { Lock, MapPin, Trash2 } from 'lucide-react-native'
 import { useState } from 'react'
 import { Text } from 'react-native'
+
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'

@@ -1,6 +1,7 @@
 import { Check, Mic, Pencil, TriangleAlert, X } from 'lucide-react-native'
 import { useState } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
+
 import { Button } from '@/components/ui/Button'
 import { Title } from '@/components/ui/Title'
 import { listFields, type Proposal } from '@/features/voice/parser'

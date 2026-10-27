@@ -1,6 +1,7 @@
 import { Check, type LucideIcon } from 'lucide-react-native'
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
+import { PressScale } from '@/components/ui/PressScale'
 import { cx } from '@/lib/cx'
 import { withTap } from '@/lib/haptics'
 import { color, iconSize, iconStroke } from '@/lib/theme'
@@ -17,12 +18,12 @@ export type FieldAction = {
 
 export function ActionTile({ icon: Icon, label, onPress, primary = false, detail }: FieldAction) {
   return (
-    <Pressable
+    <PressScale
       accessibilityRole="button"
       accessibilityLabel={detail ? `${label}: ${detail}` : label}
       onPress={withTap(onPress)}
       className={cx(
-        'min-h-tile flex-1 items-center justify-center gap-1.5 rounded-card px-2 active:opacity-80',
+        'min-h-tile flex-1 items-center justify-center gap-1.5 rounded-card px-2',
         primary ? 'bg-primary' : 'bg-accent',
       )}
     >
@@ -48,6 +49,6 @@ export function ActionTile({ icon: Icon, label, onPress, primary = false, detail
           </Text>
         </View>
       ) : null}
-    </Pressable>
+    </PressScale>
   )
 }

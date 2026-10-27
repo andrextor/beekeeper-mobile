@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { Printer, RefreshCw, Share2 } from 'lucide-react-native'
 import { useState } from 'react'
 import { Text, View } from 'react-native'
+
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'

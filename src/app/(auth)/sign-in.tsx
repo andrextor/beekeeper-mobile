@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Text } from 'react-native'
+
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
@@ -62,7 +63,7 @@ export default function SignInScreen() {
   return (
     <Screen>
       <BackButton />
-      <Title text="Ya tengo cuenta" />
+      <Title text="Iniciar sesión" />
       <TextField
         label="Tu correo"
         value={email}

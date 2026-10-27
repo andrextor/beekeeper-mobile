@@ -3,6 +3,7 @@ import { MapPin, Plus, SearchX } from 'lucide-react-native'
 import { useState } from 'react'
 import { FlatList, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { TextField } from '@/components/ui/TextField'

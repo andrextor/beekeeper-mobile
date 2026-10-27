@@ -1,10 +1,13 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router'
-import { KeyRound, LogOut } from 'lucide-react-native'
+import { KeyRound, LogOut, type LucideIcon } from 'lucide-react-native'
 import { useRef, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
+
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import { FormError } from '@/components/ui/FormError'
+import { IconTile } from '@/components/ui/IconTile'
 import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
@@ -13,7 +16,6 @@ import { createOrganization, includesFinca, updateDisplayName } from '@/features
 import { signOut, useSession } from '@/features/auth/session'
 import { isNetworkError, messageFor } from '@/lib/errors'
 import { uuid } from '@/lib/ids'
-import { color, iconSize } from '@/lib/theme'
 
 export default function OnboardingScreen() {
   const { state, refreshMemberships, setActiveOrganization } = useSession()
@@ -86,30 +88,24 @@ export default function OnboardingScreen() {
 }
 
 function Choice({
-  icon: Icon,
+  icon,
   title,
   body,
   onPress,
 }: {
-  icon: typeof Honeycomb
+  icon: LucideIcon
   title: string
   body: string
   onPress: () => void
 }) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      className="min-h-tile flex-row items-center gap-4 rounded-card border-2 border-border bg-surface p-4 active:opacity-80"
-    >
-      <View className="size-target items-center justify-center rounded-full bg-accent">
-        <Icon color={color.onAccent} size={iconSize.standard} />
-      </View>
+    <Card onPress={onPress} className="min-h-tile flex-row items-center gap-4">
+      <IconTile icon={icon} tone="accent" />
       <View className="flex-1 gap-1">
         <Text className="font-display text-section text-text">{title}</Text>
         <Text className="font-sans text-body text-muted">{body}</Text>
       </View>
-    </Pressable>
+    </Card>
   )
 }
 

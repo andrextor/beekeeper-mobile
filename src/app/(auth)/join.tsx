@@ -1,6 +1,7 @@
 import { router } from 'expo-router'
 import { useState } from 'react'
 import { Text, TextInput, View } from 'react-native'
+
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
@@ -50,7 +51,7 @@ export default function JoinScreen() {
       <Text className="font-sans text-body text-muted">
         Escribe o pega el código de 8 caracteres que te envió el propietario de la finca.
       </Text>
-      <View className="rounded-card border-2 border-border bg-surface px-4">
+      <View className="rounded-field bg-fill px-4">
         <TextInput
           accessibilityLabel="Código de invitación"
           value={code}

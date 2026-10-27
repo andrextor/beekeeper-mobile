@@ -3,6 +3,7 @@ import { router } from 'expo-router'
 import { LogOut, Palette, Users } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
+
 import { ChipSelect } from '@/components/field/ChipSelect'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'

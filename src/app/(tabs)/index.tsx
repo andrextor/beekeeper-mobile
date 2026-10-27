@@ -2,13 +2,13 @@ import { router } from 'expo-router'
 import { CalendarClock, CircleCheck, ListTodo, ScanQrCode } from 'lucide-react-native'
 import { type ReactNode, useState } from 'react'
 import { Text, View } from 'react-native'
+
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
-import { Title } from '@/components/ui/Title'
 import { useLocalRead } from '@/db/useLocalQuery'
 import { useActiveMembership, useSession } from '@/features/auth/session'
 import { hivesToVisit, latestInspections, openTasks, recentActivity } from '@/features/hives/home'
@@ -52,16 +52,13 @@ export default function HomeScreen() {
     ['hives', 'apiaries', 'inspections', 'hive_events'],
   )
 
-  if (loading || !data) return <Screen>{null}</Screen>
+  const hero = { title: 'Inicio', eyebrow: finca }
+  if (loading || !data) return <Screen hero={hero}>{null}</Screen>
   const { visits, tasks, activity } = data
   const allClear = visits.length === 0 && tasks.length === 0
 
   return (
-    <Screen>
-      <View className="gap-1">
-        <Title text="Inicio" />
-        {finca ? <Text className="font-sans text-body text-muted">{finca}</Text> : null}
-      </View>
+    <Screen hero={hero}>
       <UpdateBanner />
 
       {allClear ? (

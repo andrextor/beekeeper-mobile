@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router'
 import { ClipboardCheck, Pencil } from 'lucide-react-native'
+
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'

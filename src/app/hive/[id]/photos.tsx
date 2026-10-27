@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router'
 import { Camera, ImageOff } from 'lucide-react-native'
 import { useState } from 'react'
+
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'

@@ -4,6 +4,7 @@ import { RefreshCw } from 'lucide-react-native'
 import { useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { SyncChip } from '@/components/ui/SyncChip'
