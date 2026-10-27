@@ -3,7 +3,6 @@ import { Lock, Share2 } from 'lucide-react-native'
 import { useState } from 'react'
 import { Share, Text } from 'react-native'
 
-import { ChipSelect } from '@/components/field/ChipSelect'
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -15,16 +14,10 @@ import { Title } from '@/components/ui/Title'
 import { useActiveMembership } from '@/features/auth/session'
 import { createInvite, type NewInvite } from '@/features/members/api'
 import { inviteMessage } from '@/features/members/invite-message'
+import { RolePicker } from '@/features/members/RolePicker'
 import type { Role } from '@/features/sync/members'
 import { messageFor } from '@/lib/errors'
 import { formatDate } from '@/lib/format'
-import { roleLabels } from '@/lib/labels'
-
-const roleHelp: Record<Role, string> = {
-  reviewer:
-    'Puede ver todo y registrar revisiones, notas, fotos y actividades. No puede cambiar apiarios ni colmenas.',
-  owner: 'Puede hacer todo, incluso invitar y quitar personas.',
-}
 
 /** The plain code exists only in `create_invite`'s answer: shown here once, never stored. */
 export default function InviteScreen() {
@@ -92,16 +85,7 @@ export default function InviteScreen() {
         maxLength={80}
         autoComplete="off"
       />
-      <ChipSelect
-        label="Rol"
-        options={roleLabels}
-        value={[role]}
-        onChange={(v) => {
-          const next = v[0]
-          if (next === 'owner' || next === 'reviewer') setRole(next)
-        }}
-      />
-      <Text className="font-sans text-body text-muted">{roleHelp[role]}</Text>
+      <RolePicker value={role} onChange={setRole} />
       <FormError message={error} />
       <Button label="Crear código" className="min-h-field" loading={saving} onPress={create} />
     </Screen>

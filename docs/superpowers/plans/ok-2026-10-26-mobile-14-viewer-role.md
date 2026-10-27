@@ -38,9 +38,9 @@ Spec: `docs/superpowers/specs/ok-2026-10-26-mobile-14-viewer-role-design.md` · 
 
 4. **Three roles in invite and person sheet.** `feat(members): invite and change role offer Observador`
    - **Files:**
-     - `src/features/members/roles.ts` (new): `roleHelp` for the three roles. It moves out of `invite.tsx`.
-     - `src/app/invite.tsx`: three chips; the guard accepts any `Role`.
-     - `src/features/members/MemberSheet.tsx`: `ChipSelect` preselected on the current role, the help line, and a **Cambiar rol** button that is disabled while the role is unchanged. The two-way toggle goes.
+     - `src/features/members/RolePicker.tsx` (new): the three role chips plus the help line (`roleHelp` moves out of `invite.tsx`).
+     - `src/app/invite.tsx`: uses `RolePicker`.
+     - `src/features/members/MemberSheet.tsx`: `RolePicker` preselected on the current role, the help line, and a **Cambiar rol** button that is disabled while the role is unchanged. The two-way toggle goes.
 
 5. **Docs.** `docs: M14 observador in roadmap and phone pass`
    - **Files:**

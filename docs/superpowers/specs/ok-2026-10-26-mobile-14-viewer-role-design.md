@@ -46,7 +46,7 @@ This is a second net behind the hidden buttons, not the rule. RLS is the rule.
 
 ### 5. Invite and change role: three roles with a line each
 
-The help text moves to `src/features/members/roles.ts` (`roleHelp`), because two screens use it now:
+The chips and the help text become `src/features/members/RolePicker.tsx`, because two screens use them now:
 
 - **Propietario:** "Puede hacer todo, incluso invitar y quitar personas."
 - **Revisor:** "Puede ver todo y registrar revisiones, notas, fotos y actividades. No puede cambiar apiarios ni colmenas."

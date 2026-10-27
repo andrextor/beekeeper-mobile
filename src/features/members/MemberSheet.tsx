@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Text } from 'react-native'
 
 import { Button } from '@/components/ui/Button'
@@ -7,6 +7,7 @@ import { Sheet } from '@/components/ui/Sheet'
 import type { Role } from '@/features/sync/members'
 import type { Member } from './api'
 import { memberName } from './MemberRow'
+import { RolePicker } from './RolePicker'
 
 type Props = {
   member: Member | null
@@ -20,6 +21,10 @@ type Props = {
 /** Owner actions on another member; removing takes a second, explicit step. */
 export function MemberSheet({ member, busy, error, onRole, onRemove, onClose }: Props) {
   const [confirming, setConfirming] = useState(false)
+  const [role, setRole] = useState<Role>('reviewer')
+  useEffect(() => {
+    if (member) setRole(member.role)
+  }, [member])
   const close = () => {
     setConfirming(false)
     onClose()
@@ -47,11 +52,13 @@ export function MemberSheet({ member, busy, error, onRole, onRemove, onClose }: 
       ) : (
         <>
           <FormError message={error} />
+          <RolePicker value={role} onChange={setRole} />
           <Button
             variant="secondary"
-            label={member?.role === 'owner' ? 'Hacer revisor' : 'Hacer propietario'}
+            label="Cambiar rol"
             loading={busy}
-            onPress={() => onRole(member?.role === 'owner' ? 'reviewer' : 'owner')}
+            disabled={role === member?.role}
+            onPress={() => onRole(role)}
           />
           <Button variant="danger" label="Quitar de la finca" onPress={() => setConfirming(true)} />
           <Button variant="secondary" label="Cerrar" onPress={close} />
