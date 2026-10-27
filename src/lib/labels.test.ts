@@ -29,7 +29,7 @@ import {
 
 // Enum values as listed in ../beekeeper/docs/api.md; a value added there fails here until labelled.
 const contract: [Readonly<Record<string, string>>, string[]][] = [
-  [roleLabels, ['owner', 'reviewer']],
+  [roleLabels, ['owner', 'reviewer', 'viewer']],
   [hiveTypeLabels, ['langstroth', 'dadant', 'top_bar', 'warre', 'nucleus', 'rustic', 'other']],
   [
     colonyOriginLabels,
