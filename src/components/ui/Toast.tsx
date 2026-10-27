@@ -45,7 +45,7 @@ export function Toast({
       style={{ bottom: insets.bottom + bottomOffset }}
       className={cx(
         'absolute right-4 left-4 min-h-target flex-row items-center gap-3 rounded-card py-2 pr-2 pl-4 shadow-lg',
-        tone === 'success' ? 'border border-primary bg-success-bg' : 'bg-danger',
+        tone === 'success' ? 'border border-primary bg-primary-soft' : 'bg-danger',
       )}
     >
       <Icon color={tone === 'success' ? color.primary : color.onDanger} size={24} />

@@ -15,14 +15,18 @@ Brand: `deep #04303b`, `leaf #0c6511`, `sprout #82c75c`, `honey #ffb545`, `polle
 | Token | Value | Use |
 |-------|-------|-----|
 | `bg` | `#ffffff` | Field mode background (maximum contrast) |
-| `bg-soft` | `stone-50` | Lists, home |
-| `surface` | `#ffffff` + `stone-200` border | Cards |
+| `bg-soft` (canvas) | `#f6f5f0` | Screen background behind cards (deep on it 12.9:1) |
+| `fill` | `stone-100` | Input and segmented-control fill |
+| `surface` | `#ffffff` + `shadow.card` (no border) | Cards float on the canvas |
 | `text` | `deep` | All body text (≈ 13:1 on white) |
 | `text-muted` | `stone-700` | Secondary text (never `stone-500` outdoors) |
 | `primary` / `on-primary` | `leaf` / `#ffffff` | Main actions (Guardar, Nueva revisión) |
 | `accent` / `on-accent` | `honey` / `deep` | Field action buttons, pending states |
 | `danger` / `on-danger` | `#b42318` / `#ffffff` | Attention, destructive |
-| `success-bg` | `#e7f4e4` | Saved toasts |
+| `primary-soft` / `on-primary-soft` | `#e7f4e4` / `#0a5410` | Tonal buttons (`secondary`), success, active tab pill (8.1:1) |
+| `accent-soft` | `#fff1d6` | Pending and offline callouts (deep on it 12.6:1) |
+| `danger-soft` / `on-danger-soft` | `#fdecea` / `#8a1c12` | Error callouts and field errors (8.1:1) |
+| `mist` | `#a9c7cc` | Secondary text on `deep` bands (7.9:1) |
 | `queen-white` … `queen-blue` | `#ffffff` `#facc15` `#dc2626` `#16a34a` `#2563eb` | Queen-marking dots only (international colours, same as the admin), always next to the color's name |
 
 Rules: no text lighter than `stone-700`; `sprout` and `pollen` are decorative only; white on `honey` is forbidden; color never carries meaning alone (always icon + word).
@@ -55,7 +59,8 @@ Plus Jakarta Sans (headings, hive names, big numbers) and Inter (everything else
 
 ## Layout and touch
 
-- 8-dp grid; screen padding 16 dp; cards radius 16, buttons radius 14.
+- 8-dp grid; screen padding 16 dp. Radii: inputs `field` 16, cards `card` 24, sheets `sheet` 28, buttons and chips `button` (pill). Shadows from `shadow` in `src/lib/theme.ts` (RN `boxShadow`): `card`, `raised`, `tabBar`; no grey borders around surfaces.
+- Visual direction "Panal" (M13): `deep` hero bands with a faint honeycomb pattern on Bienvenida, Inicio and the hive ficha; white cards over the `canvas`; honey is the one warm accent; press = spring scale + light haptic.
 - Targets: field mode ≥ 72 dp high, full width or half width; elsewhere ≥ 56 dp; spacing ≥ 12 dp.
 - Primary actions sit in the bottom third (thumb zone). Nothing important in the top corners.
 - Bottom tabs: Inicio (`house`), Apiarios (`map-pin`), **Escanear** (center, 72-dp `honey` circle, `scan-qr-code`), Pendientes (`cloud-upload` + count badge), Perfil (`user-round`).

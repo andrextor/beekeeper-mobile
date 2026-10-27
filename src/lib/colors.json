@@ -15,12 +15,18 @@
     "900": "#1f1d19"
   },
   "danger": "#b42318",
-  "successBg": "#e7f4e4",
   "queen": {
     "white": "#ffffff",
     "yellow": "#facc15",
     "red": "#dc2626",
     "green": "#16a34a",
     "blue": "#2563eb"
-  }
+  },
+  "canvas": "#f6f5f0",
+  "primarySoft": "#e7f4e4",
+  "onPrimarySoft": "#0a5410",
+  "accentSoft": "#fff1d6",
+  "dangerSoft": "#fdecea",
+  "onDangerSoft": "#8a1c12",
+  "mist": "#a9c7cc"
 }

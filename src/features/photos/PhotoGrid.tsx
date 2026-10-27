@@ -27,7 +27,7 @@ export function PhotoGrid({
             accessibilityRole="button"
             accessibilityLabel={photo.caption ?? 'Foto'}
             onPress={() => onOpen(photo.id)}
-            className="size-tile items-center justify-center overflow-hidden rounded-button bg-stone-100 active:opacity-80"
+            className="size-tile items-center justify-center overflow-hidden rounded-field bg-fill active:opacity-80"
           >
             {uri ? (
               <Image source={{ uri }} className="size-tile" />

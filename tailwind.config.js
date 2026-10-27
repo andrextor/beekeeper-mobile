@@ -15,7 +15,8 @@ module.exports = {
       white: c.white,
       stone: c.stone,
       bg: c.white,
-      'bg-soft': c.stone['50'],
+      'bg-soft': c.canvas,
+      fill: c.stone['100'],
       surface: c.white,
       border: c.stone['200'],
       text: c.deep,
@@ -26,7 +27,12 @@ module.exports = {
       'on-accent': c.deep,
       danger: c.danger,
       'on-danger': c.white,
-      'success-bg': c.successBg,
+      'primary-soft': c.primarySoft,
+      'on-primary-soft': c.onPrimarySoft,
+      'accent-soft': c.accentSoft,
+      'danger-soft': c.dangerSoft,
+      'on-danger-soft': c.onDangerSoft,
+      mist: c.mist,
       queen: c.queen,
     },
     fontFamily: {
@@ -48,8 +54,10 @@ module.exports = {
     },
     extend: {
       borderRadius: {
-        button: '14px',
-        card: '16px',
+        button: '999px',
+        field: '16px',
+        card: '24px',
+        sheet: '28px',
       },
       spacing: {
         target: '56px',

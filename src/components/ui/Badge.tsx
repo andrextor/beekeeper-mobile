@@ -8,7 +8,7 @@ export type BadgeTone = 'neutral' | 'primary' | 'accent' | 'danger'
 
 const box: Record<BadgeTone, string> = {
   neutral: 'bg-stone-100 border border-stone-300',
-  primary: 'bg-success-bg',
+  primary: 'bg-primary-soft',
   accent: 'bg-accent',
   danger: 'bg-danger',
 }
