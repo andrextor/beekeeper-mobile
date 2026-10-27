@@ -55,7 +55,7 @@ export default function JoinScreen() {
           value={code}
           onChangeText={(text) => setCode(formatInviteCode(text))}
           placeholder="XXXX-XXXX"
-          placeholderTextColor={color.muted}
+          placeholderTextColor={color.placeholder}
           autoCapitalize="characters"
           autoCorrect={false}
           autoComplete="off"
