@@ -17,6 +17,7 @@ Starts when the backend phase of `beekeeper` (B1–B6) is done; it can use the l
 | M11 | Members: invite codes for reviewers, roles, leave organization | `mobile-11-members` | B2 | 0.11.0 |
 | M12 | APK release, OTA updates, local DB upgrade safety, install guide | `mobile-12-distribution` | D1 | 1.0.0 |
 | M13 | Visual refresh "Panal" (tokens, components, hero bands, tab bar) | `mobile-13-visual-refresh` (2026-10-26) | — | 1.1.0 |
+| M14 | Read-only role "Observador" (`viewer`): parse, label, hidden writes, three-role pickers | `mobile-14-viewer-role` (2026-10-26) | B8 | 1.2.0 |
 
 Specs: `docs/superpowers/specs/[ok-]2026-10-25-<slug>-design.md` · Plans: `docs/superpowers/plans/[ok-]2026-10-25-<slug>.md` (`ok-` once approved).
 
