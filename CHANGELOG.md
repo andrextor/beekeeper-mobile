@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-26
+
+### Fixed
+
+- A button that starts disabled (Ingresar, Cambiar rol…) no longer remounts when it turns on; in the dev build, typing the password on Iniciar sesión crashed with "Couldn't find a LinkingContext context".
+- Placeholders (`nombre@correo.com`…) are a lighter gray, so an empty field no longer looks filled in.
+- An apiary with no details no longer shows an empty white card under Volver.
+- Apiarios, Pendientes, an apiary and Asignar etiqueta: the dark band reaches the screen edges again (a 2-dp light strip framed it, NativeWind's rem is 14 while the list pads 16).
+- A failed upload in Pendientes says the longest it waits for the next try ("se reintenta en menos de 3 minutos", "… de 12 minutos": the backoff plus the 2-minute foreground sync) instead of "en un momento".
+- Empty and error states inside a card (Inicio's "Todo al día", the component gallery) no longer collapse to a sliver with their text spilling over: they size to their content instead of `flex: 1` (0 tall in a card) and can still shrink in a fixed-height screen.
+- Cámaras de cría, Alzas and Alzas retiradas: the first + gives 1, not 0 (− still reaches 0, then "Sin dato").
+
+### Changed
+
+- Nueva / Editar colmena is cut into four titled cards (Colmena, Cajas, Colonia, Reina) instead of one long list.
+- The − / + stepper sits in one rounded track: − is a white circle, + the honey one, and an empty value reads "Sin dato" instead of a dash. Same 72 dp buttons, also in field mode.
+- `docs/phone-pass.md`: every step says where it runs (📱 teléfono, 💻 admin, 🗄️ Studio) and spells out the taps; airplane-mode steps say Wi-Fi off; 1.2 deactivates the reviewer, not a sole owner.
+- Internal (code review): `SectionTitle` replaces seven copies of the section heading; the lists and `ListHero` share `listPadding`; the foreground sync interval lives in `classify.ts` next to the retry ladder; `entryDetail` has a test.
+
 ## [1.3.0] - 2026-10-26
 
 ### Changed

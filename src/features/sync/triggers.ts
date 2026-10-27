@@ -8,6 +8,7 @@ import { onLocalWrite } from '@/db/write'
 import { messageFor } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
 import { registerWipe } from '@/lib/wipe'
+import { foregroundSyncEveryMs } from './classify'
 import { singleFlight } from './engine'
 import { pull } from './pull'
 import { pushOutbox, retryNow } from './push'
@@ -91,7 +92,6 @@ export async function syncNow(): Promise<void> {
 }
 
 const debounceMs = 3_000
-const foregroundEveryMs = 2 * 60_000
 
 /** Mounted while signed in with a finca: start, reconnect, 3 s after a save, every 2 min in front. */
 export function useSyncTriggers(): void {
@@ -113,7 +113,7 @@ export function useSyncTriggers(): void {
 
     let timer: ReturnType<typeof setInterval> | null = null
     const startTimer = () => {
-      timer ??= setInterval(() => void requestSync('full'), foregroundEveryMs)
+      timer ??= setInterval(() => void requestSync('full'), foregroundSyncEveryMs)
     }
     const stopTimer = () => {
       if (timer) clearInterval(timer)

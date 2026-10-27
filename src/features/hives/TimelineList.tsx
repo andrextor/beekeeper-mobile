@@ -4,6 +4,7 @@ import { Text, View } from 'react-native'
 
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { SectionTitle } from '@/components/ui/SectionTitle'
 import { color, iconSize } from '@/lib/theme'
 import { TimelineItemView } from './TimelineItemView'
 import type { Timeline } from './useTimeline'
@@ -19,9 +20,7 @@ export function TimelineList({
 }) {
   return (
     <View className="gap-3">
-      <Text accessibilityRole="header" className="font-display text-section text-text">
-        Historial
-      </Text>
+      <SectionTitle text="Historial" />
       {timeline.notice ? (
         <View className="flex-row items-center gap-2 rounded-card bg-stone-100 p-3">
           <Info color={color.text} size={iconSize.standard} />

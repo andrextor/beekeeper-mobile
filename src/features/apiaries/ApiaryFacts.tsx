@@ -5,17 +5,20 @@ import type { Apiary } from './queries'
 
 /** What the apiary record says; empty facts are left out. */
 export function ApiaryFacts({ apiary }: { apiary: Apiary }) {
+  const facts = [
+    ['Finca', apiary.farm_name],
+    ['Lugar', apiary.place],
+    ['Altitud', apiary.altitude_m === null ? null : formatAltitude(apiary.altitude_m)],
+    ['Floración y cultivos cercanos', apiary.flora_notes],
+    ['Fuente de agua', apiary.water_source],
+    ['Notas', apiary.notes],
+  ].filter((fact): fact is [string, string] => Boolean(fact[1]))
+  if (!facts.length) return null
   return (
     <Card className="gap-3">
-      <Fact label="Finca" value={apiary.farm_name} />
-      <Fact label="Lugar" value={apiary.place} />
-      <Fact
-        label="Altitud"
-        value={apiary.altitude_m === null ? null : formatAltitude(apiary.altitude_m)}
-      />
-      <Fact label="Floración y cultivos cercanos" value={apiary.flora_notes} />
-      <Fact label="Fuente de agua" value={apiary.water_source} />
-      <Fact label="Notas" value={apiary.notes} />
+      {facts.map(([label, value]) => (
+        <Fact key={label} label={label} value={value} />
+      ))}
     </Card>
   )
 }

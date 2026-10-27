@@ -270,6 +270,7 @@ export function EventForm(props: Props) {
           value={num(details.supers_taken)}
           onChange={(v) => set('supers_taken', v)}
           min={0}
+          start={1}
           max={10}
         />
       </>

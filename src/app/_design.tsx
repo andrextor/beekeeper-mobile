@@ -31,6 +31,7 @@ import { IconTile } from '@/components/ui/IconTile'
 import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
+import { SectionTitle } from '@/components/ui/SectionTitle'
 import { Sheet } from '@/components/ui/Sheet'
 import { SyncChip } from '@/components/ui/SyncChip'
 import { TextField } from '@/components/ui/TextField'
@@ -246,9 +247,7 @@ function Gallery() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View className="gap-4">
-      <Text accessibilityRole="header" className="font-display text-section text-text">
-        {title}
-      </Text>
+      <SectionTitle text={title} />
       {children}
     </View>
   )

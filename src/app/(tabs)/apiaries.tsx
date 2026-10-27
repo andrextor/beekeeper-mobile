@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { FlatList, View } from 'react-native'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { ListHero } from '@/components/ui/Screen'
+import { ListHero, listPadding } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
 import { ApiaryListItem } from '@/features/apiaries/ApiaryListItem'
 import { useApiaries } from '@/features/apiaries/queries'
@@ -65,7 +65,7 @@ export default function ApiariesScreen() {
           />
         )}
         ItemSeparatorComponent={() => <View className="h-3" />}
-        contentContainerStyle={{ padding: 16, paddingBottom: owner ? 112 : 32 }}
+        contentContainerStyle={{ padding: listPadding, paddingBottom: owner ? 112 : 32 }}
         style={{ backgroundColor: color.bgSoft }}
       />
       {owner && apiaries.length > 0 ? (

@@ -7,8 +7,10 @@ import { ChipSelect } from '@/components/field/ChipSelect'
 import { StepperField } from '@/components/field/StepperField'
 import { TriStateField } from '@/components/field/TriStateField'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
+import { SectionTitle } from '@/components/ui/SectionTitle'
 import { TextField } from '@/components/ui/TextField'
 import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
@@ -121,114 +123,125 @@ export function HiveForm({
     <View className="flex-1 bg-bg-soft">
       <Screen hero={{ title }}>
         {header}
-        <TextField
-          label="Nombre *"
-          value={name}
-          onChangeText={(v) => {
-            setNameTouched(true)
-            set('name', v)
-          }}
-          maxLength={40}
-          autoCapitalize="characters"
-          error={errors.name}
-        />
-        <ChipSelect
-          label="Apiario *"
-          options={Object.fromEntries(apiaries.map((a) => [a.id, a.name]))}
-          value={single(draft.apiary_id)}
-          onChange={(v) => v[0] && set('apiary_id', v[0])}
-        />
-        {errors.apiary_id ? <FormError message={errors.apiary_id} /> : null}
-        <ChipSelect
-          label="Tipo"
-          options={hiveTypeLabels}
-          value={single(draft.hive_type)}
-          onChange={(v) => set('hive_type', v[0] ?? null)}
-        />
-        <StepperField
-          label="Cámaras de cría"
-          value={draft.brood_boxes}
-          onChange={(v) => set('brood_boxes', v)}
-          min={0}
-          max={5}
-        />
-        <StepperField
-          label="Alzas"
-          value={draft.supers}
-          onChange={(v) => set('supers', v)}
-          min={0}
-          max={10}
-        />
-        <ChipSelect
-          label="Origen de la colonia"
-          options={colonyOriginLabels}
-          value={single(draft.colony_origin)}
-          onChange={(v) => set('colony_origin', v[0] ?? null)}
-        />
-        <ColonyStartField
-          value={draft.colony_started_on}
-          error={errors.colony_started_on}
-          onChange={(v) => set('colony_started_on', v)}
-        />
-        <TextField
-          label="Raza"
-          value={draft.bee_race}
-          onChangeText={(v) => set('bee_race', v)}
-          maxLength={60}
-          error={errors.bee_race}
-        />
-        <View className="flex-row flex-wrap gap-3">
-          {races.map((race) => (
-            <Button
-              key={race}
-              variant="secondary"
-              label={race}
-              onPress={() => set('bee_race', race)}
-            />
-          ))}
-        </View>
-        <StepperField
-          label="Año de la reina"
-          value={draft.queen_year}
-          onChange={(year) =>
-            setDraft((d) => ({
-              ...d,
-              queen_year: year,
-              queen_color: colorTouched || year === null ? d.queen_color : suggestQueenColor(year),
-            }))
-          }
-          min={2000}
-          max={2100}
-          start={new Date().getFullYear()}
-        />
-        <QueenColorField
-          value={draft.queen_color}
-          year={draft.queen_year}
-          onChange={(color) => {
-            setColorTouched(true)
-            set('queen_color', color)
-          }}
-        />
-        <TriStateField
-          label="Reina marcada"
-          labels={marked}
-          value={draft.queen_marked === null ? 'unknown' : draft.queen_marked ? 'yes' : 'no'}
-          onChange={(v) => set('queen_marked', v === 'yes' ? true : v === 'no' ? false : null)}
-        />
-        <ChipSelect
-          label="Origen de la reina"
-          options={queenOriginLabels}
-          value={single(draft.queen_origin)}
-          onChange={(v) => set('queen_origin', v[0] ?? null)}
-        />
-        {hiveId ? (
-          <ChipSelect
-            label="Estado"
-            options={hiveStatusLabels}
-            value={single(draft.status)}
-            onChange={(v) => v[0] && set('status', v[0])}
+        <Group title="Colmena">
+          <TextField
+            label="Nombre *"
+            value={name}
+            onChangeText={(v) => {
+              setNameTouched(true)
+              set('name', v)
+            }}
+            maxLength={40}
+            autoCapitalize="characters"
+            error={errors.name}
           />
-        ) : null}
+          <ChipSelect
+            label="Apiario *"
+            options={Object.fromEntries(apiaries.map((a) => [a.id, a.name]))}
+            value={single(draft.apiary_id)}
+            onChange={(v) => v[0] && set('apiary_id', v[0])}
+          />
+          {errors.apiary_id ? <FormError message={errors.apiary_id} /> : null}
+          <ChipSelect
+            label="Tipo"
+            options={hiveTypeLabels}
+            value={single(draft.hive_type)}
+            onChange={(v) => set('hive_type', v[0] ?? null)}
+          />
+          {hiveId ? (
+            <ChipSelect
+              label="Estado"
+              options={hiveStatusLabels}
+              value={single(draft.status)}
+              onChange={(v) => v[0] && set('status', v[0])}
+            />
+          ) : null}
+        </Group>
+        <Group title="Cajas">
+          <StepperField
+            label="Cámaras de cría"
+            value={draft.brood_boxes}
+            onChange={(v) => set('brood_boxes', v)}
+            min={0}
+            max={5}
+            start={1}
+          />
+          <StepperField
+            label="Alzas"
+            value={draft.supers}
+            onChange={(v) => set('supers', v)}
+            min={0}
+            max={10}
+            start={1}
+          />
+        </Group>
+        <Group title="Colonia">
+          <ChipSelect
+            label="Origen de la colonia"
+            options={colonyOriginLabels}
+            value={single(draft.colony_origin)}
+            onChange={(v) => set('colony_origin', v[0] ?? null)}
+          />
+          <ColonyStartField
+            value={draft.colony_started_on}
+            error={errors.colony_started_on}
+            onChange={(v) => set('colony_started_on', v)}
+          />
+          <TextField
+            label="Raza"
+            value={draft.bee_race}
+            onChangeText={(v) => set('bee_race', v)}
+            maxLength={60}
+            error={errors.bee_race}
+          />
+          <View className="flex-row flex-wrap gap-3">
+            {races.map((race) => (
+              <Button
+                key={race}
+                variant="secondary"
+                label={race}
+                onPress={() => set('bee_race', race)}
+              />
+            ))}
+          </View>
+        </Group>
+        <Group title="Reina">
+          <StepperField
+            label="Año de la reina"
+            value={draft.queen_year}
+            onChange={(year) =>
+              setDraft((d) => ({
+                ...d,
+                queen_year: year,
+                queen_color:
+                  colorTouched || year === null ? d.queen_color : suggestQueenColor(year),
+              }))
+            }
+            min={2000}
+            max={2100}
+            start={new Date().getFullYear()}
+          />
+          <QueenColorField
+            value={draft.queen_color}
+            year={draft.queen_year}
+            onChange={(color) => {
+              setColorTouched(true)
+              set('queen_color', color)
+            }}
+          />
+          <TriStateField
+            label="Reina marcada"
+            labels={marked}
+            value={draft.queen_marked === null ? 'unknown' : draft.queen_marked ? 'yes' : 'no'}
+            onChange={(v) => set('queen_marked', v === 'yes' ? true : v === 'no' ? false : null)}
+          />
+          <ChipSelect
+            label="Origen de la reina"
+            options={queenOriginLabels}
+            value={single(draft.queen_origin)}
+            onChange={(v) => set('queen_origin', v[0] ?? null)}
+          />
+        </Group>
         <TextField
           label="Notas"
           value={draft.notes}
@@ -249,5 +262,15 @@ export function HiveForm({
         <Button icon={Save} label="Guardar" loading={saving} onPress={save} />
       </View>
     </View>
+  )
+}
+
+/** A titled card: the long form reads as four short ones. */
+function Group({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <Card className="gap-5">
+      <SectionTitle text={title} />
+      {children}
+    </Card>
   )
 }
