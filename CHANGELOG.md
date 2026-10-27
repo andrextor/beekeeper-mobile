@@ -11,6 +11,11 @@ All notable changes to this project are documented here. The format follows [Kee
 - A button that starts disabled (Ingresar, Cambiar rol…) no longer remounts when it turns on; in the dev build, typing the password on Iniciar sesión crashed with "Couldn't find a LinkingContext context".
 - Placeholders (`nombre@correo.com`…) are a lighter gray, so an empty field no longer looks filled in.
 
+### Changed
+
+- Nueva / Editar colmena is cut into four titled cards (Colmena, Cajas, Colonia, Reina) instead of one long list.
+- The − / + stepper sits in one rounded track: − is a white circle, + the honey one, and an empty value reads "Sin dato" instead of a dash. Same 72 dp buttons, also in field mode.
+
 ## [1.3.0] - 2026-10-26
 
 ### Changed

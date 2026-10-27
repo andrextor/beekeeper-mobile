@@ -4,7 +4,7 @@ import { Pressable, Text, View } from 'react-native'
 import { cx } from '@/lib/cx'
 import { formatNumber } from '@/lib/format'
 import { withTap } from '@/lib/haptics'
-import { color, iconSize, iconStroke } from '@/lib/theme'
+import { color, iconSize, iconStroke, shadow } from '@/lib/theme'
 import { FieldLabel } from './FieldLabel'
 
 type Props = {
@@ -34,21 +34,26 @@ export function StepperField({
   const less = withTap(() =>
     onChange(value === null || value <= min ? null : Math.max(min, value - step)),
   )
-  const shown = value === null ? '—' : `${formatNumber(value)}${unit ? ` ${unit}` : ''}`
+  const shown = value === null ? null : `${formatNumber(value)}${unit ? ` ${unit}` : ''}`
   const lessDisabled = value === null
   const moreDisabled = value !== null && value >= max
 
   return (
     <View className="gap-3">
       <FieldLabel label={label} />
-      <View className="flex-row items-center gap-3">
+      <View className="flex-row items-center gap-2 rounded-full bg-fill p-1.5">
         <StepButton label={`Menos ${label}`} disabled={lessDisabled} onPress={less} plus={false} />
         <Text
-          accessibilityLabel={`${label}: ${value === null ? 'sin dato' : shown}`}
+          accessibilityLabel={`${label}: ${shown ?? 'sin dato'}`}
           accessibilityLiveRegion="polite"
-          className="flex-1 text-center font-display text-field-value text-text"
+          className={cx(
+            'flex-1 text-center',
+            shown
+              ? 'font-display text-field-value text-text'
+              : 'font-sans-semibold text-body text-muted',
+          )}
         >
-          {shown}
+          {shown ?? 'Sin dato'}
         </Text>
         <StepButton label={`Más ${label}`} disabled={moreDisabled} onPress={more} plus />
       </View>
@@ -76,11 +81,17 @@ function StepButton({
       disabled={disabled}
       onPress={onPress}
       className={cx(
-        'size-field items-center justify-center rounded-button bg-accent active:opacity-80',
+        'size-field items-center justify-center rounded-full active:opacity-80',
+        plus ? 'bg-accent' : 'bg-surface',
         disabled && 'opacity-40',
       )}
+      style={plus ? undefined : shadow.card}
     >
-      <Icon color={color.onAccent} size={iconSize.field} strokeWidth={iconStroke.field} />
+      <Icon
+        color={plus ? color.onAccent : color.text}
+        size={iconSize.field}
+        strokeWidth={iconStroke.field}
+      />
     </Pressable>
   )
 }
