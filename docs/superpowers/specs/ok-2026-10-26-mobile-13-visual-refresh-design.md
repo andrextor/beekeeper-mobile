@@ -1,6 +1,6 @@
 # M13 · Visual refresh — spec
 
-Status: **draft**, waiting for Iván's OK. Branch: `feat/m13-visual-refresh` (from `fix/phone-pass`).
+Status: **approved** (Iván, 2026-10-26). Branch: `feat/m13-visual-refresh` (from `fix/phone-pass`).
 
 ## Problem
 

@@ -1,6 +1,6 @@
 # M13 · Visual refresh — plan
 
-Spec: `docs/superpowers/specs/2026-10-26-mobile-13-visual-refresh-design.md` · Branch: `feat/m13-visual-refresh` (from `fix/phone-pass`, merged after it) · Status: **draft**
+Spec: `docs/superpowers/specs/ok-2026-10-26-mobile-13-visual-refresh-design.md` · Branch: `feat/m13-visual-refresh` (from `fix/phone-pass`, merged after it) · Status: **approved** (Iván, 2026-10-26)
 
 No new dependency (Reanimated, react-native-svg and expo-haptics are installed). No native change: it reaches phones by Metro now and by OTA after release.
 
