@@ -2,7 +2,7 @@
 
 Spec: `docs/superpowers/specs/ok-2026-10-26-mobile-15-panal-everywhere-design.md` · Branch: `feat/m15-panal-everywhere` (from `main` at v1.2.1) · Status: **approved** (Iván, 2026-10-26)
 
-No new dependency. No native change, so it ships by OTA.
+No new dependency. Screens ship by OTA; the icon and splash (task 6) need a new APK.
 
 ## Tasks (one commit each)
 
@@ -17,7 +17,8 @@ No new dependency. No native change, so it ships by OTA.
    - Files: `organizations`, `members`, `invite`, `apiary/new`, `apiary/[id]/edit`, `apiary/[id]`, `qr/assign`.
 5. **Hive and records.** `feat(ui): hero band on hive forms, label, photos, relabel, inspection and events`
    - Files: `HiveForm`, `EventForm`, `label`, `photos`, `relabel`, `inspection/[id]`, `event/new`.
-6. **Release.** `chore(release): 1.3.0`
+6. **App icon and splash.** `feat(ui): app icon and splash use the honeycomb mark` — added on Iván's request (2026-10-26: "el icono cuando se instala tampoco mejoro"). `assets/images/*` regenerated from the `Honeycomb` path (honey on `deep`), `app.json` adaptive-icon and splash background `deep`. Native: needs a new APK, not OTA.
+7. **Release.** `chore(release): 1.3.0`
    - CHANGELOG, ROADMAP row M15, `docs/phone-pass.md` section 13, package.json and app.json.
 
 ## Checks
