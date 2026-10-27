@@ -50,15 +50,25 @@ function HeroBand({ title, eyebrow, children }: Hero) {
   )
 }
 
-/** The hero band as a list header: the list's 16 dp padding is cancelled so the band bleeds. */
+/**
+ * The hero band as a list header. Lists pad their content with a plain 16; NativeWind's `-mx-4` is
+ * 14 on native (rem 14), which left a 2-dp canvas strip around the band, so the bleed is numeric.
+ */
 export function ListHero({ hero, children }: { hero: Hero; children?: ReactNode }) {
   return (
-    <View className="-mx-4 -mt-4 pb-4">
+    <View className="pb-4" style={{ marginHorizontal: -listPadding, marginTop: -listPadding }}>
       <HeroBand {...hero} />
-      <View className="-mt-6 gap-4 rounded-t-sheet bg-bg-soft px-4 pt-6">{children}</View>
+      <View
+        className="-mt-6 gap-4 rounded-t-sheet bg-bg-soft pt-6"
+        style={{ paddingHorizontal: listPadding }}
+      >
+        {children}
+      </View>
     </View>
   )
 }
+
+const listPadding = 16
 
 export function Screen({ children, scroll = true, field = false, topInset = true, hero }: Props) {
   const insets = useSafeAreaInsets()
