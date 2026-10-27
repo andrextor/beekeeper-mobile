@@ -186,10 +186,10 @@ export function useRole(): Role | null {
 }
 
 /**
- * Explicit sign-out. supabase-js drops the local session even when the server call fails
- * (no signal), so this person's data is erased either way.
+ * Explicit sign-out. The data goes first, while the screen is still there to show a failure;
+ * supabase-js then drops the local session even when the server call fails (no signal).
  */
 export async function signOut(): Promise<void> {
-  await supabase.auth.signOut()
   await wipeLocalData()
+  await supabase.auth.signOut()
 }
