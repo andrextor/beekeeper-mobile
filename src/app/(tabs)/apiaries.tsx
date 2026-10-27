@@ -1,12 +1,13 @@
 import { router } from 'expo-router'
 import { MapPin, Plus, SearchX } from 'lucide-react-native'
 import { useState } from 'react'
-import { FlatList, Text, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { ApiaryListItem } from '@/features/apiaries/ApiaryListItem'
 import { useApiaries } from '@/features/apiaries/queries'
 import { useRole, useSession } from '@/features/auth/session'
@@ -48,9 +49,7 @@ export default function ApiariesScreen() {
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
           <View className="gap-4 pb-4">
-            <Text accessibilityRole="header" className="font-display text-title text-text">
-              Apiarios
-            </Text>
+            <Title text="Apiarios" />
             {apiaries.length > 0 ? (
               <TextField
                 label="Buscar"

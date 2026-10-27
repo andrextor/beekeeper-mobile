@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, Lock } from 'lucide-react-native'
+import { Lock } from 'lucide-react-native'
 import { useState } from 'react'
 import { FlatList, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -8,9 +8,11 @@ import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FormError } from '@/components/ui/FormError'
+import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Sheet } from '@/components/ui/Sheet'
+import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { useRole, useSession } from '@/features/auth/session'
 import { type FincaHive, useFincaHives } from '@/features/hives/queries'
@@ -33,7 +35,7 @@ export default function AssignCodeScreen() {
 
   if (!owner)
     return <NotAvailable icon={Lock} title="Solo el propietario puede asignar etiquetas." />
-  if (!code) return <NotAvailable icon={Hexagon} title="Ese código no es válido." />
+  if (!code) return <NotAvailable icon={Honeycomb} title="Ese código no es válido." />
 
   const assign = async (hive: FincaHive, code: string) => {
     setSaving(true)
@@ -59,18 +61,16 @@ export default function AssignCodeScreen() {
         ListHeaderComponent={
           <View className="gap-4 pb-4">
             <BackButton />
-            <Text accessibilityRole="header" className="font-display text-title text-text">
-              Asignar etiqueta
-            </Text>
+            <Title text="Asignar etiqueta" />
             <Text className="font-sans text-body text-text">
               {`Elige la colmena que llevará el código ${groupedQrCode(code)}.`}
             </Text>
           </View>
         }
-        ListEmptyComponent={<EmptyState icon={Hexagon} title="Tu finca aún no tiene colmenas." />}
+        ListEmptyComponent={<EmptyState icon={Honeycomb} title="Tu finca aún no tiene colmenas." />}
         renderItem={({ item }) => (
           <ListItem
-            icon={Hexagon}
+            icon={Honeycomb}
             title={item.name}
             subtitle={item.apiary_name ?? undefined}
             onPress={() => setChosen(item)}
@@ -93,7 +93,7 @@ export default function AssignCodeScreen() {
           loading={saving}
           onPress={() => chosen && void assign(chosen, code)}
         />
-        <Button variant="secondary" label="Cancelar" onPress={() => setChosen(null)} />
+        <Button variant="ghost" label="Cancelar" onPress={() => setChosen(null)} />
       </Sheet>
     </View>
   )

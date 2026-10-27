@@ -6,7 +6,7 @@ import { color } from '@/lib/theme'
 const signedOutScreens = ['welcome', 'sign-up', 'sign-in']
 
 // Without it the group falls back to its alphabetically first screen, "join".
-export const unstable_settings = { initialRouteName: 'welcome' }
+export const unstable_settings = { anchor: 'welcome' }
 
 /** Signed in → the tabs (they pick onboarding, the switcher or Inicio); signed out → welcome. */
 export default function AuthLayout() {

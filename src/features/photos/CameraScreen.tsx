@@ -140,7 +140,7 @@ export function CameraScreen({ organizationId, hiveId, inspectionId, userId, onD
                     setRemoving((list) => [...list, t])
                   })}
                 >
-                  <Image source={{ uri: t.thumbUri }} className="size-16 rounded-button" />
+                  <Image source={{ uri: t.thumbUri }} className="size-16 rounded-field" />
                 </Pressable>
               ))}
             </ScrollView>

@@ -4,7 +4,6 @@ import {
   ChevronDown,
   ChevronUp,
   ClipboardCheck,
-  Hexagon,
   ListPlus,
   Pencil,
   QrCode,
@@ -16,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackButton } from '@/components/ui/BackButton'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { SyncChip } from '@/components/ui/SyncChip'
@@ -56,23 +56,21 @@ export default function HiveScreen() {
   const newDraft = drafts.find((d) => !d.is_edit)
 
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
 
   return (
     <View className="flex-1 bg-bg-soft">
-      <Screen>
+      <Screen
+        hero={{
+          title: hive.name,
+          eyebrow: hive.apiary_name,
+          children:
+            hive.status !== 'active' ? (
+              <Badge label={label(hiveStatusLabels, hive.status)} tone="danger" />
+            ) : null,
+        }}
+      >
         <BackButton />
-        {hive.apiary_name ? (
-          <Text className="font-sans text-body text-muted">{hive.apiary_name}</Text>
-        ) : null}
-        <View className="flex-row flex-wrap items-center gap-3">
-          <Text accessibilityRole="header" className="font-display text-title text-text">
-            {hive.name}
-          </Text>
-          {hive.status !== 'active' ? (
-            <Badge label={label(hiveStatusLabels, hive.status)} tone="danger" />
-          ) : null}
-        </View>
         {queue.attention > 0 ? (
           <SyncChip
             state="attention"

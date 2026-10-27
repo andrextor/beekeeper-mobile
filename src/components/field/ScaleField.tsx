@@ -1,5 +1,6 @@
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
+import { PressScale } from '@/components/ui/PressScale'
 import { cx } from '@/lib/cx'
 import { withTap } from '@/lib/haptics'
 import { choiceBox } from './choice'
@@ -24,19 +25,19 @@ export function ScaleField({ label, value, onChange, words }: Props) {
         {steps.map((step) => {
           const selected = step === value
           return (
-            <Pressable
+            <PressScale
               key={step}
               accessibilityRole="radio"
               accessibilityLabel={`${step}, ${words[step]}`}
               accessibilityState={{ selected }}
               onPress={withTap(() => onChange(selected ? null : step))}
               className={cx(
-                'aspect-square max-w-16 flex-1 items-center justify-center rounded-full border-2 active:opacity-80',
+                'aspect-square max-w-16 flex-1 items-center justify-center rounded-full border-2',
                 choiceBox(selected),
               )}
             >
               <Text className="font-display text-field-value text-text">{step}</Text>
-            </Pressable>
+            </PressScale>
           )
         })}
       </View>

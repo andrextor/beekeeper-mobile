@@ -1,8 +1,13 @@
-import type { ReactNode } from 'react'
-import { ScrollView, View } from 'react-native'
+import { useFocusEffect } from 'expo-router'
+import { setStatusBarStyle } from 'expo-status-bar'
+import { type ReactNode, useCallback } from 'react'
+import { ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { cx } from '@/lib/cx'
+import { HoneycombPattern } from './HoneycombPattern'
+
+type Hero = { title: string; eyebrow?: string | null; children?: ReactNode }
 
 type Props = {
   children: ReactNode
@@ -12,21 +17,57 @@ type Props = {
   field?: boolean
   /** False under a header that already pads the status bar (FieldHeader). */
   topInset?: boolean
+  /** A `deep` band with the honeycomb pattern on top; the content rises over it as a sheet. */
+  hero?: Hero
 }
 
-export function Screen({ children, scroll = true, field = false, topInset = true }: Props) {
+/** For screens with a dark top: light status-bar icons while the screen is in front. */
+export function useLightStatusBar() {
+  useFocusEffect(
+    useCallback(() => {
+      setStatusBarStyle('light')
+      return () => setStatusBarStyle('dark')
+    }, []),
+  )
+}
+
+function HeroBand({ title, eyebrow, children }: Hero) {
   const insets = useSafeAreaInsets()
+  useLightStatusBar()
+  return (
+    <View style={{ paddingTop: insets.top + 24 }} className="overflow-hidden bg-deep px-4 pb-12">
+      <HoneycombPattern />
+      <View className="gap-1.5">
+        {eyebrow ? (
+          <Text className="font-sans-semibold text-caption text-mist">{eyebrow}</Text>
+        ) : null}
+        <Text accessibilityRole="header" className="font-display text-title text-white">
+          {title}
+        </Text>
+        {children}
+      </View>
+    </View>
+  )
+}
+
+export function Screen({ children, scroll = true, field = false, topInset = true, hero }: Props) {
+  const insets = useSafeAreaInsets()
+  const content = cx('gap-4 p-4', hero && '-mt-6 rounded-t-sheet bg-bg-soft pt-6')
   return (
     <View
-      style={{ paddingTop: topInset ? insets.top : 0 }}
+      style={{ paddingTop: topInset && !hero ? insets.top : 0 }}
       className={cx('flex-1', field ? 'bg-bg' : 'bg-bg-soft')}
     >
       {scroll ? (
-        <ScrollView contentContainerClassName="gap-4 p-4 pb-8" keyboardShouldPersistTaps="handled">
-          {children}
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="pb-8">
+          {hero ? <HeroBand {...hero} /> : null}
+          <View className={content}>{children}</View>
         </ScrollView>
       ) : (
-        <View className="flex-1 gap-4 p-4">{children}</View>
+        <View className="flex-1">
+          {hero ? <HeroBand {...hero} /> : null}
+          <View className={cx('flex-1', content)}>{children}</View>
+        </View>
       )}
     </View>
   )

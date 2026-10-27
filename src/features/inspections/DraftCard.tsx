@@ -72,7 +72,7 @@ export function DraftCard({ draft, showHive = false, onContinue }: Props) {
   const what = draft.is_edit ? 'Edición sin terminar' : 'Revisión sin terminar'
   const where = showHive && draft.hive_name ? ` de ${draft.hive_name}` : ''
   return (
-    <View className="gap-3 rounded-card border-2 border-accent bg-surface p-4">
+    <View className="gap-3 rounded-card bg-accent-soft p-4">
       <View className="flex-row items-center gap-3">
         <ClipboardPen color={color.text} size={iconSize.field} />
         <Text className="flex-1 font-sans-semibold text-body text-text">

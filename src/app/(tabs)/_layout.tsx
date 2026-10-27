@@ -9,29 +9,43 @@ import {
   UserRound,
 } from 'lucide-react-native'
 import { useEffect } from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 // Photo eviction registers itself to run after every full sync (M9).
 import '@/features/photos/evict'
+import { PressScale } from '@/components/ui/PressScale'
 import { useSession } from '@/features/auth/session'
 import { takeWaitingLink } from '@/features/qr/pending-link'
 import { useSyncTriggers } from '@/features/sync/triggers'
 import { useSyncStatus } from '@/features/sync/useSyncStatus'
+import { cx } from '@/lib/cx'
 import { tapHaptic } from '@/lib/haptics'
-import { color, iconSize, iconStroke } from '@/lib/theme'
+import { color, iconSize, iconStroke, shadow } from '@/lib/theme'
 
 const tabIcon =
   (Icon: LucideIcon) =>
   ({ focused }: { focused: boolean }) => (
-    <Icon color={focused ? color.primary : color.muted} size={iconSize.standard} />
+    // Material 3 indicator: the active tab sits on a soft green pill.
+    <View
+      className={cx(
+        'h-8 w-16 items-center justify-center rounded-button',
+        focused && 'bg-primary-soft',
+      )}
+    >
+      <Icon
+        color={focused ? color.onPrimarySoft : color.muted}
+        size={iconSize.standard}
+        strokeWidth={focused ? iconStroke.field : iconStroke.standard}
+      />
+    </View>
   )
 
 /** DESIGN.md: the center tab is a 72-dp honey circle that rises above the bar. */
 function ScanTabButton({ onPress, accessibilityState }: BottomTabBarButtonProps) {
   return (
     <View className="flex-1 items-center">
-      <Pressable
+      <PressScale
         accessibilityRole="button"
         accessibilityLabel="Escanear QR"
         accessibilityState={accessibilityState}
@@ -39,10 +53,11 @@ function ScanTabButton({ onPress, accessibilityState }: BottomTabBarButtonProps)
           tapHaptic()
           onPress?.(e)
         }}
-        className="-mt-6 size-field items-center justify-center rounded-full border-4 border-bg bg-accent active:opacity-80"
+        className="-mt-7 size-field items-center justify-center rounded-full border-4 border-bg bg-accent"
+        style={shadow.raised}
       >
         <ScanQrCode color={color.onAccent} size={iconSize.field} strokeWidth={iconStroke.field} />
-      </Pressable>
+      </PressScale>
     </View>
   )
 }
@@ -74,14 +89,17 @@ function SyncedTabs() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: color.primary,
+        tabBarActiveTintColor: color.onPrimarySoft,
         tabBarInactiveTintColor: color.muted,
         tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 13 },
+        // Room for the 64×32 active pill; the default wrapper is a 24-dp square.
+        tabBarIconStyle: { width: 64, height: 32 },
         tabBarStyle: {
-          height: 64 + insets.bottom,
-          paddingTop: 6,
+          height: 72 + insets.bottom,
+          paddingTop: 8,
           backgroundColor: color.bg,
-          borderTopColor: color.border,
+          borderTopWidth: 0,
+          ...shadow.tabBar,
         },
       }}
     >

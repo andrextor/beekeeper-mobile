@@ -1,12 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router'
 import { Camera, ImageOff } from 'lucide-react-native'
 import { useState } from 'react'
-import { Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Screen } from '@/components/ui/Screen'
+import { Title } from '@/components/ui/Title'
 import { PhotoGrid } from '@/features/photos/PhotoGrid'
 import { usePhotos } from '@/features/photos/queries'
 
@@ -21,9 +21,7 @@ export default function HivePhotosScreen() {
   return (
     <Screen>
       <BackButton />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Fotos
-      </Text>
+      <Title text="Fotos" />
       <Button
         variant="accent"
         icon={Camera}

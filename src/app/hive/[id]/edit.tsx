@@ -1,10 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, Lock, Trash2 } from 'lucide-react-native'
+import { Lock, Trash2 } from 'lucide-react-native'
 import { useState } from 'react'
 import { Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Sheet } from '@/components/ui/Sheet'
 import { showToast, undoFailed } from '@/components/ui/ToastHost'
@@ -25,7 +26,7 @@ export default function EditHiveScreen() {
 
   if (!owner) return <NotAvailable icon={Lock} title="Solo el propietario puede editar." />
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
 
   const { apiary_name: _, ...row } = hive
 
@@ -79,7 +80,7 @@ export default function EditHiveScreen() {
           Su historial se conserva, pero deja de aparecer en las listas. Puedes deshacerlo durante 5
           segundos.
         </Text>
-        <Button variant="secondary" label="Cancelar" onPress={() => setConfirming(false)} />
+        <Button variant="ghost" label="Cancelar" onPress={() => setConfirming(false)} />
         <Button variant="danger" label="Eliminar colmena" onPress={remove} />
       </Sheet>
     </>

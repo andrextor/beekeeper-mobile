@@ -7,21 +7,21 @@ import { color } from '@/lib/theme'
 export type BadgeTone = 'neutral' | 'primary' | 'accent' | 'danger'
 
 const box: Record<BadgeTone, string> = {
-  neutral: 'bg-stone-100 border border-stone-300',
-  primary: 'bg-success-bg',
-  accent: 'bg-accent',
+  neutral: 'bg-fill',
+  primary: 'bg-primary-soft',
+  accent: 'bg-accent-soft',
   danger: 'bg-danger',
 }
 const text: Record<BadgeTone, string> = {
   neutral: 'text-text',
-  primary: 'text-primary',
-  accent: 'text-on-accent',
+  primary: 'text-on-primary-soft',
+  accent: 'text-text',
   danger: 'text-on-danger',
 }
 const ink: Record<BadgeTone, string> = {
   neutral: color.text,
-  primary: color.primary,
-  accent: color.onAccent,
+  primary: color.onPrimarySoft,
+  accent: color.text,
   danger: color.onDanger,
 }
 

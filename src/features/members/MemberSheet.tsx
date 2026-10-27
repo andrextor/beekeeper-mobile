@@ -42,7 +42,7 @@ export function MemberSheet({ member, busy, error, onRole, onRemove, onClose }: 
             loading={busy}
             onPress={onRemove}
           />
-          <Button variant="secondary" label="Cancelar" onPress={() => setConfirming(false)} />
+          <Button variant="ghost" label="Cancelar" onPress={() => setConfirming(false)} />
         </>
       ) : (
         <>

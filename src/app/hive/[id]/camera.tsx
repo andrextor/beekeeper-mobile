@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { Hexagon } from 'lucide-react-native'
 
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { useSession } from '@/features/auth/session'
 import { useHive } from '@/features/hives/queries'
@@ -12,7 +12,7 @@ export default function CameraRoute() {
   const { state } = useSession()
   const { hive, loading } = useHive(id)
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
   return (
     <CameraScreen
       organizationId={hive.organization_id}

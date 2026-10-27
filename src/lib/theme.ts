@@ -12,7 +12,20 @@ export const color = {
   onDanger: colors.white,
   border: colors.stone['200'],
   bg: colors.white,
-  bgSoft: colors.stone['50'],
+  bgSoft: colors.canvas,
+  primarySoft: colors.primarySoft,
+  onPrimarySoft: colors.onPrimarySoft,
+  dangerSoft: colors.dangerSoft,
+  onDangerSoft: colors.onDangerSoft,
+  mist: colors.mist,
+  sprout: colors.sprout,
+} as const
+
+/** RN `boxShadow` (New Architecture); NativeWind's shadow classes do not reach Android. */
+export const shadow = {
+  card: { boxShadow: '0 2px 12px rgba(4, 48, 59, 0.07)' },
+  raised: { boxShadow: '0 8px 24px rgba(4, 48, 59, 0.18)' },
+  tabBar: { boxShadow: '0 -4px 16px rgba(4, 48, 59, 0.06)' },
 } as const
 
 export const iconSize = { standard: 24, field: 36, scan: 56, state: 56, hero: 64 } as const

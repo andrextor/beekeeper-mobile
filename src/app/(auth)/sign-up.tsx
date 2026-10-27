@@ -1,12 +1,12 @@
 import { router } from 'expo-router'
 import { useState } from 'react'
-import { Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { PasswordField } from '@/features/auth/PasswordField'
 import { errorCode, messageFor, minPasswordLength, passwordTooShort } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
@@ -18,7 +18,11 @@ export default function SignUpScreen() {
   const [error, setError] = useState<string | null>(null)
   const [exists, setExists] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [left, setLeft] = useState(false)
 
+  // Checked once the field is left, cleared as soon as the value is long enough.
+  const shortError =
+    left && password && password.length < minPasswordLength ? passwordTooShort : undefined
   const repeatError = repeat && repeat !== password ? 'Las contraseñas no coinciden.' : undefined
 
   const submit = async () => {
@@ -40,9 +44,7 @@ export default function SignUpScreen() {
   return (
     <Screen>
       <BackButton />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Crear cuenta
-      </Text>
+      <Title text="Crear cuenta" />
       <TextField
         label="Tu correo"
         value={email}
@@ -60,6 +62,8 @@ export default function SignUpScreen() {
         onChangeText={setPassword}
         autoComplete="new-password"
         hint={`Mínimo ${minPasswordLength} caracteres`}
+        error={shortError}
+        onBlur={() => setLeft(true)}
       />
       <PasswordField
         label="Repite la contraseña"

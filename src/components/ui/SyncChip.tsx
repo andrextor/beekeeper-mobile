@@ -13,14 +13,19 @@ import { color } from '@/lib/theme'
 export type SyncState = 'saved' | 'pending' | 'synced' | 'attention'
 
 const look: Record<SyncState, { icon: LucideIcon; box: string; text: string; ink: string }> = {
-  saved: { icon: Smartphone, box: 'bg-accent', text: 'text-on-accent', ink: color.onAccent },
+  saved: { icon: Smartphone, box: 'bg-accent-soft', text: 'text-text', ink: color.text },
   pending: {
     icon: CloudUpload,
     box: 'border-2 border-accent bg-surface',
     text: 'text-text',
     ink: color.text,
   },
-  synced: { icon: CloudCheck, box: 'bg-transparent', text: 'text-primary', ink: color.primary },
+  synced: {
+    icon: CloudCheck,
+    box: 'bg-primary-soft',
+    text: 'text-on-primary-soft',
+    ink: color.onPrimarySoft,
+  },
   attention: { icon: TriangleAlert, box: 'bg-danger', text: 'text-on-danger', ink: color.onDanger },
 }
 

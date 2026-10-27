@@ -12,6 +12,7 @@ type Props = {
   hint?: string
   error?: string
   onSubmitEditing?: () => void
+  onBlur?: () => void
 }
 
 export function PasswordField({ autoComplete, ...props }: Props) {

@@ -1,6 +1,6 @@
 import { Save } from 'lucide-react-native'
 import { type ReactNode, useState } from 'react'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ChipSelect } from '@/components/field/ChipSelect'
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
 import { fieldErrors } from '@/lib/form'
@@ -121,9 +122,7 @@ export function HiveForm({
     <View className="flex-1 bg-bg-soft">
       <Screen>
         {header}
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          {title}
-        </Text>
+        <Title text={title} />
         <TextField
           label="Nombre *"
           value={name}

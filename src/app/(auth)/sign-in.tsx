@@ -8,6 +8,7 @@ import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { PasswordField } from '@/features/auth/PasswordField'
 import { lastSignedInEmail } from '@/features/auth/session'
 import { pendingCount } from '@/features/sync/pending'
@@ -62,9 +63,7 @@ export default function SignInScreen() {
   return (
     <Screen>
       <BackButton />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Ya tengo cuenta
-      </Text>
+      <Title text="Iniciar sesión" />
       <TextField
         label="Tu correo"
         value={email}

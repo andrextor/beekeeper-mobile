@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { ClipboardCheck, Hexagon, Lock } from 'lucide-react-native'
+import { ClipboardCheck, Lock } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
 
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
@@ -62,7 +63,7 @@ export default function InspectScreen() {
   }, [id, inspectionId, organizationId, userId, owner])
 
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
   if (opened?.kind === 'forbidden') {
     return (
       <NotAvailable

@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { SyncChip } from '@/components/ui/SyncChip'
+import { Title } from '@/components/ui/Title'
 import { Toast } from '@/components/ui/Toast'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
@@ -51,9 +52,7 @@ function Header({ status }: { status: SyncStatus }) {
   })
   return (
     <View className="gap-4">
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Pendientes
-      </Text>
+      <Title text="Pendientes" />
       <StatusChip status={status} />
       <Button
         icon={RefreshCw}
@@ -63,7 +62,7 @@ function Header({ status }: { status: SyncStatus }) {
       />
       <FormError message={status.error} />
       {waitingPhotos > 0 && !onWifi ? (
-        <View className="gap-2 rounded-card border-2 border-accent p-3">
+        <View className="gap-2 rounded-card bg-accent-soft p-3">
           <Text className="font-sans-semibold text-body text-text">
             {`${plural(waitingPhotos, 'foto esperando', 'fotos esperando')} Wi-Fi`}
           </Text>

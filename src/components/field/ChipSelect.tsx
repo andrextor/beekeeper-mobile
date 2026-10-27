@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react-native'
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
+import { PressScale } from '@/components/ui/PressScale'
 import { cx } from '@/lib/cx'
 import { withTap } from '@/lib/haptics'
 import { color } from '@/lib/theme'
@@ -34,19 +35,19 @@ export function ChipSelect({ label, options, value, onChange, multiple = false }
         {Object.entries(options).map(([option, text]) => {
           const selected = value.includes(option)
           return (
-            <Pressable
+            <PressScale
               key={option}
               accessibilityRole={multiple ? 'checkbox' : 'radio'}
               accessibilityState={multiple ? { checked: selected } : { selected }}
               onPress={withTap(() => toggle(option))}
               className={cx(
-                'min-h-16 flex-row items-center gap-2 rounded-full border-2 px-5 active:opacity-80',
+                'min-h-16 flex-row items-center gap-2 rounded-full border-2 px-5',
                 choiceBox(selected),
               )}
             >
               {selected && <Check color={color.onAccent} size={22} strokeWidth={2.75} />}
               <Text className="font-sans-semibold text-body text-text">{text}</Text>
-            </Pressable>
+            </PressScale>
           )
         })}
       </View>

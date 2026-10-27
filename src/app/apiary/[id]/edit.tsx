@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
+import { Title } from '@/components/ui/Title'
 import { showToast, undoFailed } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { saveRow } from '@/db/write'
@@ -55,9 +56,7 @@ export default function EditApiaryScreen() {
   return (
     <Screen>
       <BackButton />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Editar apiario
-      </Text>
+      <Title text="Editar apiario" />
       <ApiaryForm
         initial={toDraft(apiary)}
         otherNames={names.filter((n) => n.id !== id).map((n) => n.name)}
@@ -85,7 +84,7 @@ export default function EditApiaryScreen() {
           <Button label="Entendido" onPress={() => setConfirming(false)} />
         ) : (
           <>
-            <Button variant="secondary" label="Cancelar" onPress={() => setConfirming(false)} />
+            <Button variant="ghost" label="Cancelar" onPress={() => setConfirming(false)} />
             <Button variant="danger" label="Eliminar apiario" onPress={remove} />
           </>
         )}

@@ -1,4 +1,4 @@
-import { Hexagon, Save, Trash2 } from 'lucide-react-native'
+import { Save, Trash2 } from 'lucide-react-native'
 import { type ReactNode, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -7,8 +7,10 @@ import { ChipSelect } from '@/components/field/ChipSelect'
 import { StepperField } from '@/components/field/StepperField'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
+import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
 import { formatCalendarDate } from '@/lib/format'
@@ -65,7 +67,7 @@ const ownerNotice = 'Avisa al propietario para que actualice la colmena.'
 
 function Notice({ text }: { text: string }) {
   return (
-    <View className="rounded-card border-2 border-accent p-3">
+    <View className="rounded-card bg-accent-soft p-3">
       <Text className="font-sans text-body text-text">{text}</Text>
     </View>
   )
@@ -349,9 +351,7 @@ export function EventForm(props: Props) {
   return (
     <View className="flex-1 bg-bg-soft">
       <Screen>
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          {`${label(eventTypeLabels, type)} · ${hive.name}`}
-        </Text>
+        <Title text={`${label(eventTypeLabels, type)} · ${hive.name}`} />
         <ChipSelect
           label="Cuándo"
           options={{
@@ -373,7 +373,7 @@ export function EventForm(props: Props) {
           ) : (
             <Button
               variant="accent"
-              icon={Hexagon}
+              icon={Honeycomb}
               label="Crear la nueva colmena ahora"
               onPress={() => props.onCreateHive(type === 'split' ? 'split' : 'swarm_capture')}
             />

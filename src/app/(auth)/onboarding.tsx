@@ -1,23 +1,43 @@
-import { Redirect, router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, KeyRound } from 'lucide-react-native'
-import { useRef, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { KeyRound, LogOut, type LucideIcon } from 'lucide-react-native'
+import { useCallback, useRef, useState } from 'react'
+import { BackHandler, Text, View } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import { FormError } from '@/components/ui/FormError'
+import { IconTile } from '@/components/ui/IconTile'
+import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { createOrganization, includesFinca, updateDisplayName } from '@/features/auth/organizations'
+import { SignOutSheet } from '@/features/auth/SignOutSheet'
 import { useSession } from '@/features/auth/session'
+import { pendingCount } from '@/features/sync/pending'
 import { messageFor } from '@/lib/errors'
 import { uuid } from '@/lib/ids'
-import { color, iconSize } from '@/lib/theme'
 
 export default function OnboardingScreen() {
   const { state, refreshMemberships, setActiveOrganization } = useSession()
   const { add } = useLocalSearchParams<{ add?: string }>()
   const [creating, setCreating] = useState(add === '1')
+  const [signOutPending, setSignOutPending] = useState<number | null>(null)
+  const choosing = state.status === 'signedIn' && state.memberships.length === 0 && !creating
+
+  // Nothing is behind Empecemos for someone without a finca: the anchored welcome would only
+  // redirect back here, so the system back button leaves the app instead.
+  useFocusEffect(
+    useCallback(() => {
+      if (!choosing) return
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        BackHandler.exitApp()
+        return true
+      })
+      return () => sub.remove()
+    }, [choosing]),
+  )
 
   if (state.status !== 'signedIn') return null
   // Someone who already has a finca lands here only to add another one (never mid-creation).
@@ -42,11 +62,9 @@ export default function OnboardingScreen() {
 
   return (
     <Screen>
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Empecemos
-      </Text>
+      <Title text="Empecemos" />
       <Choice
-        icon={Hexagon}
+        icon={Honeycomb}
         title="Crear mi finca"
         body="Soy el apicultor: registro mis apiarios y colmenas."
         onPress={() => setCreating(true)}
@@ -57,35 +75,44 @@ export default function OnboardingScreen() {
         body="Alguien me invitó a su finca y me envió un código."
         onPress={() => router.push('/join')}
       />
+      <View className="mt-4 gap-3">
+        {state.session.user.email ? (
+          <Text className="font-sans text-body text-muted">
+            {`Entraste como ${state.session.user.email}`}
+          </Text>
+        ) : null}
+        {/* Unsent rows can outlive a lost finca: the sheet still counts them before erasing. */}
+        <Button
+          variant="secondary"
+          icon={LogOut}
+          label="Cerrar sesión"
+          onPress={async () => setSignOutPending(await pendingCount())}
+        />
+      </View>
+      <SignOutSheet pending={signOutPending} onClose={() => setSignOutPending(null)} />
     </Screen>
   )
 }
 
 function Choice({
-  icon: Icon,
+  icon,
   title,
   body,
   onPress,
 }: {
-  icon: typeof Hexagon
+  icon: LucideIcon
   title: string
   body: string
   onPress: () => void
 }) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      className="min-h-tile flex-row items-center gap-4 rounded-card border-2 border-border bg-surface p-4 active:opacity-80"
-    >
-      <View className="size-target items-center justify-center rounded-full bg-accent">
-        <Icon color={color.onAccent} size={iconSize.standard} />
-      </View>
+    <Card onPress={onPress} className="min-h-tile flex-row items-center gap-4">
+      <IconTile icon={icon} tone="accent" />
       <View className="flex-1 gap-1">
         <Text className="font-display text-section text-text">{title}</Text>
         <Text className="font-sans text-body text-muted">{body}</Text>
       </View>
-    </Pressable>
+    </Card>
   )
 }
 
@@ -126,9 +153,7 @@ function CreateFinca({
   return (
     <Screen>
       <BackButton onPress={onBack} />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Crea tu finca
-      </Text>
+      <Title text="Crea tu finca" />
       <Text className="font-sans text-body text-muted">
         Es el nombre de tu explotación apícola. Podrás invitar revisores después.
       </Text>

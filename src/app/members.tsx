@@ -11,6 +11,7 @@ import { FormError } from '@/components/ui/FormError'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
+import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { useActiveMembership, useSession } from '@/features/auth/session'
@@ -133,9 +134,7 @@ export default function MembersScreen() {
     <View className="flex-1">
       <Screen>
         <BackButton />
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          {`Personas de ${finca ?? 'la finca'}`}
-        </Text>
+        <Title text={`Personas de ${finca ?? 'la finca'}`} />
         {loaded.status === 'offline' ? (
           <ErrorState
             title="Sin conexión"
@@ -255,7 +254,7 @@ export default function MembersScreen() {
             }}
           />
         ) : (
-          <Button variant="secondary" label="Cancelar" onPress={() => setLeavePending(null)} />
+          <Button variant="ghost" label="Cancelar" onPress={() => setLeavePending(null)} />
         )}
         <Button
           variant="danger"

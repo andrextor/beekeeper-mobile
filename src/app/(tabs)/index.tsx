@@ -1,11 +1,12 @@
 import { router } from 'expo-router'
-import { CalendarClock, CircleCheck, Hexagon, ListTodo, ScanQrCode } from 'lucide-react-native'
+import { CalendarClock, CircleCheck, ListTodo, ScanQrCode } from 'lucide-react-native'
 import { type ReactNode, useState } from 'react'
 import { Text, View } from 'react-native'
 
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
 import { useLocalRead } from '@/db/useLocalQuery'
@@ -51,18 +52,13 @@ export default function HomeScreen() {
     ['hives', 'apiaries', 'inspections', 'hive_events'],
   )
 
-  if (loading || !data) return <Screen>{null}</Screen>
+  const hero = { title: 'Inicio', eyebrow: finca }
+  if (loading || !data) return <Screen hero={hero}>{null}</Screen>
   const { visits, tasks, activity } = data
   const allClear = visits.length === 0 && tasks.length === 0
 
   return (
-    <Screen>
-      <View className="gap-1">
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          Inicio
-        </Text>
-        {finca ? <Text className="font-sans text-body text-muted">{finca}</Text> : null}
-      </View>
+    <Screen hero={hero}>
       <UpdateBanner />
 
       {allClear ? (
@@ -107,7 +103,7 @@ export default function HomeScreen() {
                       .map((h) => (
                         <ListItem
                           key={h.id}
-                          icon={Hexagon}
+                          icon={Honeycomb}
                           title={h.name}
                           onPress={() => openHive(h.id)}
                         />

@@ -1,13 +1,15 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, Lock, ScanQrCode, Sparkles } from 'lucide-react-native'
+import { Lock, ScanQrCode, Sparkles } from 'lucide-react-native'
 import { useState } from 'react'
 import { Text, View } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
+import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
+import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { useRole } from '@/features/auth/session'
 import { useHive } from '@/features/hives/queries'
@@ -28,7 +30,7 @@ export default function RelabelScreen() {
   if (!owner)
     return <NotAvailable icon={Lock} title="Solo el propietario puede cambiar la etiqueta." />
   if (!hive)
-    return loading ? null : <NotAvailable icon={Hexagon} title="Esta colmena ya no existe." />
+    return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
 
   const apply = async (code: string) => {
     setScanning(false)
@@ -60,9 +62,7 @@ export default function RelabelScreen() {
   return (
     <Screen>
       <BackButton />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        {`Cambiar etiqueta de ${hive.name}`}
-      </Text>
+      <Title text={`Cambiar etiqueta de ${hive.name}`} />
       <Text className="font-sans text-body text-text">
         La etiqueta anterior deja de funcionar. El historial de la colmena se conserva y anota el
         cambio.

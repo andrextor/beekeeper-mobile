@@ -1,12 +1,13 @@
 import { router } from 'expo-router'
-import { Hexagon, KeyRound, Plus } from 'lucide-react-native'
-import { Text } from 'react-native'
+import { KeyRound, Plus } from 'lucide-react-native'
 
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { RoleBadge } from '@/components/ui/RoleBadge'
 import { Screen } from '@/components/ui/Screen'
+import { Title } from '@/components/ui/Title'
 import { useSession } from '@/features/auth/session'
 
 export default function OrganizationsScreen() {
@@ -20,14 +21,12 @@ export default function OrganizationsScreen() {
 
   return (
     <Screen>
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Tus fincas
-      </Text>
+      <Title text="Tus fincas" />
       <Card className="overflow-hidden p-0">
         {state.memberships.map((m) => (
           <ListItem
             key={m.organization_id}
-            icon={Hexagon}
+            icon={Honeycomb}
             title={m.organization_name}
             subtitle={m.organization_id === state.activeOrganizationId ? 'Finca actual' : undefined}
             trailing={<RoleBadge role={m.role} />}
