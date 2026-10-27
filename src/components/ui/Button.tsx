@@ -1,27 +1,32 @@
 import type { LucideIcon } from 'lucide-react-native'
-import { ActivityIndicator, Pressable, Text } from 'react-native'
+import { ActivityIndicator, Text } from 'react-native'
 
 import { cx } from '@/lib/cx'
 import { color, iconSize } from '@/lib/theme'
+import { PressScale } from './PressScale'
 
-type Variant = 'primary' | 'accent' | 'secondary' | 'danger'
+/** `secondary` is the tonal button (soft green); `ghost` is text only, for Cancelar and the like. */
+type Variant = 'primary' | 'accent' | 'secondary' | 'ghost' | 'danger'
 
 const box: Record<Variant, string> = {
   primary: 'bg-primary',
   accent: 'bg-accent',
-  secondary: 'bg-surface border-2 border-border',
+  secondary: 'bg-primary-soft',
+  ghost: 'bg-transparent',
   danger: 'bg-danger',
 }
 const text: Record<Variant, string> = {
   primary: 'text-on-primary',
   accent: 'text-on-accent',
-  secondary: 'text-text',
+  secondary: 'text-on-primary-soft',
+  ghost: 'text-on-primary-soft',
   danger: 'text-on-danger',
 }
 const ink: Record<Variant, string> = {
   primary: color.onPrimary,
   accent: color.onAccent,
-  secondary: color.text,
+  secondary: color.onPrimarySoft,
+  ghost: color.onPrimarySoft,
   danger: color.onDanger,
 }
 
@@ -46,13 +51,13 @@ export function Button({
 }: Props) {
   const inactive = disabled || loading
   return (
-    <Pressable
+    <PressScale
       accessibilityRole="button"
       accessibilityState={{ disabled: inactive, busy: loading }}
       disabled={inactive}
       onPress={onPress}
       className={cx(
-        'min-h-target flex-row items-center justify-center gap-2 rounded-button px-5 active:opacity-80',
+        'min-h-target flex-row items-center justify-center gap-2 rounded-button px-6',
         box[variant],
         inactive && 'opacity-50',
         className,
@@ -64,6 +69,6 @@ export function Button({
         Icon && <Icon color={ink[variant]} size={iconSize.standard} />
       )}
       <Text className={cx('font-sans-semibold text-body', text[variant])}>{label}</Text>
-    </Pressable>
+    </PressScale>
   )
 }
