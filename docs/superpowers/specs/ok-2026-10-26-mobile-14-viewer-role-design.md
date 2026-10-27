@@ -57,6 +57,13 @@ Screens:
 - **Invitar persona** (`src/app/invite.tsx`): the chips offer the three roles, Revisor is the default, and the help line follows the chosen chip.
 - **Person sheet** (`MemberSheet`): the "Hacer revisor / Hacer propietario" toggle can't express three roles. It becomes the same chips, preselected on the current role, with the help line and a **Cambiar rol** button. The button is disabled while the chosen role equals the current one. "Quitar de la finca" and "Cerrar" stay. The server keeps the last-owner rule, and its message passes through as it does today.
 
+### 6. Addendum (Iván, 2026-10-26, waiting for OK): WhatsApp opens directly; codes last 30 days
+
+- **WhatsApp directly.** In `src/app/invite.tsx`, "Compartir por WhatsApp" calls `Linking.openURL('whatsapp://send?text=' + encodeURIComponent(inviteMessage(...)))`.
+  - If WhatsApp is missing or `openURL` rejects, it falls back to `Share.share` with the same message, so the owner can still pick SMS, email or any other app.
+  - No `canOpenURL`. On Android 11+ it needs `com.whatsapp` in `<queries>`, which is a native change (new APK). `openURL` with a catch needs no declaration, so this ships by OTA.
+- **30 days.** The backend sets `expires_at` and the app already shows "Vence el …" from it, so the code needs no change. The only "7 días" for invites is in `docs/install.md`, and it becomes "30 días". The "En 7 días" chip in field mode is the next-inspection date, not invites, so it stays.
+
 ## Rejected
 
 - **Hide by `role === 'viewer'` in each screen.** That spreads the rule over a dozen files. `canRecord` keeps it in one place.
