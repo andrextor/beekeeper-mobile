@@ -1,6 +1,6 @@
 # M9 · Photos — plan
 
-Spec: `docs/superpowers/specs/2026-10-25-mobile-09-photos-design.md` · Branch: `feat/m9-photos` · Status: **approved** (Iván, 2026-10-26)
+Spec: `docs/superpowers/specs/ok-2026-10-25-mobile-09-photos-design.md` · Branch: `feat/m9-photos` · Status: **approved** (Iván, 2026-10-26)
 
 New dependencies (approval asked here, installed with `pnpm expo install`): `expo-image-picker`, `expo-image-manipulator`, and `expo-file-system` as a direct dependency (today only transitive, 58.0.11). `expo-camera` is reused from M5 and `ShutterButton` from M1. All native: they join the single development build of the final phone pass, right after this module.
 

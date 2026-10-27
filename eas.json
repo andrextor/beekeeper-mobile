@@ -16,8 +16,21 @@
     },
     "preview": {
       "distribution": "internal",
+      "channel": "preview",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://dhacyrwngqegqjffpten.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_WKOEhnuPNOuRFnA4y0RPbA_6C6ZS8I5"
+      }
+    },
+    "production": {
+      "extends": "preview",
+      "distribution": "store",
+      "channel": "production",
+      "android": {
+        "buildType": "app-bundle"
       }
     }
   }

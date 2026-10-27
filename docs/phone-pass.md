@@ -26,3 +26,23 @@ Iván runs it once, when the modules are done (2026-10-26): one development buil
 | 10 | M11 | Owner online: Perfil → Personas de la finca → Invitar persona → "Ayudante", Revisor → code shown → Compartir por WhatsApp to yourself. Second phone: Crear cuenta → Tengo un código → lands as Revisor, no "Invitar persona"; same code on a third account → "El código no es válido…". Owner: Ayudante → Hacer propietario → helper gets owner controls after the next sync; back to Revisor. Only owner → Salir → "La finca debe tener al menos un propietario". Airplane mode → Personas shows "Sin conexión" → Reintentar after it. Reviewer: inspection offline → Salir → count warning → Sincronizar primero → Salir → finca and its photos gone. Another code → Cancelar código → typing it fails. Admin: role change / remove / deactivate the helper → phone follows after the next sync; Personas shows "Desactivado". |
 
 Anything that fails: note the step and paste what the screen says; it becomes a fix branch.
+
+## Pilot checklist (overview §10)
+
+Filled with the first preview APK against D1 (`docs/release.md`), not the dev build. Every row needs evidence: a date, a screenshot, a row count.
+
+| Item | How | Result |
+|------|-----|--------|
+| APK installs and opens without a computer | WhatsApp link on a phone that never had the dev build, following `docs/install.md` | |
+| Sign in, create a finca, an apiary, a hive | Once with a self-created account, once with an account created by the admin | |
+| Two fincas cannot see each other | Two phones, two accounts, two fincas | |
+| A printed QR opens the right hive | 3 labels printed, scanned in the apiary | |
+| Manual inspection usable, history visible | On site, gloves | |
+| Airplane-mode inspection survives closing the app | Record, force-stop, reopen | |
+| Syncs once when signal returns | Studio row count before and after; Pendientes empty | |
+| Network cut mid-sync: no loss, no duplicate | Airplane on/off during a sync 5 times; count rows by id | |
+| Voice with confirmation, or a clear fallback | Including the offline pack missing | |
+| The user sees what is synced or pending | Pendientes tab and sync chips | |
+| Camera, microphone, location permissions | Fresh install: deny, then allow each | |
+| Update without losing data | 3 unsynced inspections, next APK installed over it, then they sync once; an OTA shows "Hay una actualización" | |
+| Install guide works for someone else | A beekeeper follows `docs/install.md` alone | |

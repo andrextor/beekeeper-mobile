@@ -9,7 +9,7 @@ This repo is the **Android app** of Landak Apiario (Expo + React Native + TypeSc
 1. **Review the design first.** Before anything that touches UI read `DESIGN.md` and the `frontend-design` skill (`.agents/skills/frontend-design/SKILL.md`). Always read the module's spec and `../beekeeper/docs/api.md`.
 2. **Spec** at `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`: problem, decision and why, alternatives rejected, *Field use* section (gloves, sun, no signal), backend contract used, out of scope.
 3. **Plan** at `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`: spec link, branch, numbered tasks (one commit each) naming exact files, checks, and **How Iván tests it** on a real Android phone.
-4. **Stop and wait for an explicit OK from Iván.** Never implement in the same turn. Approved plans are renamed `ok-YYYY-MM-DD-<slug>.md`.
+4. **Stop and wait for an explicit OK from Iván.** Never implement in the same turn. Approved specs and plans are renamed with an `ok-` prefix (`ok-YYYY-MM-DD-<slug>-design.md`, `ok-YYYY-MM-DD-<slug>.md`).
 5. Implement only what the approved plan says. If reality diverges, stop, update the plan, ask again.
 
 A module that needs a backend change stops and asks for a spec in `beekeeper` first.

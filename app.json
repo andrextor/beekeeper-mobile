@@ -2,21 +2,26 @@
   "expo": {
     "name": "Landak Apiario",
     "slug": "landak-apiario",
-    "version": "0.11.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "landak",
     "userInterfaceStyle": "light",
     "android": {
       "package": "co.landak.apiario",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "backgroundColor": "#0c6511",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -56,6 +61,13 @@
         "projectId": "d89ae7ab-acdc-4c2c-b987-3064f1553a9e"
       }
     },
-    "owner": "andrextors-team"
+    "owner": "andrextors-team",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d89ae7ab-acdc-4c2c-b987-3064f1553a9e",
+      "checkAutomatically": "ON_LOAD"
+    }
   }
 }

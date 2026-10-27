@@ -11,6 +11,7 @@ import { Screen } from '@/components/ui/Screen'
 import { useLocalRead } from '@/db/useLocalQuery'
 import { useActiveMembership, useSession } from '@/features/auth/session'
 import { hivesToVisit, latestInspections, openTasks, recentActivity } from '@/features/hives/home'
+import { UpdateBanner } from '@/features/updates/UpdateBanner'
 import { localDay } from '@/lib/dates'
 import { formatRelative, plural } from '@/lib/format'
 
@@ -62,6 +63,7 @@ export default function HomeScreen() {
         </Text>
         {finca ? <Text className="font-sans text-body text-muted">{finca}</Text> : null}
       </View>
+      <UpdateBanner />
 
       {allClear ? (
         <Card>
