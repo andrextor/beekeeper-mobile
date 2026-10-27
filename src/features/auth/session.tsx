@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react'
 
-import { onMembershipsPulled } from '@/features/sync/members'
+import { canRecord, onMembershipsPulled } from '@/features/sync/members'
 import { supabase } from '@/lib/supabase'
 import { wipeLocalData } from '@/lib/wipe'
 import {
@@ -183,6 +183,11 @@ export function useActiveMembership(): Membership | null {
 /** Role in the active finca; the UI hides what RLS would refuse, the server still decides. */
 export function useRole(): Role | null {
   return useActiveMembership()?.role ?? null
+}
+
+/** False for an observador: screens hide every write. */
+export function useCanRecord(): boolean {
+  return canRecord(useRole())
 }
 
 /**

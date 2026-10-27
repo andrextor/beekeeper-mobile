@@ -3,15 +3,23 @@ import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
 import { withTimeout } from './server'
 
+/** A role this app does not know yet reads as `viewer`: least privilege, never a blank app. */
+export const roleSchema = z.enum(['owner', 'reviewer', 'viewer']).catch('viewer')
+
 const membershipSchema = z.object({
   organization_id: z.string(),
   organization_name: z.string(),
-  role: z.enum(['owner', 'reviewer']),
+  role: roleSchema,
 })
 const membershipsSchema = z.array(membershipSchema)
 
 export type Membership = z.infer<typeof membershipSchema>
 export type Role = Membership['role']
+
+/** Who records anything in a finca; an observador only reads. RLS still decides. */
+export function canRecord(role: Role | null): boolean {
+  return role === 'owner' || role === 'reviewer'
+}
 
 /** `my_memberships()`: the fincas and roles this person has now (soft-deleted fincas excluded). */
 export async function fetchMemberships(): Promise<Membership[]> {

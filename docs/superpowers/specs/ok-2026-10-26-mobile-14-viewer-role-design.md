@@ -1,6 +1,6 @@
 # M14 · Read-only role "Observador" (`viewer`) — spec
 
-Date: 2026-10-26 · Branch: `feat/m14-viewer-role` · Status: **draft, waiting for Iván's OK** · Version: 1.2.0
+Date: 2026-10-26 · Branch: `feat/m14-viewer-role` · Status: **approved** (Iván, 2026-10-26) · Version: 1.2.0
 
 ## Problem
 

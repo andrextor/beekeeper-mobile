@@ -1,6 +1,6 @@
 # M14 · Read-only role "Observador" — plan
 
-Spec: `docs/superpowers/specs/2026-10-26-mobile-14-viewer-role-design.md` · Branch: `feat/m14-viewer-role` (from `main` at v1.1.1) · Status: **waiting for Iván's OK**
+Spec: `docs/superpowers/specs/ok-2026-10-26-mobile-14-viewer-role-design.md` · Branch: `feat/m14-viewer-role` (from `main` at v1.1.1) · Status: **approved** (Iván, 2026-10-26)
 
 - No new dependency. No native change: it reaches phones by OTA once released.
 - Backend: `beekeeper` main 0.17.0 (B8 merged).
@@ -16,7 +16,7 @@ Spec: `docs/superpowers/specs/2026-10-26-mobile-14-viewer-role-design.md` · Bra
      - `src/features/auth/session.tsx`: `useCanRecord()`.
    - **Tests:**
      - `src/features/sync/members.test.ts` (new): `parseMemberships` keeps `viewer`, an unknown role becomes `viewer`, and `canRecord` returns true for owner and reviewer, false for viewer and `null`.
-     - `src/features/members/api.test.ts`: the members list parses a `viewer`.
+     - `src/features/members/api.test.ts`: a `viewer` sorts with the non-owners.
 
 2. **Outbox refuses a viewer's write.** `feat(sync): the outbox never takes a write from an observador`
    - **Files:** `src/db/write.ts`. Before the transaction, it reads `members_cache` for the rows' `organization_id`s. If any is `viewer`, it throws `{ code: '42501' }` and writes nothing.
@@ -46,7 +46,6 @@ Spec: `docs/superpowers/specs/2026-10-26-mobile-14-viewer-role-design.md` · Bra
    - **Files:**
      - `docs/ROADMAP.md`: M14 row.
      - `docs/phone-pass.md`: new section 12, the steps below.
-     - Specs and plan renamed `ok-` (done at the OK).
 
 6. **Release.** `chore(release): 1.2.0`: CHANGELOG `[1.2.0]` (Added: Observador; Fixed: an unknown role no longer blanks the app), `package.json` and `app.json` 1.2.0.
 
