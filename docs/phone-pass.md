@@ -23,7 +23,7 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 - **Matar la app**: botón de apps recientes → deslizar la app fuera. Abrirla de nuevo la reconecta a Metro.
 
 ### 1. Cuentas (M2)
-- [ ] 1.1 ➜ Admin web → Usuarios → **Nuevo usuario** → Tipo **Apicultor**, correo `nuevo2@landak.test`, una contraseña, finca "Finca Nueva". En el teléfono: **Iniciar sesión** → entra con ese correo. ✓ Llegas a Inicio de "Finca Nueva"; en Perfil dice Propietario.
+- [x] 1.1 ➜ Admin web → Usuarios → **Nuevo usuario** → Tipo **Apicultor**, correo `nuevo2@landak.test`, una contraseña, finca "Finca Nueva". En el teléfono: **Iniciar sesión** → entra con ese correo. ✓ Llegas a Inicio de "Finca Nueva"; en Perfil dice Propietario.
 - [ ] 1.2 ➜ Admin → Usuarios → `reviewer@landak.test` → **Desactivar** (no uses la cuenta de 1.1: el admin no deja desactivar al único propietario de una finca) → en el teléfono, cierra sesión e intenta entrar con `reviewer@landak.test`. ✓ "Esta cuenta está desactivada."
 - [ ] 1.3 ➜ Admin → `reviewer@landak.test` → **Reactivar** → entra de nuevo. ✓ Entra.
 - [ ] 1.4 ➜ Cierra sesión → en la bienvenida toca el enlace **Crear cuenta** → correo nuevo y contraseña de 8 o más → ✓ llegas a **Empecemos** → **Crear mi finca**. ✓ Quedas como Propietario de esa finca.
