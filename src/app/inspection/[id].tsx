@@ -1,11 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router'
 import { ClipboardCheck, Pencil } from 'lucide-react-native'
-import { Text } from 'react-native'
-
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
+import { Title } from '@/components/ui/Title'
 import { useRole, useSession } from '@/features/auth/session'
 import { InspectionDetailView } from '@/features/inspections/InspectionDetailView'
 import { useInspection } from '@/features/inspections/queries'
@@ -31,9 +30,7 @@ export default function InspectionScreen() {
   return (
     <Screen>
       <BackButton />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        {`Revisión${detail.hiveName ? ` de ${detail.hiveName}` : ''}`}
-      </Text>
+      <Title text={`Revisión${detail.hiveName ? ` de ${detail.hiveName}` : ''}`} />
       <InspectionDetailView detail={detail} />
       {photos.length ? (
         <PhotoGrid

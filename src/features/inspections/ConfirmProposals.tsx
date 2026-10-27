@@ -1,8 +1,8 @@
 import { Check, Mic, Pencil, TriangleAlert, X } from 'lucide-react-native'
 import { useState } from 'react'
 import { Pressable, ScrollView, Text, View } from 'react-native'
-
 import { Button } from '@/components/ui/Button'
+import { Title } from '@/components/ui/Title'
 import { listFields, type Proposal } from '@/features/voice/parser'
 import { cx } from '@/lib/cx'
 import { eventSummary } from '@/lib/event-summary'
@@ -108,9 +108,7 @@ export function ConfirmProposals({
 
   return (
     <ScrollView contentContainerClassName="gap-4 p-4 pb-16">
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Lo que entendimos
-      </Text>
+      <Title text="Lo que entendimos" />
       <Text className="rounded-card bg-bg-soft p-4 font-sans text-field-label">
         {parts.map((part, i) =>
           part.hit ? (

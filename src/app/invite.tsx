@@ -2,7 +2,6 @@ import { router } from 'expo-router'
 import { Lock, Share2 } from 'lucide-react-native'
 import { useState } from 'react'
 import { Share, Text } from 'react-native'
-
 import { ChipSelect } from '@/components/field/ChipSelect'
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
@@ -11,6 +10,7 @@ import { FormError } from '@/components/ui/FormError'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { useActiveMembership } from '@/features/auth/session'
 import { createInvite, type NewInvite } from '@/features/members/api'
 import { inviteMessage } from '@/features/members/invite-message'
@@ -53,9 +53,7 @@ export default function InviteScreen() {
     return (
       <Screen>
         <BackButton />
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          Código listo
-        </Text>
+        <Title text="Código listo" />
         <Card className="items-center gap-3">
           <Text selectable className="font-mono text-code text-text">
             {created.code}
@@ -85,9 +83,7 @@ export default function InviteScreen() {
   return (
     <Screen>
       <BackButton />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Invitar persona
-      </Text>
+      <Title text="Invitar persona" />
       <TextField
         label="¿Para quién es? (opcional)"
         value={label}

@@ -4,10 +4,10 @@ import { RefreshCw } from 'lucide-react-native'
 import { useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { SyncChip } from '@/components/ui/SyncChip'
+import { Title } from '@/components/ui/Title'
 import { Toast } from '@/components/ui/Toast'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
@@ -51,9 +51,7 @@ function Header({ status }: { status: SyncStatus }) {
   })
   return (
     <View className="gap-4">
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Pendientes
-      </Text>
+      <Title text="Pendientes" />
       <StatusChip status={status} />
       <Button
         icon={RefreshCw}

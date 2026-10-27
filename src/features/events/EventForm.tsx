@@ -2,7 +2,6 @@ import { Save, Trash2 } from 'lucide-react-native'
 import { type ReactNode, useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
 import { ChipSelect } from '@/components/field/ChipSelect'
 import { StepperField } from '@/components/field/StepperField'
 import { Button } from '@/components/ui/Button'
@@ -10,6 +9,7 @@ import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
 import { formatCalendarDate } from '@/lib/format'
@@ -350,9 +350,7 @@ export function EventForm(props: Props) {
   return (
     <View className="flex-1 bg-bg-soft">
       <Screen>
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          {`${label(eventTypeLabels, type)} · ${hive.name}`}
-        </Text>
+        <Title text={`${label(eventTypeLabels, type)} · ${hive.name}`} />
         <ChipSelect
           label="Cuándo"
           options={{

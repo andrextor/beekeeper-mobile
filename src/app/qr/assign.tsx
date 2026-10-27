@@ -3,7 +3,6 @@ import { Lock } from 'lucide-react-native'
 import { useState } from 'react'
 import { FlatList, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -12,6 +11,7 @@ import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Sheet } from '@/components/ui/Sheet'
+import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { useRole, useSession } from '@/features/auth/session'
 import { type FincaHive, useFincaHives } from '@/features/hives/queries'
@@ -60,9 +60,7 @@ export default function AssignCodeScreen() {
         ListHeaderComponent={
           <View className="gap-4 pb-4">
             <BackButton />
-            <Text accessibilityRole="header" className="font-display text-title text-text">
-              Asignar etiqueta
-            </Text>
+            <Title text="Asignar etiqueta" />
             <Text className="font-sans text-body text-text">
               {`Elige la colmena que llevará el código ${groupedQrCode(code)}.`}
             </Text>

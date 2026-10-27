@@ -1,11 +1,10 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useCallback, useState } from 'react'
-import { Text } from 'react-native'
-
 import { BackButton } from '@/components/ui/BackButton'
 import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
+import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import type { ServerRow } from '@/db/mapping'
@@ -55,9 +54,7 @@ export default function NewEventScreen() {
     return (
       <Screen>
         <BackButton />
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          Registrar actividad
-        </Text>
+        <Title text="Registrar actividad" />
         <TypePicker
           // Field mode has its own note tiles.
           types={draftId ? pickableTypes.filter((t) => t !== 'note') : pickableTypes}

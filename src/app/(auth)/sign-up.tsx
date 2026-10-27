@@ -1,12 +1,11 @@
 import { router } from 'expo-router'
 import { useState } from 'react'
-import { Text } from 'react-native'
-
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { PasswordField } from '@/features/auth/PasswordField'
 import { errorCode, messageFor, minPasswordLength, passwordTooShort } from '@/lib/errors'
 import { supabase } from '@/lib/supabase'
@@ -44,9 +43,7 @@ export default function SignUpScreen() {
   return (
     <Screen>
       <BackButton />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Crear cuenta
-      </Text>
+      <Title text="Crear cuenta" />
       <TextField
         label="Tu correo"
         value={email}

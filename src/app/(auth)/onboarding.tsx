@@ -2,13 +2,13 @@ import { Redirect, router, useLocalSearchParams } from 'expo-router'
 import { KeyRound, LogOut } from 'lucide-react-native'
 import { useRef, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
-
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { createOrganization, includesFinca, updateDisplayName } from '@/features/auth/organizations'
 import { signOut, useSession } from '@/features/auth/session'
 import { isNetworkError, messageFor } from '@/lib/errors'
@@ -45,9 +45,7 @@ export default function OnboardingScreen() {
 
   return (
     <Screen>
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Empecemos
-      </Text>
+      <Title text="Empecemos" />
       <Choice
         icon={Honeycomb}
         title="Crear mi finca"
@@ -152,9 +150,7 @@ function CreateFinca({
   return (
     <Screen>
       <BackButton onPress={onBack} />
-      <Text accessibilityRole="header" className="font-display text-title text-text">
-        Crea tu finca
-      </Text>
+      <Title text="Crea tu finca" />
       <Text className="font-sans text-body text-muted">
         Es el nombre de tu explotación apícola. Podrás invitar revisores después.
       </Text>

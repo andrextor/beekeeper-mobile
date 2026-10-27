@@ -47,7 +47,7 @@ module.exports = {
       caption: ['15px', '20px'],
       body: ['17px', '24px'],
       section: ['20px', '26px'],
-      title: ['26px', '32px'],
+      title: ['30px', '36px'],
       'field-label': ['22px', '28px'],
       'field-value': ['32px', '38px'],
       code: ['28px', '36px'],

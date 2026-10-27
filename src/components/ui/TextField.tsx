@@ -62,7 +62,9 @@ export function TextField({ label, hint, error, trailing, onFocus, onBlur, ...in
       {error ? (
         <View className="flex-row items-center gap-1.5 px-1">
           <CircleAlert color={color.danger} size={18} strokeWidth={2.25} />
-          <Text className="flex-1 font-sans-semibold text-caption text-on-danger-soft">{error}</Text>
+          <Text className="flex-1 font-sans-semibold text-caption text-on-danger-soft">
+            {error}
+          </Text>
         </View>
       ) : hint ? (
         <Text className="px-1 font-sans text-caption text-muted">{hint}</Text>

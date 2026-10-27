@@ -11,7 +11,6 @@ import {
 import { useState } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
 import { BackButton } from '@/components/ui/BackButton'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -19,6 +18,7 @@ import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { SyncChip } from '@/components/ui/SyncChip'
+import { Title } from '@/components/ui/Title'
 import { useRole, useSession } from '@/features/auth/session'
 import { AttentionCard } from '@/features/hives/AttentionCard'
 import { hiveAttention } from '@/features/hives/attention'
@@ -66,9 +66,7 @@ export default function HiveScreen() {
           <Text className="font-sans text-body text-muted">{hive.apiary_name}</Text>
         ) : null}
         <View className="flex-row flex-wrap items-center gap-3">
-          <Text accessibilityRole="header" className="font-display text-title text-text">
-            {hive.name}
-          </Text>
+          <Title text={hive.name} />
           {hive.status !== 'active' ? (
             <Badge label={label(hiveStatusLabels, hive.status)} tone="danger" />
           ) : null}

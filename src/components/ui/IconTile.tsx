@@ -13,7 +13,13 @@ const look: Record<IconTileTone, { box: string; ink: string }> = {
 }
 
 /** The icon of a list row on a soft rounded square, tinted by what the row needs. */
-export function IconTile({ icon: Icon, tone = 'primary' }: { icon: LucideIcon; tone?: IconTileTone }) {
+export function IconTile({
+  icon: Icon,
+  tone = 'primary',
+}: {
+  icon: LucideIcon
+  tone?: IconTileTone
+}) {
   const { box, ink } = look[tone]
   return (
     <View className={cx('size-11 items-center justify-center rounded-[14px]', box)}>

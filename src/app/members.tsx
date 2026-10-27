@@ -2,7 +2,6 @@ import { router, useFocusEffect } from 'expo-router'
 import { LogOut, UserPlus, Users } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
 import { ActivityIndicator, Text, View } from 'react-native'
-
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -11,6 +10,7 @@ import { FormError } from '@/components/ui/FormError'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
+import { Title } from '@/components/ui/Title'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { useActiveMembership, useSession } from '@/features/auth/session'
@@ -133,9 +133,7 @@ export default function MembersScreen() {
     <View className="flex-1">
       <Screen>
         <BackButton />
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          {`Personas de ${finca ?? 'la finca'}`}
-        </Text>
+        <Title text={`Personas de ${finca ?? 'la finca'}`} />
         {loaded.status === 'offline' ? (
           <ErrorState
             title="Sin conexión"

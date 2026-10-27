@@ -3,7 +3,6 @@ import { router } from 'expo-router'
 import { LogOut, Palette, Users } from 'lucide-react-native'
 import { useEffect, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
-
 import { ChipSelect } from '@/components/field/ChipSelect'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -12,6 +11,7 @@ import { RoleBadge } from '@/components/ui/RoleBadge'
 import { Screen } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { TextField } from '@/components/ui/TextField'
+import { Title } from '@/components/ui/Title'
 import { Toast } from '@/components/ui/Toast'
 import { getDb } from '@/db/database'
 import { useLocalQuery } from '@/db/useLocalQuery'
@@ -90,9 +90,7 @@ export default function ProfileScreen() {
   return (
     <View className="flex-1">
       <Screen>
-        <Text accessibilityRole="header" className="font-display text-title text-text">
-          Perfil
-        </Text>
+        <Title text="Perfil" />
         <Card className="gap-3">
           <Text className="font-sans text-caption text-muted">Correo</Text>
           <Text className="font-sans-semibold text-body text-text">{state.session.user.email}</Text>
