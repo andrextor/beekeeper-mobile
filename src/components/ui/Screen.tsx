@@ -50,6 +50,16 @@ function HeroBand({ title, eyebrow, children }: Hero) {
   )
 }
 
+/** The hero band as a list header: the list's 16 dp padding is cancelled so the band bleeds. */
+export function ListHero({ hero, children }: { hero: Hero; children?: ReactNode }) {
+  return (
+    <View className="-mx-4 -mt-4 pb-4">
+      <HeroBand {...hero} />
+      <View className="-mt-6 gap-4 rounded-t-sheet bg-bg-soft px-4 pt-6">{children}</View>
+    </View>
+  )
+}
+
 export function Screen({ children, scroll = true, field = false, topInset = true, hero }: Props) {
   const insets = useSafeAreaInsets()
   const content = cx('gap-4 p-4', hero && '-mt-6 rounded-t-sheet bg-bg-soft pt-6')
