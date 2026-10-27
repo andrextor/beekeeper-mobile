@@ -1,8 +1,8 @@
 import { DatabaseBackup, Send } from 'lucide-react-native'
 import { Text, View } from 'react-native'
 
-import { color, iconSize } from '@/lib/theme'
 import { Button } from './Button'
+import { CellIcon } from './CellIcon'
 
 type Props = { onShare: () => void; onRetry: () => void }
 
@@ -10,7 +10,7 @@ type Props = { onShare: () => void; onRetry: () => void }
 export function DbError({ onShare, onRetry }: Props) {
   return (
     <View accessibilityRole="alert" className="flex-1 justify-center gap-4 bg-bg-soft px-6">
-      <DatabaseBackup color={color.danger} size={iconSize.state} strokeWidth={1.75} />
+      <CellIcon icon={DatabaseBackup} tone="danger" />
       <Text className="font-display text-title text-text">No pudimos actualizar los datos</Text>
       <Text className="font-sans text-body text-text">
         Tus registros siguen guardados en este teléfono. No desinstales la app: envía el respaldo a

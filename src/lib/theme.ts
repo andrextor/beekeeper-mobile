@@ -15,6 +15,7 @@ export const color = {
   bgSoft: colors.canvas,
   primarySoft: colors.primarySoft,
   onPrimarySoft: colors.onPrimarySoft,
+  dangerSoft: colors.dangerSoft,
   onDangerSoft: colors.onDangerSoft,
   mist: colors.mist,
   sprout: colors.sprout,

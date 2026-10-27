@@ -1,15 +1,15 @@
 import { RotateCw, TriangleAlert } from 'lucide-react-native'
 import { Text, View } from 'react-native'
 
-import { color, iconSize } from '@/lib/theme'
 import { Button } from './Button'
+import { CellIcon } from './CellIcon'
 
 type Props = { title: string; body: string; onRetry?: () => void }
 
 export function ErrorState({ title, body, onRetry }: Props) {
   return (
     <View accessibilityRole="alert" className="flex-1 items-center justify-center gap-3 px-6 py-10">
-      <TriangleAlert color={color.danger} size={iconSize.state} strokeWidth={1.75} />
+      <CellIcon icon={TriangleAlert} tone="danger" />
       <Text className="text-center font-display text-section text-text">{title}</Text>
       <Text className="text-center font-sans text-body text-muted">{body}</Text>
       {onRetry && (
