@@ -53,12 +53,15 @@ export function entryTitle(entry: PendingEntry): string {
   return p.deleted_at ? `${title} (eliminación)` : title
 }
 
-/** "En cola", or the attempt count and when the next one goes. */
+/**
+ * "En cola", or the attempt count and when the next one goes. A due retry waits for the next sync,
+ * which in the foreground comes every 2 minutes (triggers.ts), so anything sooner reads as that.
+ */
 export function entryDetail(entry: PendingEntry, now: Date = new Date()): string {
   if (entry.attempts === 0) return 'En cola'
-  const soon = new Date(entry.next_attempt_at).getTime() - now.getTime() < 60_000
+  const soon = new Date(entry.next_attempt_at).getTime() - now.getTime() < 2 * 60_000
   const next = soon
-    ? 'se reintenta en un momento'
-    : `próximo ${formatRelative(entry.next_attempt_at, now)}`
+    ? 'se reintenta en menos de 2 minutos'
+    : `se reintenta ${formatRelative(entry.next_attempt_at, now)}`
   return `Intento ${entry.attempts} · ${next}`
 }

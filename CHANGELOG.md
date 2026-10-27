@@ -11,6 +11,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - A button that starts disabled (Ingresar, Cambiar rol…) no longer remounts when it turns on; in the dev build, typing the password on Iniciar sesión crashed with "Couldn't find a LinkingContext context".
 - Placeholders (`nombre@correo.com`…) are a lighter gray, so an empty field no longer looks filled in.
 - An apiary with no details no longer shows an empty white card under Volver.
+- A failed upload in Pendientes says when it is retried ("se reintenta en menos de 2 minutos", "se reintenta dentro de 10 minutos") instead of "en un momento".
 - Empty and error states inside a card (Inicio's "Todo al día", the component gallery) no longer collapse to a sliver with their text spilling over: they grow instead of taking `flex: 1`, which is 0 tall in a card.
 - Cámaras de cría, Alzas and Alzas retiradas: the first + gives 1, not 0 (− still reaches 0, then "Sin dato").
 
