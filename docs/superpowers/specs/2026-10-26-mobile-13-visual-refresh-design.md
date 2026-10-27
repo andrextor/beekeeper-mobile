@@ -54,7 +54,7 @@ Unchanged: brand colors, fonts (Plus Jakarta Sans + Inter), sizes, field-mode ru
 
 ### Screens touched beyond the components
 
-Bienvenida (hero band + honeycomb mark, buttons at the thumb zone), Empecemos (two choice cards with tonal icons), Inicio (hero band with greeting + finca, sync state on the band), hive ficha (band with hive name, apiary, queen dot), Perfil (grouped lists). Field mode keeps its layout; only the shared components change shape.
+Bienvenida (hero band + honeycomb mark; one primary button **Iniciar sesión** at the thumb zone and "¿No tienes cuenta? **Crear cuenta**" as a link below it, ≥ 48 dp tap area: most people arrive with an account made by the admin or are told to create one with an invite; Iván, 2026-10-26), Empecemos (two choice cards with tonal icons), Inicio (hero band with greeting + finca, sync state on the band), hive ficha (band with hive name, apiary, queen dot), Perfil (grouped lists). Field mode keeps its layout; only the shared components change shape.
 
 ## Rejected
 
