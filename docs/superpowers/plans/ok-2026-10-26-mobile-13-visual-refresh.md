@@ -18,6 +18,14 @@ No new dependency (Reanimated, react-native-svg and expo-haptics are installed).
 
 Checks: Iván runs `pnpm ci:check`. No logic changes, so no new tests beyond keeping the existing 268 green.
 
+## As built (2026-10-26)
+
+- `secondary` keeps its name and takes the tonal look (65 call sites unchanged); `ghost` is new and the Cancelar buttons use it.
+- `FormError` keeps its name and becomes the callout (`tone`); no separate `Callout` file.
+- `PressScale` animates only: field controls already give haptics through `withTap`, so no second haptic.
+- Inicio's band reads "Inicio" under the finca: the display name is only fetched online, so no greeting.
+- Shadows use RN `boxShadow` from `shadow` in `src/lib/theme.ts`: NativeWind's `shadow-*` does not reach Android.
+
 ## How Iván tests it
 
 With Metro on `feat/m13-visual-refresh`:

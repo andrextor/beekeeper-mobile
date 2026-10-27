@@ -103,6 +103,14 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 - [ ] 10.7 ➜ Como Ayudante: revisión en modo avión → Salir de esta finca. ✓ Avisa cuántos registros sin sincronizar → **Sincronizar primero** → luego Salir ✓ la finca y sus fotos desaparecen.
 - [ ] 10.8 ➜ Crea otro código → **Cancelar código** → úsalo en una cuenta. ✓ No sirve.
 - [ ] 10.9 ➜ Admin web: cambia el rol / quita / desactiva al Ayudante. ✓ El teléfono lo refleja tras sincronizar; Personas muestra "Desactivado".
+### 11. Rediseño Panal (M13)
+- [ ] 11.1 ➜ Perfil → Galería de componentes. ✓ Botones píldora (verde, miel, tonal, rojo, "Cancelar" solo texto); al tocarlos se hunden y rebotan. Campos rellenos con la etiqueta adentro; el de error tiene borde rojo e ícono. Avisos rojo, miel y verde con ícono.
+- [ ] 11.2 ➜ Cierra sesión. ✓ Bienvenida oscura con el panal; **Iniciar sesión** es el botón; "¿No tienes cuenta? Crear cuenta" es un enlace.
+- [ ] 11.3 ➜ Crear cuenta → contraseña de 5 caracteres → toca el siguiente campo. ✓ "La contraseña debe tener al menos 8 caracteres." con ícono; al completar 8 se quita sola.
+- [ ] 11.4 ➜ Inicio, Apiarios, una colmena, Perfil, Pendientes. ✓ No quedan cajas con borde gris; Inicio y la colmena abren con la banda oscura; la barra de abajo marca la pestaña con una pastilla verde.
+- [ ] 11.5 ➜ Al sol, a un brazo de distancia, con guantes: Inicio, una colmena y una revisión. ✓ Todo se lee y cada botón responde.
+- [ ] 11.6 ➜ Nueva revisión. ✓ Misma distribución y tamaños de antes; solo cambian las formas.
+- [ ] 11.7 ➜ Ajustes → tamaño de letra al máximo. ✓ Nada se corta.
 
 ## Pilot checklist (overview §10)
 

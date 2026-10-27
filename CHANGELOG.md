@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-26
+
+### Changed
+
+- Visual refresh "Panal" (M13): cards float on soft shadows over a warm canvas instead of grey-bordered boxes; pill buttons with a spring press (`secondary` is now tonal green, new `ghost` for Cancelar); filled text fields with the label inside, a green focus ring and errors with an icon; form messages are tinted callouts.
+- Bienvenida: dark honeycomb band, **Iniciar sesión** leads and **Crear cuenta** is a link; the sign-in screen is titled "Iniciar sesión".
+- Inicio and the hive ficha open on a `deep` band with the honeycomb pattern; screen titles are one `Title` component at 30 sp.
+- Tab bar with a shadow, a Material pill behind the active tab and a raised scan button; the "Guardado… Deshacer" toast is a dark snackbar that slides up.
+- Lists show their icon on a tinted tile; empty, error and database states sit in a honeycomb cell; badges and sync chips are tonal; field choices are filled and spring under the glove.
+- Sign-up checks the password length when the field is left and clears the message once it is long enough.
+
 ## [1.0.0] - 2026-10-26
 
 ### Added
