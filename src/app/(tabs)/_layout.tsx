@@ -92,6 +92,8 @@ function SyncedTabs() {
         tabBarActiveTintColor: color.onPrimarySoft,
         tabBarInactiveTintColor: color.muted,
         tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 13 },
+        // Room for the 64×32 active pill; the default wrapper is a 24-dp square.
+        tabBarIconStyle: { width: 64, height: 32 },
         tabBarStyle: {
           height: 72 + insets.bottom,
           paddingTop: 8,
