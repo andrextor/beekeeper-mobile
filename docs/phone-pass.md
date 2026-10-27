@@ -1,14 +1,15 @@
 # Hoja de pruebas en el teléfono (M2 pasos 8–9, M3 en adelante)
 
-Iván runs it once, when the modules are done (2026-10-26): one development build with every native module (sqlite, network, location, datetimepicker, camera, print, sharing, speech recognition, image picker and manipulator, file system), then each module's "How Iván tests it" in one sitting. Each new module adds its row here. The full steps live in each plan (`docs/superpowers/plans/ok-2026-10-25-mobile-0N-*.md`); this list is the order and the essentials.
+Una pasada por módulo en la app de desarrollo contra el Supabase local. Los pasos completos de cada módulo están en su plan (`docs/superpowers/plans/ok-*.md`); aquí va el orden y lo esencial.
 
-## Before
+## Antes de empezar
 
-1. `beekeeper`: local stack running and seeded (`pnpm db:reset`); admin panel (`pnpm --filter admin dev`) for M2 step 8–9.
-2. Phone and Mac on the same Wi-Fi; `.env` points at the Mac's IP (`http://192.168.80.51:54321` today).
-3. Build from `main` once every module is merged (about 10 min, arm64 only): `npx eas-cli@latest build -p android --profile development`; install the APK over the previous one (same package, versionCode 2 or higher).
-4. `pnpm start`, scan the QR with the dev client.
-5. Phone settings: download the Spanish offline voice pack (Google › Voz › Reconocimiento sin conexión), or use the app's **Descargar** in M8.
+1. **Supabase local** (en `~/projects/beekeeper`): `pnpm db:start` y, para empezar limpio, `pnpm db:reset`. El reset borra todo lo que hayas creado y vuelve a cargar los datos de prueba.
+2. **Admin web** (solo sección 1 y algunos pasos de 8 y 10): en otra terminal, `pnpm --filter admin dev`.
+3. **App de desarrollo en el teléfono**: si no está instalada, en el teléfono abre expo.dev → proyecto **landak-apiario** → **Builds** → el último de perfil **development** → **Install**.
+4. **Teléfono y Mac en el mismo Wi-Fi**. `.env` apunta a la IP del Mac (`http://192.168.80.51:54321`); si la IP del Mac cambia, cámbiala ahí.
+5. **Metro** (en `~/projects/beekeeper-mobile`): `pnpm start --clear` → en el teléfono abre la app de desarrollo y elige el servidor.
+6. **Voz** (para la sección 7): Ajustes del teléfono → Google → Voz → Reconocimiento sin conexión → descarga Español.
 
 ## Orden
 
@@ -22,22 +23,24 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 - **Matar la app**: botón de apps recientes → deslizar la app fuera. Abrirla de nuevo la reconecta a Metro.
 
 ### 1. Cuentas (M2)
-- [ ] 1.1 ➜ Admin web → crea `nuevo2@landak.test` con la finca "Finca Nueva". En el teléfono: **Ya tengo cuenta** → entra. ✓ Llegas a Inicio de "Finca Nueva"; en Perfil dice Propietario.
+- [ ] 1.1 ➜ Admin web → Usuarios → **Nuevo usuario** → Tipo **Apicultor**, correo `nuevo2@landak.test`, una contraseña, finca "Finca Nueva". En el teléfono: **Iniciar sesión** → entra con ese correo. ✓ Llegas a Inicio de "Finca Nueva"; en Perfil dice Propietario.
 - [ ] 1.2 ➜ Admin → **Desactivar** esa cuenta → en el teléfono, cierra sesión e intenta entrar. ✓ "Esta cuenta está desactivada."
 - [ ] 1.3 ➜ Admin → **Reactivar** → entra de nuevo. ✓ Entra.
-- [ ] 1.4 ➜ Cierra sesión → **Crear cuenta** con un correo nuevo → **Crear mi finca**. ✓ Quedas como Propietario de esa finca.
+- [ ] 1.4 ➜ Cierra sesión → en la bienvenida toca el enlace **Crear cuenta** → correo nuevo y contraseña de 8 o más → ✓ llegas a **Empecemos** → **Crear mi finca**. ✓ Quedas como Propietario de esa finca.
+- [ ] 1.5 ➜ Crea otra cuenta nueva y en **Empecemos** toca **Cerrar sesión** (abajo). ✓ Pregunta antes de borrar y vuelves a la bienvenida. En Empecemos, el botón atrás de Android cierra la app.
 
 ### 2. Sincronización (M3) — con `owner@landak.test`
 - [ ] 2.1 ➜ Pestaña Pendientes. ✓ "Sincronizado".
-- [ ] 2.2 ➜ Activa **modo avión** → crea un apiario y una colmena (Apiarios → +). ✓ Cada guardado dice "Guardado en este dispositivo"; Pendientes muestra "Sin conexión — 2 guardados…".
+- [ ] 2.2 ➜ Activa **modo avión** → Apiarios → **Nuevo apiario** → guárdalo → ábrelo → **Nueva colmena** → guárdala. ✓ Cada guardado dice "Guardado en este dispositivo"; Pendientes muestra "Sin conexión — 2 guardados en este dispositivo".
 - [ ] 2.3 ➜ Mata la app y ábrela (sigue en modo avión). ✓ El apiario y la colmena siguen ahí.
 - [ ] 2.4 ➜ Quita el modo avión. ✓ Pendientes vuelve a "Sincronizado"; en Studio (`apiaries`, `hives`) aparecen **una sola vez**.
-- [ ] 2.5 ➜ Perfil → Galería de componentes → panel de sincronización → **Forzar error** → crea algo. ✓ Pendientes muestra "Intento 1…". Apaga el error → ✓ se sincroniza.
-- [ ] 2.6 ➜ En Studio, borra tu fila de `organization_members` de una finca → espera la próxima sincronización (o Pendientes → Sincronizar ahora). ✓ Esa finca y sus datos desaparecen del teléfono.
+- [ ] 2.5 ➜ Perfil → **Galería de componentes** (solo existe en la app de desarrollo) → sección "Sincronización (pruebas)" → toca **Forzar error** hasta que diga "activado" → crea algo. ✓ Pendientes muestra el registro con "Intento 1 · …". Vuelve y déjalo en "apagado" → ✓ se sincroniza.
+- [ ] 2.6 ➜ Studio → `organization_members` → **Insert row**: `organization_id` `00000000-0000-4000-b000-000000000002`, `user_id` `00000000-0000-4000-a000-000000000001`, `role` `reviewer` → en el teléfono Pendientes → **Sincronizar ahora** → Perfil → **Cambiar de finca**. ✓ Aparece "Apiario Ajeno"; al entrar ves "Apiario del vecino" y la colmena V-01.
+- [ ] 2.7 ➜ Studio → borra esa misma fila → Sincronizar ahora. ✓ "Apiario Ajeno" y sus datos desaparecen del teléfono y vuelves a Finca Landak.
 
 ### 3. Apiarios y colmenas (M4) — owner, con guantes si puedes
 - [ ] 3.1 ➜ Apiarios. ✓ Están "Vallecito 1" y "La Loma".
-- [ ] 3.2 ➜ Modo avión → nuevo apiario → **Usar mi ubicación** → **niega** el permiso. ✓ Mensaje claro, el formulario sigue usable. Repite y **permite**. ✓ Llena las coordenadas. Con la ubicación del teléfono apagada ✓ Android pide activarla.
+- [ ] 3.2 ➜ Modo avión → **Nuevo apiario** → **Usar mi ubicación** → **niega** el permiso. ✓ Mensaje claro, el formulario sigue usable. Repite y **permite**. ✓ Llena las coordenadas. Con la ubicación del teléfono apagada ✓ Android pide activarla.
 - [ ] 3.3 ➜ Nueva colmena: usa los botones − / +, los chips, y pon año de reina. ✓ Sugiere el color de la reina.
 - [ ] 3.4 ➜ Intenta borrar un apiario que tiene colmenas. ✓ No te deja.
 - [ ] 3.5 ➜ Modo avión → crea una colmena con un nombre que ya existe en ese apiario → quita el modo avión. ✓ Pendientes: "Requiere atención" → **Revisar** → renómbrala → ✓ se sincroniza.
@@ -53,7 +56,7 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 - [ ] 4.7 ➜ Escanea el QR de cualquier página web. ✓ "no es de Landak Apiario".
 
 ### 5. Ficha e historial (M6) — owner
-- [ ] 5.1 ➜ Abre C-01. ✓ Tarjeta de atención arriba, "Última revisión hace … · por …", botón **Nueva revisión** abajo.
+- [ ] 5.1 ➜ Abre C-01. ✓ Banda oscura con el nombre y el apiario; si la colmena necesita algo, una tarjeta de atención; "Última revisión hace … · por …"; botón **Nueva revisión** abajo.
 - [ ] 5.2 ➜ Baja por el historial. ✓ Lo más nuevo primero; las notas van dentro de su revisión; al final **Cargar más**.
 - [ ] 5.3 ➜ Modo avión, mata la app, ábrela. ✓ Se ve igual.
 - [ ] 5.4 ➜ Inicio. ✓ Secciones "Para revisar", "Tareas" (ej. Alimentar) y "Última actividad".
@@ -78,7 +81,7 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 ### 8. Fotos (M9)
 - [ ] 8.1 ➜ Revisión → **Foto** → permite la cámara → 3 fotos con guantes → quita una de la tira → **Deshacer** → **Listo**. ✓ Quedan 3.
 - [ ] 8.2 ➜ Modo avión: 2 fotos más. ✓ Se guardan.
-- [ ] 8.3 ➜ Con datos móviles (Wi-Fi apagado). ✓ Los datos se sincronizan, las fotos dicen "esperando Wi-Fi" → Pendientes → **Subir ahora con datos** → ✓ suben.
+- [ ] 8.3 ➜ **Se prueba con el APK contra D1, no aquí**: con datos móviles el teléfono no llega al Supabase de tu Mac. En el APK: Perfil → "Subir fotos con datos móviles" en **Solo con Wi-Fi** → Wi-Fi apagado. ✓ La revisión se sincroniza y Pendientes dice "N fotos esperando Wi-Fi" → **Subir ahora con datos** → ✓ suben.
 - [ ] 8.4 ➜ Mata la app mientras sube. ✓ Al abrir, sigue. En Studio → Storage: cada foto tiene `.jpg` y `.thumb.jpg`.
 - [ ] 8.5 ➜ Admin web. ✓ Muestra las fotos. Como reviewer ✓ ve miniatura y luego la foto completa.
 - [ ] 8.6 ➜ Borra una foto → Deshacer ✓ sigue. Bórrala otra vez ✓ desaparece del historial.
@@ -103,6 +106,7 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 - [ ] 10.7 ➜ Como Ayudante: revisión en modo avión → Salir de esta finca. ✓ Avisa cuántos registros sin sincronizar → **Sincronizar primero** → luego Salir ✓ la finca y sus fotos desaparecen.
 - [ ] 10.8 ➜ Crea otro código → **Cancelar código** → úsalo en una cuenta. ✓ No sirve.
 - [ ] 10.9 ➜ Admin web: cambia el rol / quita / desactiva al Ayudante. ✓ El teléfono lo refleja tras sincronizar; Personas muestra "Desactivado".
+
 ### 11. Rediseño Panal (M13)
 - [ ] 11.1 ➜ Perfil → Galería de componentes. ✓ Botones píldora (verde, miel, tonal, rojo, "Cancelar" solo texto); al tocarlos se hunden y rebotan. Campos rellenos con la etiqueta adentro; el de error tiene borde rojo e ícono. Avisos rojo, miel y verde con ícono.
 - [ ] 11.2 ➜ Cierra sesión. ✓ Bienvenida oscura con el panal; **Iniciar sesión** es el botón; "¿No tienes cuenta? Crear cuenta" es un enlace.

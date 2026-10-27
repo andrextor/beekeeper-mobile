@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-26
+
+### Fixed
+
+- Buttons and pressable cards lost their background, size and centring on Android (Bienvenida showed "Iniciar sesión" as bare text): the press effect is now NativeWind `active:` classes (sinks to 97 %) instead of a Reanimated wrapper.
+- React Native's "ImageBackground is deprecated" notice, raised while NativeWind loads, no longer floods the Metro log (`index.js` entry, development only).
+
+### Changed
+
+- `docs/phone-pass.md` matches the redesigned app: Spanish setup steps, Iniciar sesión and the Crear cuenta link, sign-out from Empecemos, exact labels, a second finca added through Studio, mobile-data photos moved to the APK pass.
+
 ## [1.1.0] - 2026-10-26
 
 ### Changed
