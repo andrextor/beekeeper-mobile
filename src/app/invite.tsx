@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 import { Lock, Share2 } from 'lucide-react-native'
 import { useState } from 'react'
-import { Linking, Share, Text } from 'react-native'
+import { Share, Text } from 'react-native'
 
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
@@ -15,18 +15,10 @@ import { useActiveMembership } from '@/features/auth/session'
 import { createInvite, type NewInvite } from '@/features/members/api'
 import { inviteMessage } from '@/features/members/invite-message'
 import { RolePicker } from '@/features/members/RolePicker'
+import { shareByWhatsApp } from '@/features/members/share'
 import type { Role } from '@/features/sync/members'
 import { messageFor } from '@/lib/errors'
 import { formatDate } from '@/lib/format'
-
-/** WhatsApp straight away; without it (or if it refuses) the system share menu. */
-async function shareByWhatsApp(message: string) {
-  try {
-    await Linking.openURL(`whatsapp://send?text=${encodeURIComponent(message)}`)
-  } catch {
-    await Share.share({ message })
-  }
-}
 
 /** The plain code exists only in `create_invite`'s answer: shown here once, never stored. */
 export default function InviteScreen() {
@@ -36,6 +28,7 @@ export default function InviteScreen() {
   const [created, setCreated] = useState<NewInvite | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [sharing, setSharing] = useState(false)
 
   if (active?.role !== 'owner')
     return <NotAvailable icon={Lock} title="Solo el propietario puede invitar personas." />
@@ -53,6 +46,19 @@ export default function InviteScreen() {
   }
 
   if (created) {
+    // One share at a time: a gloved double tap must not open two chats or two menus.
+    const share = async (send: (message: string) => Promise<unknown>) => {
+      setSharing(true)
+      setError(null)
+      try {
+        await send(inviteMessage(active.organization_name, created.code, created.expires_at))
+      } catch (e) {
+        setError(messageFor(e))
+      } finally {
+        setSharing(false)
+      }
+    }
+
     return (
       <Screen>
         <BackButton />
@@ -68,15 +74,19 @@ export default function InviteScreen() {
         <Text className="font-sans text-body text-text">
           {`Envíaselo a ${label.trim() || 'la persona'}. Crea su cuenta en la app y escribe el código en "Tengo un código".`}
         </Text>
+        <FormError message={error} />
         <Button
           icon={Share2}
           label="Compartir por WhatsApp"
           className="min-h-field"
-          onPress={() =>
-            void shareByWhatsApp(
-              inviteMessage(active.organization_name, created.code, created.expires_at),
-            )
-          }
+          loading={sharing}
+          onPress={() => void share(shareByWhatsApp)}
+        />
+        <Button
+          variant="secondary"
+          label="Compartir de otra forma"
+          disabled={sharing}
+          onPress={() => void share((message) => Share.share({ message }))}
         />
         <Button variant="secondary" label="Listo" onPress={() => router.back()} />
       </Screen>
