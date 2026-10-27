@@ -85,7 +85,7 @@ export default function EditApiaryScreen() {
           <Button label="Entendido" onPress={() => setConfirming(false)} />
         ) : (
           <>
-            <Button variant="secondary" label="Cancelar" onPress={() => setConfirming(false)} />
+            <Button variant="ghost" label="Cancelar" onPress={() => setConfirming(false)} />
             <Button variant="danger" label="Eliminar apiario" onPress={remove} />
           </>
         )}

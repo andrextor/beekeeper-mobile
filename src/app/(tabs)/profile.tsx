@@ -192,7 +192,7 @@ export default function ProfileScreen() {
             }}
           />
         ) : (
-          <Button variant="secondary" label="Cancelar" onPress={() => setSignOutPending(null)} />
+          <Button variant="ghost" label="Cancelar" onPress={() => setSignOutPending(null)} />
         )}
         <Button
           variant="danger"

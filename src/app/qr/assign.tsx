@@ -94,7 +94,7 @@ export default function AssignCodeScreen() {
           loading={saving}
           onPress={() => chosen && void assign(chosen, code)}
         />
-        <Button variant="secondary" label="Cancelar" onPress={() => setChosen(null)} />
+        <Button variant="ghost" label="Cancelar" onPress={() => setChosen(null)} />
       </Sheet>
     </View>
   )

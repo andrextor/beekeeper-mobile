@@ -80,7 +80,7 @@ export default function EditHiveScreen() {
           Su historial se conserva, pero deja de aparecer en las listas. Puedes deshacerlo durante 5
           segundos.
         </Text>
-        <Button variant="secondary" label="Cancelar" onPress={() => setConfirming(false)} />
+        <Button variant="ghost" label="Cancelar" onPress={() => setConfirming(false)} />
         <Button variant="danger" label="Eliminar colmena" onPress={remove} />
       </Sheet>
     </>

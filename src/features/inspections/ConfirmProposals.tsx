@@ -195,7 +195,7 @@ export function ConfirmProposals({
       })}
       <Button icon={Check} label="Aceptar todo" className="min-h-tile" onPress={finish} />
       <Button variant="secondary" icon={Mic} label="Volver a dictar" onPress={onRedictate} />
-      <Button variant="secondary" label="Cancelar" onPress={onCancel} />
+      <Button variant="ghost" label="Cancelar" onPress={onCancel} />
     </ScrollView>
   )
 }

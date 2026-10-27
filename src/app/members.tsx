@@ -255,7 +255,7 @@ export default function MembersScreen() {
             }}
           />
         ) : (
-          <Button variant="secondary" label="Cancelar" onPress={() => setLeavePending(null)} />
+          <Button variant="ghost" label="Cancelar" onPress={() => setLeavePending(null)} />
         )}
         <Button
           variant="danger"
