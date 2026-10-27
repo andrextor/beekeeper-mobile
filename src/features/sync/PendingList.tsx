@@ -5,6 +5,7 @@ import { SectionList, Text, View } from 'react-native'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { listPadding } from '@/components/ui/Screen'
 import { cx } from '@/lib/cx'
 import { color } from '@/lib/theme'
 import { entryDetail, entryTitle, type PendingEntry } from './pending'
@@ -71,7 +72,7 @@ export function PendingList({ entries, header, refreshing, onRefresh, onDiscard,
       ItemSeparatorComponent={() => <View className="h-3" />}
       refreshing={refreshing}
       onRefresh={onRefresh}
-      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+      contentContainerStyle={{ padding: listPadding, paddingBottom: 32 }}
       style={{ backgroundColor: color.bgSoft }}
     />
   )

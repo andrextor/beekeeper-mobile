@@ -13,7 +13,7 @@ type Props = {
 
 export function EmptyState({ icon: Icon, title, body, action }: Props) {
   return (
-    <View className="grow items-center justify-center gap-3 px-6 py-10">
+    <View className="shrink grow items-center justify-center gap-3 px-6 py-10">
       <CellIcon icon={Icon} />
       <Text className="text-center font-display text-section text-text">{title}</Text>
       {body ? <Text className="text-center font-sans text-body text-muted">{body}</Text> : null}

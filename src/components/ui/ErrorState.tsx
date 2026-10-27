@@ -8,7 +8,10 @@ type Props = { title: string; body: string; onRetry?: () => void }
 
 export function ErrorState({ title, body, onRetry }: Props) {
   return (
-    <View accessibilityRole="alert" className="grow items-center justify-center gap-3 px-6 py-10">
+    <View
+      accessibilityRole="alert"
+      className="shrink grow items-center justify-center gap-3 px-6 py-10"
+    >
       <CellIcon icon={TriangleAlert} tone="danger" />
       <Text className="text-center font-display text-section text-text">{title}</Text>
       <Text className="text-center font-sans text-body text-muted">{body}</Text>

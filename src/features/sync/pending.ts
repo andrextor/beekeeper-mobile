@@ -1,8 +1,9 @@
 import { getDb } from '@/db/database'
 import type { SyncedTable } from '@/db/mapping'
 import { useLocalQuery } from '@/db/useLocalQuery'
-import { formatDate, formatRelative } from '@/lib/format'
+import { formatDate } from '@/lib/format'
 import { eventTypeLabels, label } from '@/lib/labels'
+import { foregroundSyncEveryMs } from './classify'
 
 export type PendingEntry = {
   id: string
@@ -54,14 +55,12 @@ export function entryTitle(entry: PendingEntry): string {
 }
 
 /**
- * "En cola", or the attempt count and when the next one goes. A due retry waits for the next sync,
- * which in the foreground comes every 2 minutes (triggers.ts), so anything sooner reads as that.
+ * "En cola", or the attempt count and an upper bound for the next try, read on the open Pendientes
+ * screen: the backoff still to wait plus one foreground tick, since a due retry waits for the tick.
  */
 export function entryDetail(entry: PendingEntry, now: Date = new Date()): string {
   if (entry.attempts === 0) return 'En cola'
-  const soon = new Date(entry.next_attempt_at).getTime() - now.getTime() < 2 * 60_000
-  const next = soon
-    ? 'se reintenta en menos de 2 minutos'
-    : `se reintenta ${formatRelative(entry.next_attempt_at, now)}`
-  return `Intento ${entry.attempts} · ${next}`
+  const backoff = Math.max(0, new Date(entry.next_attempt_at).getTime() - now.getTime())
+  const minutes = Math.ceil((backoff + foregroundSyncEveryMs) / 60_000)
+  return `Intento ${entry.attempts} · se reintenta en menos de ${minutes} minutos`
 }

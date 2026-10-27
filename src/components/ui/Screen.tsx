@@ -68,7 +68,8 @@ export function ListHero({ hero, children }: { hero: Hero; children?: ReactNode 
   )
 }
 
-const listPadding = 16
+/** Every list screen pads its content with this; ListHero cancels exactly it. */
+export const listPadding = 16
 
 export function Screen({ children, scroll = true, field = false, topInset = true, hero }: Props) {
   const insets = useSafeAreaInsets()

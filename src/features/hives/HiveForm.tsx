@@ -1,6 +1,6 @@
 import { Save } from 'lucide-react-native'
 import { type ReactNode, useState } from 'react'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ChipSelect } from '@/components/field/ChipSelect'
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
+import { SectionTitle } from '@/components/ui/SectionTitle'
 import { TextField } from '@/components/ui/TextField'
 import { localDay } from '@/lib/dates'
 import { messageFor } from '@/lib/errors'
@@ -268,9 +269,7 @@ export function HiveForm({
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <Card className="gap-5">
-      <Text accessibilityRole="header" className="font-display text-section text-text">
-        {title}
-      </Text>
+      <SectionTitle text={title} />
       {children}
     </Card>
   )

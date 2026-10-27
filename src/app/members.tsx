@@ -10,6 +10,7 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { FormError } from '@/components/ui/FormError'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
+import { SectionTitle } from '@/components/ui/SectionTitle'
 import { Sheet } from '@/components/ui/Sheet'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
@@ -166,9 +167,7 @@ export default function MembersScreen() {
             </Card>
             {loaded.invites.length ? (
               <View className="gap-3">
-                <Text accessibilityRole="header" className="font-display text-section text-text">
-                  Códigos sin usar
-                </Text>
+                <SectionTitle text="Códigos sin usar" />
                 {loaded.invites.map((invite) => (
                   <Card key={invite.id} className="gap-3">
                     <Text className="font-sans-semibold text-body text-text">

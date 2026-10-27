@@ -9,7 +9,7 @@ import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { NotAvailable } from '@/components/ui/NotAvailable'
-import { ListHero } from '@/components/ui/Screen'
+import { ListHero, listPadding } from '@/components/ui/Screen'
 import { Sheet } from '@/components/ui/Sheet'
 import { showToast } from '@/components/ui/ToastHost'
 import { useRole, useSession } from '@/features/auth/session'
@@ -72,7 +72,7 @@ export default function AssignCodeScreen() {
             onPress={() => setChosen(item)}
           />
         )}
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ padding: listPadding, paddingBottom: 32 }}
         style={{ backgroundColor: color.bgSoft }}
       />
       <Sheet

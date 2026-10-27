@@ -16,6 +16,9 @@ export function classify(error: unknown, status: number | undefined, onServer: b
 
 const delaysMs = [5_000, 30_000, 120_000, 600_000]
 
+/** The foreground sync tick: a due retry waits for it (or for a manual sync, a save, a reconnect). */
+export const foregroundSyncEveryMs = 2 * 60_000
+
 /** 5 s → 30 s → 2 min → 10 min, then every 10 min: the data is never dropped. */
 export function retryDelayMs(attempts: number): number {
   return delaysMs[Math.min(Math.max(attempts, 1), delaysMs.length) - 1] ?? 600_000

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button'
 import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
+import { SectionTitle } from '@/components/ui/SectionTitle'
 import { SyncChip } from '@/components/ui/SyncChip'
 import { useCanRecord, useRole, useSession } from '@/features/auth/session'
 import { AttentionCard } from '@/features/hives/AttentionCard'
@@ -125,9 +126,7 @@ export default function HiveScreen() {
           />
         ) : null}
         <View className="gap-3">
-          <Text accessibilityRole="header" className="font-display text-section text-text">
-            Fotos
-          </Text>
+          <SectionTitle text="Fotos" />
           {photos.length ? (
             <PhotoGrid
               photos={photos}

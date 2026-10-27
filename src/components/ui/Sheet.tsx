@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
-import { Modal, Pressable, Text, View } from 'react-native'
+import { Modal, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SectionTitle } from './SectionTitle'
 
 type Props = {
   visible: boolean
@@ -32,9 +33,7 @@ export function Sheet({ visible, title, onClose, children }: Props) {
           className="gap-4 rounded-t-sheet bg-bg-soft px-4 pt-3"
         >
           <View className="h-1.5 w-12 self-center rounded-full bg-stone-300" />
-          <Text accessibilityRole="header" className="font-display text-section text-text">
-            {title}
-          </Text>
+          <SectionTitle text={title} />
           {children}
         </View>
       </View>

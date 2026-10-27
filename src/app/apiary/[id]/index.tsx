@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { FormError } from '@/components/ui/FormError'
 import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
-import { ListHero } from '@/components/ui/Screen'
+import { ListHero, listPadding } from '@/components/ui/Screen'
 import { ApiaryFacts, mapUrl } from '@/features/apiaries/ApiaryFacts'
 import { useApiary } from '@/features/apiaries/queries'
 import { useRole } from '@/features/auth/session'
@@ -112,7 +112,7 @@ export default function ApiaryScreen() {
           />
         )}
         ItemSeparatorComponent={() => <View className="h-3" />}
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ padding: listPadding, paddingBottom: 32 }}
         style={{ backgroundColor: color.bgSoft }}
       />
     </View>

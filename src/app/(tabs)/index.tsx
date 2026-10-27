@@ -1,7 +1,7 @@
 import { router } from 'expo-router'
 import { CalendarClock, CircleCheck, ListTodo, ScanQrCode } from 'lucide-react-native'
 import { type ReactNode, useState } from 'react'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
+import { SectionTitle } from '@/components/ui/SectionTitle'
 import { useLocalRead } from '@/db/useLocalQuery'
 import { useActiveMembership, useSession } from '@/features/auth/session'
 import { hivesToVisit, latestInspections, openTasks, recentActivity } from '@/features/hives/home'
@@ -23,9 +24,7 @@ const openHive = (id: string) => router.push({ pathname: '/hive/[id]', params: {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View className="gap-3">
-      <Text accessibilityRole="header" className="font-display text-section text-text">
-        {title}
-      </Text>
+      <SectionTitle text={title} />
       {children}
     </View>
   )
