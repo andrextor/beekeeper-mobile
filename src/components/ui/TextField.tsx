@@ -1,5 +1,5 @@
 import { CircleAlert } from 'lucide-react-native'
-import { type ReactNode, useRef, useState } from 'react'
+import { type ComponentRef, type ReactNode, useRef, useState } from 'react'
 import { Pressable, Text, TextInput, type TextInputProps, View } from 'react-native'
 
 import { cx } from '@/lib/cx'
@@ -16,7 +16,7 @@ type Props = Omit<TextInputProps, 'className'> & {
 /** Filled field with its label inside; focus draws a green ring, an error a red one plus icon. */
 export function TextField({ label, hint, error, trailing, onFocus, onBlur, ...input }: Props) {
   const [focused, setFocused] = useState(false)
-  const ref = useRef<TextInput>(null)
+  const ref = useRef<ComponentRef<typeof TextInput>>(null)
   return (
     <View className="gap-1.5">
       <Pressable

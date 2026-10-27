@@ -1,6 +1,5 @@
 import { cssInterop } from 'nativewind'
-import type { ComponentProps } from 'react'
-import { Pressable, type StyleProp, type ViewStyle } from 'react-native'
+import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -12,7 +11,9 @@ const AnimatedPressable = cssInterop(Animated.createAnimatedComponent(Pressable)
   className: 'style',
 })
 
-type Props = Omit<ComponentProps<typeof AnimatedPressable>, 'style'> & {
+// Typed from Pressable: the animated component's own props also accept shared values.
+type Props = Omit<PressableProps, 'style'> & {
+  className?: string
   /** Static style only (e.g. `shadow.card`); the press scale is added on top. */
   style?: StyleProp<ViewStyle>
 }
