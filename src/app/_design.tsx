@@ -25,7 +25,9 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
+import { FormError } from '@/components/ui/FormError'
 import { IconButton } from '@/components/ui/IconButton'
+import { IconTile } from '@/components/ui/IconTile'
 import { Honeycomb } from '@/components/ui/icons'
 import { ListItem } from '@/components/ui/ListItem'
 import { Screen } from '@/components/ui/Screen'
@@ -138,6 +140,7 @@ function Gallery() {
           <Button variant="accent" label="Nueva revisión" onPress={noop} />
           <Button variant="secondary" label="Abrir hoja" onPress={() => setSheet(true)} />
           <Button variant="danger" icon={Trash2} label="Eliminar colmena" onPress={noop} />
+          <Button variant="ghost" label="Cancelar" onPress={noop} />
           <Button label="Guardando" loading onPress={noop} />
           <Button label="Desactivado" disabled onPress={noop} />
           <View className="flex-row gap-3">
@@ -173,6 +176,15 @@ function Gallery() {
             error="Revisa el correo."
             onChangeText={noop}
           />
+          <FormError message="El código no es válido, ya se usó o venció." />
+          <FormError tone="accent" message="Sin conexión: se guardó en este dispositivo." />
+          <FormError tone="primary" message="Listo: el nombre quedó guardado." />
+          <Card onPress={noop} className="flex-row items-center gap-3">
+            <IconTile icon={Honeycomb} tone="accent" />
+            <Text className="flex-1 font-sans-semibold text-body text-text">
+              Tarjeta que se toca
+            </Text>
+          </Card>
           <Card className="p-0">
             <ListItem
               icon={Honeycomb}
