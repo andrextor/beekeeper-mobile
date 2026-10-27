@@ -65,7 +65,28 @@ const outbox = (db: Db) =>
     'select row_id, payload, attempts, state from outbox order by row_id',
   )
 
+const member = (db: Db, role: string) =>
+  db.runAsync(
+    "insert into members_cache (organization_id, organization_name, role) values ('org-1', 'Finca', ?)",
+    [role],
+  )
+
 describe('saveRow', () => {
+  it('refuses an observador and writes nothing', async () => {
+    const db = await database()
+    await member(db, 'viewer')
+    await expect(saveRow(db, 'inspections', inspection)).rejects.toMatchObject({ code: '42501' })
+    expect(await db.getAllAsync('select id from inspections')).toEqual([])
+    expect(await outbox(db)).toEqual([])
+  })
+
+  it('saves a reviewer as before', async () => {
+    const db = await database()
+    await member(db, 'reviewer')
+    await saveRow(db, 'inspections', inspection)
+    expect(await outbox(db)).toHaveLength(1)
+  })
+
   it('writes the row dirty with one outbox entry', async () => {
     const db = await database()
     await saveRow(db, 'inspections', inspection)
