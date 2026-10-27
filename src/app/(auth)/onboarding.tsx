@@ -1,5 +1,5 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router'
-import { Hexagon, KeyRound } from 'lucide-react-native'
+import { Hexagon, KeyRound, LogOut } from 'lucide-react-native'
 import { useRef, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
@@ -9,8 +9,8 @@ import { FormError } from '@/components/ui/FormError'
 import { Screen } from '@/components/ui/Screen'
 import { TextField } from '@/components/ui/TextField'
 import { createOrganization, includesFinca, updateDisplayName } from '@/features/auth/organizations'
-import { useSession } from '@/features/auth/session'
-import { messageFor } from '@/lib/errors'
+import { signOut, useSession } from '@/features/auth/session'
+import { isNetworkError, messageFor } from '@/lib/errors'
 import { uuid } from '@/lib/ids'
 import { color, iconSize } from '@/lib/theme'
 
@@ -18,6 +18,8 @@ export default function OnboardingScreen() {
   const { state, refreshMemberships, setActiveOrganization } = useSession()
   const { add } = useLocalSearchParams<{ add?: string }>()
   const [creating, setCreating] = useState(add === '1')
+  const [signOutError, setSignOutError] = useState<string | null>(null)
+  const [signingOut, setSigningOut] = useState(false)
 
   if (state.status !== 'signedIn') return null
   // Someone who already has a finca lands here only to add another one (never mid-creation).
@@ -57,6 +59,29 @@ export default function OnboardingScreen() {
         body="Alguien me invitó a su finca y me envió un código."
         onPress={() => router.push('/join')}
       />
+      {/* No finca yet means nothing local to lose: signing out needs no confirmation. */}
+      <View className="mt-4 gap-3">
+        <Text className="font-sans text-body text-muted">{`Entraste como ${state.session.user.email ?? ''}`}</Text>
+        <FormError message={signOutError} />
+        <Button
+          variant="secondary"
+          icon={LogOut}
+          label="Cerrar sesión"
+          loading={signingOut}
+          onPress={async () => {
+            setSigningOut(true)
+            setSignOutError(null)
+            try {
+              await signOut()
+            } catch (e) {
+              setSignOutError(
+                isNetworkError(e) ? 'Necesitas conexión para cerrar sesión.' : messageFor(e),
+              )
+              setSigningOut(false)
+            }
+          }}
+        />
+      </View>
     </Screen>
   )
 }
