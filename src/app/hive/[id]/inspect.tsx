@@ -6,7 +6,8 @@ import { Honeycomb } from '@/components/ui/icons'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
-import { useRole, useSession } from '@/features/auth/session'
+import { ReadOnly } from '@/features/auth/ReadOnly'
+import { useCanRecord, useRole, useSession } from '@/features/auth/session'
 import { useHive, useLatestInspection } from '@/features/hives/queries'
 import { type Draft, openDraft, openEditDraft } from '@/features/inspections/drafts'
 import { FieldInspection } from '@/features/inspections/FieldInspection'
@@ -29,6 +30,7 @@ export default function InspectScreen() {
   const { id, inspectionId } = useLocalSearchParams<{ id: string; inspectionId?: string }>()
   const { state } = useSession()
   const owner = useRole() === 'owner'
+  const canRecord = useCanRecord()
   const userId = state.status === 'signedIn' ? state.session.user.id : ''
   const { hive, loading } = useHive(id)
   const { latest } = useLatestInspection(id)
@@ -38,7 +40,7 @@ export default function InspectScreen() {
   const organizationId = hive?.organization_id
 
   useEffect(() => {
-    if (!organizationId || !userId || started.current) return
+    if (!organizationId || !userId || !canRecord || started.current) return
     started.current = true
     void (async () => {
       const db = await getDb()
@@ -60,8 +62,9 @@ export default function InspectScreen() {
         showToast(`Continuando la revisión de las ${formatTime(result.draft.created_at)}`)
       }
     })().catch((e: unknown) => setOpened({ kind: 'failed', message: messageFor(e) }))
-  }, [id, inspectionId, organizationId, userId, owner])
+  }, [id, inspectionId, organizationId, userId, owner, canRecord])
 
+  if (!canRecord) return <ReadOnly />
   if (!hive)
     return loading ? null : <NotAvailable icon={Honeycomb} title="Esta colmena ya no existe." />
   if (opened?.kind === 'forbidden') {

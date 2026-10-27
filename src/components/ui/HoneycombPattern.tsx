@@ -10,7 +10,7 @@ export function HoneycombPattern() {
       importantForAccessibility="no-hide-descendants"
       width="100%"
       height="100%"
-      style={{ position: 'absolute', opacity: 0.08 }}
+      style={{ position: 'absolute', opacity: 0.16 }}
     >
       <Defs>
         <Pattern id="comb" width={42} height={72.75} patternUnits="userSpaceOnUse">

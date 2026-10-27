@@ -7,7 +7,8 @@ import { getDb } from '@/db/database'
 import type { ServerRow } from '@/db/mapping'
 import { saveRow } from '@/db/write'
 import { useApiaryNames } from '@/features/apiaries/queries'
-import { useRole, useSession } from '@/features/auth/session'
+import { ReadOnly } from '@/features/auth/ReadOnly'
+import { useCanRecord, useRole, useSession } from '@/features/auth/session'
 import { EventForm, type EventResult } from '@/features/events/EventForm'
 import { useEvent, useRecentProducts } from '@/features/events/queries'
 import { isEventType } from '@/features/events/schemas'
@@ -20,12 +21,14 @@ export default function EditEventScreen() {
   const { id, eventId } = useLocalSearchParams<{ id: string; eventId: string }>()
   const { state } = useSession()
   const owner = useRole() === 'owner'
+  const canRecord = useCanRecord()
   const { hive } = useHive(id)
   const { event, loading } = useEvent(eventId)
   const apiaries = useApiaryNames(hive?.organization_id ?? '')
   const apiaryHives = useHiveNames(hive?.apiary_id ?? '').names
   const recentProducts = useRecentProducts(hive?.organization_id ?? '')
 
+  if (!canRecord) return <ReadOnly />
   if (!event || !hive)
     return loading ? null : <NotAvailable icon={StickyNote} title="Este evento ya no existe." />
   const userId = state.status === 'signedIn' ? state.session.user.id : null

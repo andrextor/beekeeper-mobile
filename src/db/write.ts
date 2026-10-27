@@ -38,6 +38,16 @@ async function upsertDirty(db: Db, table: SyncedTable, row: ServerRow): Promise<
   )
 }
 
+/** A second net behind the hidden buttons: an observador's write never reaches the outbox. */
+async function refuseObservador(db: Db, writes: readonly { row: ServerRow }[]): Promise<void> {
+  const orgs = [...new Set(writes.map((w) => w.row.organization_id))]
+  const viewer = await db.getFirstAsync(
+    `select 1 from members_cache where role = 'viewer' and organization_id in (${orgs.map(() => '?').join(', ')})`,
+    orgs,
+  )
+  if (viewer) throw Object.assign(new Error('read-only role'), { code: '42501' })
+}
+
 /**
  * Every local write: the rows and their outbox entries in one transaction. Soft-deleting an
  * inspection soft-deletes its events too, as the server does (B4).
@@ -48,6 +58,7 @@ export async function saveRows(
   /** More local work that must commit or fail with these rows (e.g. deleting a draft). */
   extra?: (db: Db) => Promise<void>,
 ): Promise<void> {
+  await refuseObservador(db, writes)
   await db.transaction(async () => {
     for (const { table, row } of writes) {
       await upsertDirty(db, table, row)

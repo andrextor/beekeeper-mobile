@@ -15,8 +15,9 @@ describe('sortMembers', () => {
       member('2', 'reviewer', null, 'ana@x.co'),
       member('3', 'owner', 'Pedro', 'p@x.co'),
       member('4', 'reviewer', 'Ángel', 'a@x.co'),
+      member('5', 'viewer', 'Bea', 'b@x.co'),
     ])
-    expect(sorted.map((m) => m.user_id)).toEqual(['3', '2', '4', '1'])
+    expect(sorted.map((m) => m.user_id)).toEqual(['3', '2', '4', '5', '1'])
   })
 
   it('keeps a member whose profile is not readable', () => {

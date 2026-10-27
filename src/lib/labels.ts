@@ -46,6 +46,7 @@ export const hiveStatusLabels = {
 export const roleLabels = {
   owner: 'Propietario',
   reviewer: 'Revisor',
+  viewer: 'Observador',
 } as const
 
 export const inspectionSourceLabels = { manual: 'Manual', voice: 'Por voz' } as const

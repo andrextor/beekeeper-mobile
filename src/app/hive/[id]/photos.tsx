@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Screen } from '@/components/ui/Screen'
 import { Title } from '@/components/ui/Title'
+import { useCanRecord } from '@/features/auth/session'
 import { PhotoGrid } from '@/features/photos/PhotoGrid'
 import { usePhotos } from '@/features/photos/queries'
 
@@ -18,16 +19,19 @@ export default function HivePhotosScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const [limit, setLimit] = useState(page)
   const photos = usePhotos({ hiveId: id }, limit)
+  const canRecord = useCanRecord()
   return (
     <Screen>
       <BackButton />
       <Title text="Fotos" />
-      <Button
-        variant="accent"
-        icon={Camera}
-        label="Tomar foto"
-        onPress={() => router.push({ pathname: '/hive/[id]/camera', params: { id } })}
-      />
+      {canRecord ? (
+        <Button
+          variant="accent"
+          icon={Camera}
+          label="Tomar foto"
+          onPress={() => router.push({ pathname: '/hive/[id]/camera', params: { id } })}
+        />
+      ) : null}
       {photos.length ? (
         <PhotoGrid
           photos={photos}

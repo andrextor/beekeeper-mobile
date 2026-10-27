@@ -100,7 +100,7 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 - [ ] 10.1 ➜ Perfil → **Personas de la finca** → **Invitar persona** → "Ayudante", Revisor. ✓ Muestra el código → Compartir por WhatsApp (a ti mismo). Anota el código.
 - [ ] 10.2 ➜ Cierra sesión → Crear cuenta nueva → **Tengo un código** → escribe el código. ✓ Entras a Finca Landak como Revisor, sin "Invitar persona".
 - [ ] 10.3 ➜ Otra cuenta nueva con el mismo código. ✓ "El código no es válido…".
-- [ ] 10.4 ➜ Como owner: Personas → Ayudante → **Hacer propietario**. ✓ Al entrar como Ayudante (tras sincronizar) tiene botones de propietario. Devuélvelo a Revisor.
+- [ ] 10.4 ➜ Como owner: Personas → Ayudante → chip **Propietario** → **Cambiar rol**. ✓ Al entrar como Ayudante (tras sincronizar) tiene botones de propietario. Devuélvelo a Revisor.
 - [ ] 10.5 ➜ En una finca donde eres el único propietario → **Salir de esta finca**. ✓ "La finca debe tener al menos un propietario".
 - [ ] 10.6 ➜ Modo avión → Personas. ✓ "Sin conexión"; sin modo avión → **Intentar de nuevo** ✓ carga.
 - [ ] 10.7 ➜ Como Ayudante: revisión en modo avión → Salir de esta finca. ✓ Avisa cuántos registros sin sincronizar → **Sincronizar primero** → luego Salir ✓ la finca y sus fotos desaparecen.
@@ -115,6 +115,16 @@ Cada prueba dice qué haces (➜) y qué debe pasar (✓). Marca `[x]` lo que fu
 - [ ] 11.5 ➜ Al sol, a un brazo de distancia, con guantes: Inicio, una colmena y una revisión. ✓ Todo se lee y cada botón responde.
 - [ ] 11.6 ➜ Nueva revisión. ✓ Misma distribución y tamaños de antes; solo cambian las formas.
 - [ ] 11.7 ➜ Ajustes → tamaño de letra al máximo. ✓ Nada se corta.
+
+### 12. Rol Observador (M14)
+Necesita el backend con B8: en `../beekeeper`, en `main`, `pnpm db:reset`. Usa al Ayudante de la sección 10 (o cualquier revisor de Finca Landak).
+- [ ] 12.1 ➜ Como owner: Personas → Ayudante. ✓ Chips Propietario / Revisor / Observador con el actual marcado y **Cambiar rol** apagado. ➜ Toca **Observador**. ✓ La línea de ayuda cambia y **Cambiar rol** se enciende → tócalo. ✓ "Ayudante ahora es observador" y su insignia dice Observador.
+- [ ] 12.2 ➜ **Invitar persona**. ✓ Tres chips; cada uno cambia la línea de ayuda. ➜ Crea un código Observador y úsalo con una cuenta nueva. ✓ Entra con la insignia Observador en Perfil.
+- [ ] 12.3 ➜ Entra como el observador. ✓ Inicio muestra Para revisar, Tareas y Última actividad. ➜ Abre una colmena. ✓ No hay Nueva revisión, Registrar actividad ni Tomar foto; sí historial, fotos y datos.
+- [ ] 12.4 ➜ Abre una revisión, un evento del historial y una foto. ✓ Sin Editar, sin Eliminar foto, sin "Agregar descripción" (la descripción, si hay, se lee).
+- [ ] 12.5 ➜ Escanea el QR de una colmena. ✓ Abre la colmena en modo lectura. ✓ Pendientes queda vacío.
+- [ ] 12.6 ➜ Modo avión. ✓ Todo lo ya cargado se sigue leyendo.
+- [ ] 12.7 ➜ Owner lo devuelve a Revisor → en el teléfono del observador, desliza para sincronizar o abre de nuevo la app. ✓ Vuelven los botones sin cerrar sesión.
 
 ## Pilot checklist (overview §10)
 

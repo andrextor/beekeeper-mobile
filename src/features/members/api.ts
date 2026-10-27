@@ -1,10 +1,8 @@
 import { z } from 'zod'
 
-import type { Role } from '@/features/sync/members'
+import { type Role, roleSchema } from '@/features/sync/members'
 import { withTimeout } from '@/features/sync/server'
 import { supabase } from '@/lib/supabase'
-
-const roleSchema = z.enum(['owner', 'reviewer'])
 
 const memberSchema = z.object({
   user_id: z.string(),

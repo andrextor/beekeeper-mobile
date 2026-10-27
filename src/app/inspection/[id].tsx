@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { NotAvailable } from '@/components/ui/NotAvailable'
 import { Screen } from '@/components/ui/Screen'
 import { Title } from '@/components/ui/Title'
-import { useRole, useSession } from '@/features/auth/session'
+import { useCanRecord, useRole, useSession } from '@/features/auth/session'
 import { InspectionDetailView } from '@/features/inspections/InspectionDetailView'
 import { useInspection } from '@/features/inspections/queries'
 import { PhotoGrid } from '@/features/photos/PhotoGrid'
@@ -17,6 +17,7 @@ export default function InspectionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { state } = useSession()
   const owner = useRole() === 'owner'
+  const canRecord = useCanRecord()
   const { detail, loading } = useInspection(id)
   const photos = usePhotos({ inspectionId: id })
 
@@ -26,7 +27,7 @@ export default function InspectionScreen() {
     )
   }
   const userId = state.status === 'signedIn' ? state.session.user.id : null
-  const canEdit = owner || detail.inspection.created_by === userId
+  const canEdit = canRecord && (owner || detail.inspection.created_by === userId)
 
   return (
     <Screen>

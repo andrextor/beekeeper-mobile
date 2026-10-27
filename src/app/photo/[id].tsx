@@ -12,7 +12,7 @@ import { showToast } from '@/components/ui/ToastHost'
 import { getDb } from '@/db/database'
 import { fromLocal, type LocalRow } from '@/db/mapping'
 import { saveRow } from '@/db/write'
-import { useRole, useSession } from '@/features/auth/session'
+import { useCanRecord, useRole, useSession } from '@/features/auth/session'
 import { usePhoto, usePhotoNeighbors } from '@/features/photos/queries'
 import { mainSource } from '@/features/photos/sources'
 import { useSignedUrls } from '@/features/photos/useSignedUrls'
@@ -30,6 +30,7 @@ export default function PhotoScreen() {
   const insets = useSafeAreaInsets()
   const { state } = useSession()
   const owner = useRole() === 'owner'
+  const canRecord = useCanRecord()
   const photo = usePhoto(id)
   const { newer, older } = usePhotoNeighbors(photo)
   const source = photo ? mainSource(photo) : null
@@ -54,7 +55,7 @@ export default function PhotoScreen() {
     if (to) router.replace({ pathname: '/photo/[id]', params: { id: to } })
   }
   const userId = state.status === 'signedIn' ? state.session.user.id : null
-  const canDelete = owner || photo.created_by === userId
+  const canDelete = canRecord && (owner || photo.created_by === userId)
 
   return (
     <View
@@ -87,7 +88,11 @@ export default function PhotoScreen() {
             disabled={!older}
           />
         </View>
-        {caption === null ? (
+        {!canRecord ? (
+          photo.caption ? (
+            <Text className="font-sans text-body text-white">{photo.caption}</Text>
+          ) : null
+        ) : caption === null ? (
           <Button
             variant="secondary"
             label={photo.caption ? photo.caption : 'Agregar descripción'}
