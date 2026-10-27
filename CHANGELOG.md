@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-26
+
+### Fixed
+
+- Invite sharing (review of 1.2.0): **Compartir de otra forma** keeps the share menu (SMS, correo…) reachable when WhatsApp is installed; a double tap no longer opens two chats; a failed share shows a message instead of failing silently. The WhatsApp helper moved to `src/features/members/share.ts` with a test.
+
 ## [1.2.0] - 2026-10-26
 
 ### Added
