@@ -60,7 +60,7 @@ Plus Jakarta Sans (headings, hive names, big numbers) and Inter (everything else
 ## Layout and touch
 
 - 8-dp grid; screen padding 16 dp. Radii: inputs `field` 16, cards `card` 24, sheets `sheet` 28, buttons and chips `button` (pill). Shadows from `shadow` in `src/lib/theme.ts` (RN `boxShadow`): `card`, `raised`, `tabBar`; no grey borders around surfaces.
-- Visual direction "Panal" (M13): `deep` hero bands with a faint honeycomb pattern on Bienvenida, Inicio and the hive ficha; white cards over the `canvas`; honey is the one warm accent; press = spring scale + light haptic.
+- Visual direction "Panal" (M13): `deep` hero bands with a faint honeycomb pattern on Bienvenida, Inicio and the hive ficha; white cards over the `canvas`; honey is the one warm accent; press = the target sinks to 97 % (`PressScale`, NativeWind `active:` classes); field controls add a light haptic.
 - Targets: field mode ≥ 72 dp high, full width or half width; elsewhere ≥ 56 dp; spacing ≥ 12 dp.
 - Primary actions sit in the bottom third (thumb zone). Nothing important in the top corners.
 - Bottom tabs: Inicio (`house`), Apiarios (`map-pin`), **Escanear** (center, 72-dp `honey` circle, `scan-qr-code`), Pendientes (`cloud-upload` + count badge), Perfil (`user-round`).
