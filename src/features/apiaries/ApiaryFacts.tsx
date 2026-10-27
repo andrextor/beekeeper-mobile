@@ -5,6 +5,13 @@ import type { Apiary } from './queries'
 
 /** What the apiary record says; empty facts are left out. */
 export function ApiaryFacts({ apiary }: { apiary: Apiary }) {
+  const { farm_name, place, altitude_m, flora_notes, water_source, notes } = apiary
+  if (
+    [farm_name, place, altitude_m, flora_notes, water_source, notes].every(
+      (v) => v === null || v === '',
+    )
+  )
+    return null
   return (
     <Card className="gap-3">
       <Fact label="Finca" value={apiary.farm_name} />
