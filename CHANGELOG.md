@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-26
+
+### Added
+
+- Read-only role **Observador** (`viewer`, backend B8): it reads the whole finca and records nothing. Nueva revisión, Registrar actividad, Tomar foto, editing, deleting and photo descriptions are hidden; write routes opened directly say "Como observador puedes ver la finca, pero no registrar cambios."; the outbox refuses its writes as a second net behind RLS.
+- Invitar persona and the person sheet offer three roles (Propietario, Revisor, Observador) with one line each; the sheet's "Hacer revisor / propietario" toggle becomes chips plus **Cambiar rol**.
+
+### Changed
+
+- **Compartir por WhatsApp** opens WhatsApp with the invite message; without WhatsApp it falls back to the share menu.
+- The honeycomb behind the dark bands is visible (opacity 16 %).
+- `docs/install.md`: invite codes last 30 days (set by the server).
+
+### Fixed
+
+- A role the app does not know no longer blanks the fincas or the Personas list: it reads as Observador (least privilege).
+
 ## [1.1.1] - 2026-10-26
 
 ### Fixed
