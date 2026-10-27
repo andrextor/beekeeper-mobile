@@ -18,7 +18,11 @@ export default function SignUpScreen() {
   const [error, setError] = useState<string | null>(null)
   const [exists, setExists] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [left, setLeft] = useState(false)
 
+  // Checked once the field is left, cleared as soon as the value is long enough.
+  const shortError =
+    left && password && password.length < minPasswordLength ? passwordTooShort : undefined
   const repeatError = repeat && repeat !== password ? 'Las contraseñas no coinciden.' : undefined
 
   const submit = async () => {
@@ -60,6 +64,8 @@ export default function SignUpScreen() {
         onChangeText={setPassword}
         autoComplete="new-password"
         hint={`Mínimo ${minPasswordLength} caracteres`}
+        error={shortError}
+        onBlur={() => setLeft(true)}
       />
       <PasswordField
         label="Repite la contraseña"
