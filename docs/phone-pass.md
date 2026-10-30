@@ -28,8 +28,8 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 **Trucos en el 📱**
 - **Cambiar de usuario**: pestaña **Perfil** → **Cerrar sesión** → **Iniciar sesión** con el otro. Cerrar sesión borra los datos del teléfono: hazlo solo con **Pendientes** vacío.
 - **Matar la app**: botón de apps recientes (el cuadrado o deslizar desde abajo y sostener) → desliza la app fuera.
-- **Modo avión**: desliza desde arriba → ícono del avión. **Revisa que el Wi-Fi quede apagado también**: si alguna vez prendiste el Wi-Fi en modo avión, Android lo vuelve a prender solo, y con Wi-Fi la app sigue llegando al Mac y sincroniza (verás el ícono de Wi-Fi junto al avión).
-- **Con la app de desarrollo, el modo avión también corta Metro y el Supabase del Mac.** La app sigue funcionando porque ya cargó, pero **no la recargues** (ni `r` en Metro ni sacudir el teléfono) mientras estés en modo avión: quedaría en blanco. Al quitar el modo avión y prender el Wi-Fi vuelve sola. Si la matas en modo avión, al abrirla puede pedir el servidor: quita el modo avión y elige el servidor de nuevo; los datos siguen ahí.
+- **"Modo avión y Wi-Fi apagado"** (sin conexión): desliza desde arriba → toca el avión **y** toca el Wi-Fi para apagarlo. Arriba no debe quedar el ícono de Wi-Fi. No hay modo avión simulado en la app: es el del teléfono. **Revisa que el Wi-Fi quede apagado**: si alguna vez prendiste el Wi-Fi en modo avión, Android lo vuelve a prender solo, y con Wi-Fi la app sigue llegando al Mac y sincroniza (verás el ícono de Wi-Fi junto al avión).
+- **Con la app de desarrollo, apagar el Wi-Fi también corta Metro y el Supabase del Mac.** La app sigue funcionando porque ya cargó, pero **no la recargues** (ni `r` en Metro ni sacudir el teléfono) mientras estés en modo avión: quedaría en blanco. Al quitar el modo avión y prender el Wi-Fi vuelve sola. **No la mates sin Wi-Fi**: la app de desarrollo baja el código desde Metro al abrir y no arrancaría. Los pasos que necesitan eso están al final, en **Con el APK**.
 
 ### 1. Cuentas (M2)
 - [x] 1.1 💻 Admin → Usuarios → **Nuevo usuario** → Tipo **Apicultor**, correo `nuevo2@landak.test`, una contraseña, finca "Finca Nueva". 📱 **Iniciar sesión** → entra con ese correo. ✓ Llegas a Inicio de "Finca Nueva"; en Perfil dice Propietario.
@@ -40,25 +40,24 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 
 ### 2. Sincronización (M3) — 📱 entra como `owner@landak.test`
 - [x] 2.1 📱 Abajo, pestaña **Pendientes**. ✓ Arriba dice "Sincronizado".
-- [x] 2.2 📱 Activa el **modo avión** y apaga el **Wi-Fi** (arriba no debe quedar el ícono de Wi-Fi) → pestaña **Apiarios** → **Nuevo apiario** → ponle un nombre → **Guardar** → ábrelo → **Nueva colmena** → nombre → **Guardar**. ✓ Cada guardado dice "Guardado en este dispositivo". ➜ Pestaña **Pendientes**. ✓ "Sin conexión — 2 guardados en este dispositivo".
-- [x] 2.3 📱 Sigue en modo avión: mata la app y ábrela. ✓ El apiario y la colmena siguen en **Apiarios**.
-- [x] 2.4 📱 Quita el modo avión **y prende el Wi-Fi** (el Supabase está en tu Mac: solo se llega por el Wi-Fi de la casa, no con datos móviles) → espera unos segundos en **Pendientes**. ✓ "Sincronizado". 🗄️ Studio → tablas `apiaries` y `hives`. ✓ El apiario y la colmena aparecen **una sola vez** cada uno.
+- [x] 2.2 📱 **Modo avión y Wi-Fi apagado** (arriba no debe quedar el ícono de Wi-Fi) → pestaña **Apiarios** → **Nuevo apiario** → ponle un nombre → **Guardar** → ábrelo → **Nueva colmena** → nombre → **Guardar**. ✓ Cada guardado dice "Guardado en este dispositivo". ➜ Pestaña **Pendientes**. ✓ "Sin conexión — 2 guardados en este dispositivo".
+- [x] 2.4 📱 **Prende el Wi-Fi y quita el modo avión** (el Supabase está en tu Mac: solo se llega por el Wi-Fi de la casa, no con datos móviles) → espera unos segundos en **Pendientes**. ✓ "Sincronizado". 🗄️ Studio → tablas `apiaries` y `hives`. ✓ El apiario y la colmena aparecen **una sola vez** cada uno.
 - [x] 2.5 📱 **Perfil** → **Galería de componentes** (solo en la app de desarrollo) → sección "Sincronización (pruebas)" → toca **Forzar error** hasta que diga "activado" → crea un apiario. ➜ **Pendientes**. ✓ El registro aparece con "Intento 1 · …". ➜ Vuelve a la galería y déjalo en "apagado". ✓ Se sincroniza.
 - [x] 2.6 🗄️ Studio → tabla `organization_members` → **Insert row**: `organization_id` `00000000-0000-4000-b000-000000000002`, `user_id` `00000000-0000-4000-a000-000000000001`, `role` `reviewer` → **Save**. 📱 **Pendientes** → **Sincronizar ahora** → **Perfil** → **Cambiar de finca**. ✓ Aparece "Apiario Ajeno"; al entrar ves "Apiario del vecino" y la colmena V-01.
 - [x] 2.7 🗄️ Studio → `organization_members` → borra la fila que agregaste en 2.6. 📱 **Pendientes** → **Sincronizar ahora**. ✓ "Apiario Ajeno" y sus datos desaparecen y vuelves a Finca Landak.
 
 ### 3. Apiarios y colmenas (M4) — 📱 como `owner@landak.test`, con guantes si puedes
 - [x] 3.1 📱 Pestaña **Apiarios**. ✓ Están "Vallecito 1" y "La Loma".
-- [x] 3.2 📱 Modo avión → **Nuevo apiario** → **Usar mi ubicación** → **niega** el permiso. ✓ Mensaje claro y el formulario sigue usable. ➜ Repite y **permite**. ✓ Llena las coordenadas. ➜ Con la ubicación del teléfono apagada. ✓ Android pide activarla.
+- [x] 3.2 📱 **Modo avión y Wi-Fi apagado** → **Nuevo apiario** → **Usar mi ubicación** → **niega** el permiso. ✓ Mensaje claro y el formulario sigue usable. ➜ Repite y **permite**. ✓ Llena las coordenadas. ➜ Con la ubicación del teléfono apagada. ✓ Android pide activarla.
 - [x] 3.3 📱 Abre un apiario → **Nueva colmena** → usa los botones − / +, los chips y pon el año de la reina. ✓ Sugiere el color de la reina.
 - [x] 3.4 📱 Abre un apiario que tenga colmenas → **Editar** → **Eliminar**. ✓ No te deja.
-- [ ] 3.5 📱 Modo avión → crea una colmena con un nombre que ya existe en ese apiario → quita el modo avión → **Pendientes**. ✓ "Requiere atención" → **Revisar** → cambia el nombre → **Guardar**. ✓ Se sincroniza.
+- [ ] 3.5 📱 **Modo avión y Wi-Fi apagado** → crea una colmena con un nombre que ya existe en ese apiario → **prende el Wi-Fi y quita el modo avión** → **Pendientes**. ✓ "Requiere atención" → **Revisar** → cambia el nombre → **Guardar**. ✓ Se sincroniza.
 - [ ] 3.6 📱 Cambia a `reviewer@landak.test` → **Apiarios** y abre uno. ✓ No hay botones para crear ni editar apiarios o colmenas.
 
 ### 4. QR (M5) — 📱 como `owner@landak.test`
 - [ ] 4.1 📱 Abre la colmena C-01 → **Etiqueta QR** → **Compartir PDF**. ✓ Se abre el menú de compartir con el PDF.
 - [ ] 4.2 📱 Abre el apiario Vallecito 1 → **Imprimir etiquetas**. ✓ Vista de impresión A4 con las etiquetas.
-- [ ] 4.3 📱 Botón central **Escanear** → apunta a una etiqueta (impresa, o el PDF de 4.1 abierto en la pantalla del Mac); repite en modo avión. ✓ Abre esa colmena. Prueba **Linterna**.
+- [ ] 4.3 📱 Botón central **Escanear** → apunta a una etiqueta (impresa, o el PDF de 4.1 abierto en la pantalla del Mac); repite con **modo avión y Wi-Fi apagado**. ✓ Abre esa colmena. Prueba **Linterna**.
 - [ ] 4.4 📱 **Escanear** → **Escribir código** → escribe el código de la etiqueta con la letra O en vez del cero. ✓ La encuentra igual.
 - [ ] 4.5 📱 Cierra la app y abre la **cámara normal** del teléfono → apunta a la etiqueta. ✓ Ofrece abrir Landak Apiario en esa colmena.
 - [ ] 4.6 📱 Colmena → **Etiqueta QR** → **Cambiar etiqueta** → escanea una etiqueta nueva → luego **Escanear** la etiqueta vieja. ✓ "no está asignado".
@@ -67,40 +66,37 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 ### 5. Ficha e historial (M6) — 📱 como `owner@landak.test`
 - [ ] 5.1 📱 Abre C-01. ✓ Banda oscura con el nombre y el apiario; si la colmena necesita algo, una tarjeta de atención; "Última revisión hace … · por …"; botón **Nueva revisión** abajo.
 - [ ] 5.2 📱 Baja por el historial. ✓ Lo más nuevo primero; las notas van dentro de su revisión; al final **Cargar más**.
-- [ ] 5.3 📱 Modo avión → mata la app → ábrela. ✓ La ficha se ve igual.
 - [ ] 5.4 📱 Pestaña **Inicio**. ✓ Secciones "Para revisar", "Tareas" (ej. Alimentar) y "Última actividad".
 
-### 6. Revisión en campo (M7) — 📱 como `owner@landak.test`, modo avión, con guantes
+### 6. Revisión en campo (M7) — 📱 como `owner@landak.test`, modo avión y Wi-Fi apagado, con guantes
 - [ ] 6.1 📱 C-01 → **Nueva revisión** → llena cada sección solo con toques. Toca otra vez un chip ya elegido. ✓ Se desmarca.
 - [ ] 6.2 📱 En Varroa: lavado con 300 abejas y 7 ácaros. ✓ "Carga: 2,3 %". Agrega una nota.
-- [ ] 6.3 📱 Bloquea el teléfono 30 s → mata la app → ábrela. ✓ "Continuando la revisión…" con todo lo que llenaste.
 - [ ] 6.4 📱 **Terminar**. ✓ "Guardado…" con **Deshacer** → tócalo. ✓ Vuelves a la revisión con los datos → **Terminar** otra vez.
-- [ ] 6.5 📱 Quita el modo avión. 🗄️ Studio. ✓ Una fila nueva en `inspections` y una en `notes`.
+- [ ] 6.5 📱 **Prende el Wi-Fi y quita el modo avión**. 🗄️ Studio. ✓ Una fila nueva en `inspections` y una en `notes`.
 - [ ] 6.6 📱 Cambia a `reviewer@landak.test` → abre una revisión del owner y una tuya. ✓ Solo puedes editar la tuya.
 
 ### 7. Voz (M8) — 📱 como `owner@landak.test`
 - [ ] 7.0 📱 Ajustes del teléfono → Google → Voz → Reconocimiento sin conexión → descarga Español.
-- [ ] 7.1 📱 Modo avión → C-01 → **Nueva revisión** → **Dictar** → di: "La reina no se vio, hay buena postura, tres cuadros de cría, reservas bajas. Alimentar y revisar en ocho días." ✓ Aparecen unas 7 propuestas.
-- [ ] 7.2 📱 Quita una, cambia otra → **Aceptar todo** → **Terminar** → quita el modo avión. 🗄️ Studio → `inspections`. ✓ La revisión tiene `source = voice` y el texto dictado.
+- [ ] 7.1 📱 **Modo avión y Wi-Fi apagado** → C-01 → **Nueva revisión** → **Dictar** → di: "La reina no se vio, hay buena postura, tres cuadros de cría, reservas bajas. Alimentar y revisar en ocho días." ✓ Aparecen unas 7 propuestas.
+- [ ] 7.2 📱 Quita una, cambia otra → **Aceptar todo** → **Terminar** → **prende el Wi-Fi y quita el modo avión**. 🗄️ Studio → `inspections`. ✓ La revisión tiene `source = voice` y el texto dictado.
 - [ ] 7.3 📱 En una revisión, abre una nota → **Dictar** dentro de la nota. ✓ El texto queda en la nota.
-- [ ] 7.4 📱 Borra el paquete de voz (Ajustes → Google → Voz) → modo avión → **Dictar**. ✓ Aviso antes de escuchar.
+- [ ] 7.4 📱 Borra el paquete de voz (Ajustes → Google → Voz) → **modo avión y Wi-Fi apagado** → **Dictar**. ✓ Aviso antes de escuchar.
 - [ ] 7.5 📱 Ajustes del teléfono → Apps → Landak Apiario → Permisos → niega el micrófono → **Dictar**. ✓ Mensaje claro; los toques siguen funcionando.
 - [ ] 7.6 📱 En una revisión de C-01 di "Colmena 12…". ✓ Advierte que no es esta colmena.
 
 ### 8. Fotos (M9) — 📱 como `owner@landak.test`
 - [ ] 8.1 📱 En una revisión → **Foto** → permite la cámara → toma 3 fotos con guantes → quita una de la tira → **Deshacer** → **Listo**. ✓ Quedan 3.
-- [ ] 8.2 📱 Modo avión → 2 fotos más. ✓ Se guardan.
-- [ ] 8.3 **No se prueba aquí: va con el APK contra D1** (con datos móviles el teléfono no llega al Supabase de tu Mac). En el APK: 📱 **Perfil** → "Subir fotos con datos móviles" en **Solo con Wi-Fi** → apaga el Wi-Fi. ✓ La revisión se sincroniza y **Pendientes** dice "N fotos esperando Wi-Fi" → **Subir ahora con datos**. ✓ Suben.
+- [ ] 8.2 📱 **Modo avión y Wi-Fi apagado** → 2 fotos más. ✓ Se guardan.
 - [ ] 8.4 📱 Mata la app mientras suben fotos. ✓ Al abrirla siguen subiendo. 🗄️ Studio → **Storage** (menú izquierdo). ✓ Cada foto tiene su `.jpg` y su `.thumb.jpg`.
 - [ ] 8.5 💻 Admin → abre esa colmena. ✓ Muestra las fotos. 📱 Como `reviewer@landak.test`. ✓ Ves la miniatura y luego la foto completa.
 - [ ] 8.6 📱 Abre una foto → **Eliminar** → **Deshacer**. ✓ Sigue. ➜ Elimínala otra vez. ✓ Desaparece del historial.
 
-### 9. Actividades (M10) — 📱 como `owner@landak.test`, modo avión
+### 9. Actividades (M10) — 📱 como `owner@landak.test`, modo avión y Wi-Fi apagado
 - [ ] 9.1 📱 C-01 → **Registrar actividad** → Alimentación, Jarabe, 2 l, 1:1 → **Guardar**. ✓ En el historial: "Alimentación · Jarabe de azúcar 1:1 · 2 l".
 - [ ] 9.2 📱 **Registrar actividad** → Cambio de reina, año 2026. ✓ Sugiere "Blanco"; la colmena muestra la reina nueva.
 - [ ] 9.3 📱 **Registrar actividad** → Traslado → La Loma. ✓ C-01 aparece en La Loma.
 - [ ] 9.4 📱 **Registrar actividad** → División → **Crear la nueva colmena ahora**. ✓ Formulario prellenado; la actividad queda enlazada a la colmena nueva.
-- [ ] 9.5 📱 Quita el modo avión. 🗄️ Studio. ✓ Filas nuevas en `hive_events` y `hives` actualizadas.
+- [ ] 9.5 📱 **Prende el Wi-Fi y quita el modo avión**. 🗄️ Studio. ✓ Filas nuevas en `hive_events` y `hives` actualizadas.
 - [ ] 9.6 📱 Cambia a `reviewer@landak.test` → C-02 → **Registrar actividad** → Pérdida. ✓ "Avisa al propietario…"; C-02 sigue Activa.
 - [ ] 9.7 📱 En una revisión: **Actividad** → Tratamiento → **Terminar**. ✓ Queda dentro de la revisión. ➜ **Deshacer**. ✓ La colmena vuelve como estaba.
 - [ ] 9.8 📱 En el historial toca una actividad → edítala → **Eliminar** → **Deshacer**. ✓ Vuelve.
@@ -111,8 +107,8 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 - [ ] 10.3 📱 Cierra sesión → otra cuenta nueva → **Tengo un código** con el mismo código. ✓ "El código no es válido…".
 - [ ] 10.4 📱 Como owner: **Personas** → Ayudante → chip **Propietario** → **Cambiar rol**. ➜ Entra como el Ayudante → **Pendientes** → **Sincronizar ahora**. ✓ Tiene botones de propietario. ➜ Como owner, devuélvelo a Revisor.
 - [ ] 10.5 📱 Entra con la cuenta de 1.4 (única propietaria de su finca) → **Perfil** → **Salir de esta finca**. ✓ "La finca debe tener al menos un propietario".
-- [ ] 10.6 📱 Como owner: modo avión → **Personas**. ✓ "Sin conexión". ➜ Quita el modo avión → **Intentar de nuevo**. ✓ Carga.
-- [ ] 10.7 📱 Como el Ayudante: modo avión → haz una revisión → **Perfil** → **Salir de esta finca**. ✓ Avisa cuántos registros faltan por sincronizar → quita el modo avión → **Sincronizar primero** → luego **Salir**. ✓ La finca y sus fotos desaparecen del teléfono.
+- [ ] 10.6 📱 Como owner: **modo avión y Wi-Fi apagado** → **Personas**. ✓ "Sin conexión". ➜ **Prende el Wi-Fi y quita el modo avión** → **Intentar de nuevo**. ✓ Carga.
+- [ ] 10.7 📱 Como el Ayudante: **modo avión y Wi-Fi apagado** → haz una revisión → **Perfil** → **Salir de esta finca**. ✓ Avisa cuántos registros faltan por sincronizar → **prende el Wi-Fi y quita el modo avión** → **Sincronizar primero** → luego **Salir**. ✓ La finca y sus fotos desaparecen del teléfono.
 - [ ] 10.8 📱 Como owner: **Invitar persona** → crea otro código → **Cancelar código** → úsalo en una cuenta nueva. ✓ No sirve.
 - [ ] 10.9 💻 Admin → Usuarios → el Ayudante: cambia su rol, luego quítalo de la finca, luego desactívalo. 📱 Como owner, tras cada cambio: **Pendientes** → **Sincronizar ahora** → **Personas**. ✓ Se refleja cada cambio; al final dice "Desactivado".
 
@@ -132,7 +128,7 @@ Usa `reviewer@landak.test` como "el observador" (o el Ayudante de la sección 10
 - [ ] 12.3 📱 Cambia a `reviewer@landak.test` (ahora observador). ✓ **Inicio** muestra Para revisar, Tareas y Última actividad. ➜ Abre una colmena. ✓ No hay Nueva revisión, Registrar actividad ni Tomar foto; sí historial, fotos y datos.
 - [ ] 12.4 📱 Abre una revisión, una actividad del historial y una foto. ✓ Sin Editar, sin Eliminar, sin "Agregar descripción" (la descripción, si hay, se lee).
 - [ ] 12.5 📱 **Escanear** el QR de una colmena. ✓ Abre la colmena sin botones de escribir. ➜ **Pendientes**. ✓ Vacío.
-- [ ] 12.6 📱 Modo avión. ✓ Todo lo ya cargado se sigue leyendo. Quita el modo avión.
+- [ ] 12.6 📱 **Modo avión y Wi-Fi apagado**. ✓ Todo lo ya cargado se sigue leyendo. ➜ **Prende el Wi-Fi y quita el modo avión**.
 - [ ] 12.7 📱 Cambia a `owner@landak.test` → **Personas** → `reviewer@landak.test` → **Revisor** → **Cambiar rol**. ➜ Cambia a `reviewer@landak.test` → **Pendientes** → desliza hacia abajo para sincronizar. ✓ Vuelven los botones sin cerrar sesión.
 
 ### 13. Panal en todas las pantallas (M15) — 📱
@@ -142,7 +138,14 @@ Usa `reviewer@landak.test` como "el observador" (o el Ayudante de la sección 10
 - [ ] 13.4 📱 **Perfil** → **Tus fincas**, **Personas** (la finca en la línea pequeña), **Invitar persona** y el código creado. ✓ Franja en todas.
 - [ ] 13.5 📱 Un apiario (lista de colmenas), Nuevo / Editar apiario, Nueva / Editar colmena, Etiqueta QR, Fotos, Cambiar etiqueta (la colmena en la línea pequeña), una revisión ya hecha y Registrar actividad (tipo en grande, colmena en la línea pequeña). ✓ Franja y "Volver" en la hoja.
 - [ ] 13.6 📱 **Nueva revisión**, **Escanear** y la cámara. ✓ Igual que antes: sin franja.
-- [ ] 13.7 📱 **Solo con un APK nuevo** (no OTA ni la app de desarrollo vieja). ✓ En el cajón de apps el ícono es el panal ámbar sobre azul oscuro, también con forma de círculo o de gota; con íconos temáticos (Android 13+) se ve el panal en monocromo. ✓ Al abrir, la pantalla de carga es azul oscura con el panal.
+
+### Con el APK (no se prueban en la app de desarrollo)
+La app de desarrollo baja su código desde Metro al abrir: si la matas sin Wi-Fi no arranca, y con datos móviles no llega al Supabase de tu Mac. Estos pasos van con el APK instalado (contra D1).
+- [ ] 2.3 📱 Modo avión y Wi-Fi apagado: mata la app y ábrela. ✓ El apiario y la colmena siguen en **Apiarios**.
+- [ ] 5.3 📱 Modo avión y Wi-Fi apagado → mata la app → ábrela. ✓ La ficha se ve igual.
+- [ ] 6.3 📱 Bloquea el teléfono 30 s → mata la app → ábrela. ✓ "Continuando la revisión…" con todo lo que llenaste.
+- [ ] 8.3 📱 **Perfil** → "Subir fotos con datos móviles" en **Solo con Wi-Fi** → apaga el Wi-Fi. ✓ La revisión se sincroniza y **Pendientes** dice "N fotos esperando Wi-Fi" → **Subir ahora con datos**. ✓ Suben.
+- [ ] 13.7 📱 ✓ En el cajón de apps el ícono es el panal ámbar sobre azul oscuro, también con forma de círculo o de gota; con íconos temáticos (Android 13+) se ve el panal en monocromo. ✓ Al abrir, la pantalla de carga es azul oscura con el panal.
 
 ## Pilot checklist (overview §10)
 
