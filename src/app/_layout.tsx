@@ -10,7 +10,7 @@ import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { useCallback, useEffect, useState } from 'react'
-import { LogBox } from 'react-native'
+import { KeyboardAvoidingView, LogBox } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
 import { DbError } from '@/components/ui/DbError'
@@ -38,9 +38,12 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <SessionProvider>
-        <RootNavigator fontsReady={fontsReady} />
-      </SessionProvider>
+      {/* Edge-to-edge: Android no longer resizes the window for the keyboard, so the app does. */}
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        <SessionProvider>
+          <RootNavigator fontsReady={fontsReady} />
+        </SessionProvider>
+      </KeyboardAvoidingView>
       <ToastHost />
     </SafeAreaProvider>
   )

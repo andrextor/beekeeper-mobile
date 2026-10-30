@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Modal, Pressable, View } from 'react-native'
+import { KeyboardAvoidingView, Modal, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { SectionTitle } from './SectionTitle'
 
@@ -22,7 +22,8 @@ export function Sheet({ visible, title, onClose, children }: Props) {
       statusBarTranslucent
       navigationBarTranslucent
     >
-      <View className="flex-1 justify-end">
+      {/* A Modal is its own window: the root keyboard padding does not reach it. */}
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1, justifyContent: 'flex-end' }}>
         <Pressable
           accessibilityLabel="Cerrar"
           onPress={onClose}
@@ -36,7 +37,7 @@ export function Sheet({ visible, title, onClose, children }: Props) {
           <SectionTitle text={title} />
           {children}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   )
 }
