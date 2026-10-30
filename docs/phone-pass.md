@@ -133,6 +133,12 @@ Usa `reviewer@landak.test` como "el observador" (o el Ayudante de la sección 10
 - [ ] 12.6 📱 **Modo avión y Wi-Fi apagado**. ✓ Todo lo ya cargado se sigue leyendo. ➜ **Prende el Wi-Fi y quita el modo avión**.
 - [ ] 12.7 📱 Cambia a `owner@landak.test` → **Personas** → `reviewer@landak.test` → **Revisor** → **Cambiar rol**. ➜ Cambia a `reviewer@landak.test` → **Pendientes** → desliza hacia abajo para sincronizar. ✓ Vuelven los botones sin cerrar sesión.
 
+### 14. Teclado — 📱
+- [ ] 14.1 📱 **Escanear** → **Escribir código** → toca el campo. ✓ La hoja sube sobre el teclado y ves lo que escribes y **Abrir colmena**.
+- [ ] 14.2 📱 **Nueva colmena** → baja hasta **Notas** y tócala. ✓ El campo queda a la vista sobre el teclado y **Guardar** sube con él; la barra de pestañas no tapa nada.
+- [ ] 14.3 📱 **Iniciar sesión** (cierra sesión antes) → toca **Contraseña**. ✓ Se ve el campo y **Ingresar**.
+- [ ] 14.4 📱 Una foto → **Agregar descripción**; **Invitar persona** → nombre. ✓ Nada queda tapado por el teclado.
+
 ### 13. Panal en todas las pantallas (M15) — 📱
 - [ ] 13.1 📱 Cierra sesión → Bienvenida → **Iniciar sesión**. ✓ Franja oscura con panal y el título en blanco; el formulario sube como hoja clara; "Volver" arriba de la hoja; "¿Olvidaste tu contraseña?" es un enlace y abre su hoja. ➜ Escribe correo y contraseña. ✓ **Ingresar** se enciende sin que la app se caiga.
 - [ ] 13.2 📱 Mira **Crear cuenta**, **Tengo un código**, **Empecemos** y **Crea tu finca**. ✓ La misma franja.
