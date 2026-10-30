@@ -51,7 +51,9 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 - [x] 3.2 📱 **Modo avión y Wi-Fi apagado** → **Nuevo apiario** → **Usar mi ubicación** → **niega** el permiso. ✓ Mensaje claro y el formulario sigue usable. ➜ Repite y **permite**. ✓ Llena las coordenadas. ➜ Con la ubicación del teléfono apagada. ✓ Android pide activarla.
 - [x] 3.3 📱 Abre un apiario → **Nueva colmena** → usa los botones − / +, los chips y pon el año de la reina. ✓ Sugiere el color de la reina.
 - [x] 3.4 📱 Abre un apiario que tenga colmenas → **Editar** → **Eliminar**. ✓ No te deja.
-- [ ] 3.5 📱 **Modo avión y Wi-Fi apagado** → crea una colmena con un nombre que ya existe en ese apiario → **prende el Wi-Fi y quita el modo avión** → **Pendientes**. ✓ "Requiere atención" → **Revisar** → cambia el nombre → **Guardar**. ✓ Se sincroniza.
+- [ ] 3.5 📱 Abre **Vallecito 1** → **modo avión y Wi-Fi apagado** → **Nueva colmena** con nombre `C-50` → **Guardar** (el formulario no deja repetir un nombre que ya está en el teléfono: el choque tiene que venir de otra persona). 🗄️ Studio → **SQL Editor** → pega y corre (crea `C-50` en el mismo apiario, como si otra persona la hubiera hecho):
+  `insert into hives (id, organization_id, apiary_id, name, qr_code, created_by) select gen_random_uuid(), organization_id, apiary_id, 'C-50', 'ZZZZZZZZZ1', created_by from hives where name = 'C-01' and deleted_at is null limit 1;`
+  📱 **Prende el Wi-Fi y quita el modo avión** → **Pendientes**. ✓ "Requiere atención" en Colmena C-50 → **Revisar** → cambia el nombre (ej. `C-51`) → **Guardar**. ✓ Se sincroniza.
 - [ ] 3.6 📱 Cambia a `reviewer@landak.test` → **Apiarios** y abre uno. ✓ No hay botones para crear ni editar apiarios o colmenas.
 
 ### 4. QR (M5) — 📱 como `owner@landak.test`
