@@ -62,25 +62,25 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 - [x] 4.3 📱 Botón central **Escanear** → apunta a una etiqueta (impresa, o el PDF de 4.1 abierto en la pantalla del Mac); repite con **modo avión y Wi-Fi apagado**. ✓ Abre esa colmena. Prueba **Linterna**.
 - [x] 4.4 📱 **Escanear** → **Escribir código** → escribe el código de la etiqueta con la letra O en vez del cero. ✓ La encuentra igual.
 - [x] 4.5 📱 Cierra la app y abre la **cámara normal** del teléfono → apunta a la etiqueta. ✓ Lee el QR (muestra `landak://h/…`). Que solo ofrezca **copiar** el link es lo esperado por ahora: la cámara solo abre links `https://` (llega con las etiquetas nuevas). Para escanear se usa el botón **Escanear** de la app.
-- [ ] 4.6 📱 Colmena → **Etiqueta QR** → **Cambiar etiqueta** → escanea una etiqueta nueva → luego **Escanear** la etiqueta vieja. ✓ "no está asignado".
-- [ ] 4.7 📱 **Escanear** el QR de cualquier página web. ✓ "no es de Landak Apiario".
+- [x] 4.6 📱 Colmena → **Etiqueta QR** → **Cambiar etiqueta** → escanea una etiqueta nueva → luego **Escanear** la etiqueta vieja. ✓ "no está asignado".
+- [x] 4.7 📱 **Escanear** el QR de cualquier página web. ✓ "no es de Landak Apiario".
 
 ### 5. Ficha e historial (M6) — 📱 como `owner@landak.test`
-- [ ] 5.1 📱 Abre C-01. ✓ Banda oscura con el nombre y el apiario; si la colmena necesita algo, una tarjeta de atención; "Última revisión hace … · por …"; botón **Nueva revisión** abajo.
-- [ ] 5.2 📱 Baja por el historial. ✓ Lo más nuevo primero; las notas van dentro de su revisión; al final **Cargar más**.
-- [ ] 5.4 📱 Pestaña **Inicio**. ✓ Secciones "Para revisar", "Tareas" (ej. Alimentar) y "Última actividad".
+- [x] 5.1 📱 Abre C-01. ✓ Banda oscura con el nombre y el apiario; si la colmena necesita algo, una tarjeta de atención; "Última revisión hace … · por …"; botón **Nueva revisión** abajo.
+- [x] 5.2 📱 Baja por el historial. ✓ Lo más nuevo primero; las notas van dentro de su revisión; al final **Cargar más**.
+- [x] 5.4 📱 Pestaña **Inicio**. ✓ Secciones "Para revisar", "Tareas" (ej. Alimentar) y "Última actividad".
 
 ### 6. Revisión en campo (M7) — 📱 como `owner@landak.test`, modo avión y Wi-Fi apagado, con guantes
-- [ ] 6.1 📱 C-01 → **Nueva revisión** → llena cada sección solo con toques. Toca otra vez un chip ya elegido. ✓ Se desmarca.
-- [ ] 6.2 📱 En Varroa: lavado con 300 abejas y 7 ácaros. ✓ "Carga: 2,3 %". Agrega una nota.
-- [ ] 6.4 📱 **Terminar**. ✓ "Guardado…" con **Deshacer** → tócalo. ✓ Vuelves a la revisión con los datos → **Terminar** otra vez.
-- [ ] 6.5 📱 **Prende el Wi-Fi y quita el modo avión**. 🗄️ Studio. ✓ Una fila nueva en `inspections` y una en `notes`.
-- [ ] 6.6 📱 Cambia a `reviewer@landak.test` → abre una revisión del owner y una tuya. ✓ Solo puedes editar la tuya.
+- [x] 6.1 📱 C-01 → **Nueva revisión** → llena cada sección solo con toques. Toca otra vez un chip ya elegido. ✓ Se desmarca.
+- [x] 6.2 📱 En Varroa: lavado con 300 abejas y 7 ácaros. ✓ "Carga: 2,3 %". Agrega una nota.
+- [x] 6.4 📱 **Terminar**. ✓ "Guardado…" con **Deshacer** → tócalo. ✓ Vuelves a la revisión con los datos → **Terminar** otra vez.
+- [x] 6.5 📱 **Prende el Wi-Fi y quita el modo avión**. 🗄️ Studio. ✓ Una fila nueva en `inspections` y una en `notes`.
+- [x] 6.6 📱 Cambia a `reviewer@landak.test` → abre una revisión del owner y una tuya. ✓ Solo puedes editar la tuya.
 
 ### 7. Voz (M8) — 📱 como `owner@landak.test`
-- [ ] 7.0 📱 Ajustes del teléfono → Google → Voz → Reconocimiento sin conexión → descarga Español.
-- [ ] 7.1 📱 **Modo avión y Wi-Fi apagado** → C-01 → **Nueva revisión** → **Dictar** → di: "La reina no se vio, hay buena postura, tres cuadros de cría, reservas bajas. Alimentar y revisar en ocho días." ✓ Aparecen unas 7 propuestas.
-- [ ] 7.2 📱 Quita una, cambia otra → **Aceptar todo** → **Terminar** → **prende el Wi-Fi y quita el modo avión**. 🗄️ Studio → `inspections`. ✓ La revisión tiene `source = voice` y el texto dictado.
+- [x] 7.0 📱 Ajustes del teléfono → Google → Voz → Reconocimiento sin conexión → descarga Español.
+- [x] 7.1 📱 **Modo avión y Wi-Fi apagado** → C-01 → **Nueva revisión** → **Dictar** → di: "La reina no se vio, hay buena postura, tres cuadros de cría, reservas bajas. Alimentar y revisar en ocho días." ✓ Aparecen unas 7 propuestas.
+- [x] 7.2 📱 Quita una, cambia otra → **Aceptar todo** → **Terminar** → **prende el Wi-Fi y quita el modo avión**. 🗄️ Studio → `inspections`. ✓ La revisión tiene `source = voice` y el texto dictado.
 - [ ] 7.3 📱 En una revisión, abre una nota → **Dictar** dentro de la nota. ✓ El texto queda en la nota.
 - [ ] 7.4 📱 Borra el paquete de voz (Ajustes → Google → Voz) → **modo avión y Wi-Fi apagado** → **Dictar**. ✓ Aviso antes de escuchar.
 - [ ] 7.5 📱 Ajustes del teléfono → Apps → Landak Apiario → Permisos → niega el micrófono → **Dictar**. ✓ Mensaje claro; los toques siguen funcionando.
