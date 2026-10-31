@@ -61,7 +61,7 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 - [x] 4.2 📱 Abre el apiario Vallecito 1 → **Imprimir etiquetas**. ✓ Vista de impresión A4 con las etiquetas.
 - [x] 4.3 📱 Botón central **Escanear** → apunta a una etiqueta (impresa, o el PDF de 4.1 abierto en la pantalla del Mac); repite con **modo avión y Wi-Fi apagado**. ✓ Abre esa colmena. Prueba **Linterna**.
 - [x] 4.4 📱 **Escanear** → **Escribir código** → escribe el código de la etiqueta con la letra O en vez del cero. ✓ La encuentra igual.
-- [ ] 4.5 📱 Cierra la app y abre la **cámara normal** del teléfono → apunta a la etiqueta. ✓ Lee el QR (muestra `landak://h/…`). Que solo ofrezca **copiar** el link es lo esperado por ahora: la cámara solo abre links `https://` (llega con las etiquetas nuevas). Para escanear se usa el botón **Escanear** de la app.
+- [x] 4.5 📱 Cierra la app y abre la **cámara normal** del teléfono → apunta a la etiqueta. ✓ Lee el QR (muestra `landak://h/…`). Que solo ofrezca **copiar** el link es lo esperado por ahora: la cámara solo abre links `https://` (llega con las etiquetas nuevas). Para escanear se usa el botón **Escanear** de la app.
 - [ ] 4.6 📱 Colmena → **Etiqueta QR** → **Cambiar etiqueta** → escanea una etiqueta nueva → luego **Escanear** la etiqueta vieja. ✓ "no está asignado".
 - [ ] 4.7 📱 **Escanear** el QR de cualquier página web. ✓ "no es de Landak Apiario".
 
