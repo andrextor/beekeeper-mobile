@@ -7,6 +7,9 @@ export type AttentionItem = {
   text: string
 }
 
+/** The last inspection asked to come back soon: said as its request, not as a missing visit. */
+export const soonText = 'Pidió volver pronto'
+
 type LastInspection = { attention_level: string | null; next_inspection_on: string | null }
 type Treatment = { details: unknown }
 
@@ -18,7 +21,7 @@ export function hiveAttention(
 ): AttentionItem[] {
   const items: AttentionItem[] = []
   if (last?.attention_level === 'urgent') items.push({ kind: 'urgent', text: 'Urgente' })
-  if (last?.attention_level === 'soon') items.push({ kind: 'soon', text: 'Revisar pronto' })
+  if (last?.attention_level === 'soon') items.push({ kind: 'soon', text: soonText })
   if (last?.next_inspection_on) {
     const late = daysBetween(last.next_inspection_on, today)
     if (late > 0) {

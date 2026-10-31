@@ -89,6 +89,8 @@ function SyncedTabs() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        // The tab bar would ride up on the keyboard and cover the field being typed in.
+        tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: color.onPrimarySoft,
         tabBarInactiveTintColor: color.muted,
         tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 13 },

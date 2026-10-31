@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-10-30
+
+APK release (versionCode 4): it also carries the honeycomb app icon and splash of 1.3.0, which need a new APK.
+
+### Fixed
+
+- A hive whose last inspection set Atención to "Pronto" says "Pidió volver pronto" (ficha and Inicio) instead of "Revisar pronto", which read as if the visit just made were missing.
+- The keyboard no longer covers what you type: the app (edge-to-edge, so Android stops resizing it) and every bottom sheet (Escribir código, descripción de foto…) make room for it; the tab bar hides while typing.
+
+### Changed
+
+- `docs/phone-pass.md`: offline steps say "modo avión y Wi-Fi apagado"; steps the dev build cannot run (killing the app offline, mobile data, the new icon) move to a "Con el APK" section; 3.5 makes the name clash from Studio; 4.5 expects the system camera to only copy a `landak://` link; new section 14 (keyboard).
+
 ## [1.3.1] - 2026-10-26
 
 ### Fixed
