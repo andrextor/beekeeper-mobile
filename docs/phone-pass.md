@@ -60,8 +60,8 @@ Cada prueba dice **dónde** la haces, qué haces (➜) y qué debe pasar (✓). 
 - [x] 4.1 📱 Abre la colmena C-01 → **Etiqueta QR** → **Compartir PDF**. ✓ Se abre el menú de compartir con el PDF.
 - [x] 4.2 📱 Abre el apiario Vallecito 1 → **Imprimir etiquetas**. ✓ Vista de impresión A4 con las etiquetas.
 - [x] 4.3 📱 Botón central **Escanear** → apunta a una etiqueta (impresa, o el PDF de 4.1 abierto en la pantalla del Mac); repite con **modo avión y Wi-Fi apagado**. ✓ Abre esa colmena. Prueba **Linterna**.
-- [ ] 4.4 📱 **Escanear** → **Escribir código** → escribe el código de la etiqueta con la letra O en vez del cero. ✓ La encuentra igual.
-- [ ] 4.5 📱 Cierra la app y abre la **cámara normal** del teléfono → apunta a la etiqueta. ✓ Lee el QR (muestra `landak://h/…`). Que solo ofrezca **copiar** el link es lo esperado en muchos teléfonos: la etiqueta usa un link propio de la app, y la cámara de Google solo abre links web (`https://`). Para escanear se usa el botón **Escanear** de la app.
+- [x] 4.4 📱 **Escanear** → **Escribir código** → escribe el código de la etiqueta con la letra O en vez del cero. ✓ La encuentra igual.
+- [ ] 4.5 📱 Cierra la app y abre la **cámara normal** del teléfono → apunta a la etiqueta. ✓ Lee el QR (muestra `landak://h/…`). Que solo ofrezca **copiar** el link es lo esperado por ahora: la cámara solo abre links `https://` (llega con las etiquetas nuevas). Para escanear se usa el botón **Escanear** de la app.
 - [ ] 4.6 📱 Colmena → **Etiqueta QR** → **Cambiar etiqueta** → escanea una etiqueta nueva → luego **Escanear** la etiqueta vieja. ✓ "no está asignado".
 - [ ] 4.7 📱 **Escanear** el QR de cualquier página web. ✓ "no es de Landak Apiario".
 
@@ -132,12 +132,6 @@ Usa `reviewer@landak.test` como "el observador" (o el Ayudante de la sección 10
 - [ ] 12.5 📱 **Escanear** el QR de una colmena. ✓ Abre la colmena sin botones de escribir. ➜ **Pendientes**. ✓ Vacío.
 - [ ] 12.6 📱 **Modo avión y Wi-Fi apagado**. ✓ Todo lo ya cargado se sigue leyendo. ➜ **Prende el Wi-Fi y quita el modo avión**.
 - [ ] 12.7 📱 Cambia a `owner@landak.test` → **Personas** → `reviewer@landak.test` → **Revisor** → **Cambiar rol**. ➜ Cambia a `reviewer@landak.test` → **Pendientes** → desliza hacia abajo para sincronizar. ✓ Vuelven los botones sin cerrar sesión.
-
-### 14. Teclado — 📱
-- [ ] 14.1 📱 **Escanear** → **Escribir código** → toca el campo. ✓ La hoja sube sobre el teclado y ves lo que escribes y **Abrir colmena**.
-- [ ] 14.2 📱 **Nueva colmena** → baja hasta **Notas** y tócala. ✓ El campo queda a la vista sobre el teclado y **Guardar** sube con él; la barra de pestañas no tapa nada.
-- [ ] 14.3 📱 **Iniciar sesión** (cierra sesión antes) → toca **Contraseña**. ✓ Se ve el campo y **Ingresar**.
-- [ ] 14.4 📱 Una foto → **Agregar descripción**; **Invitar persona** → nombre. ✓ Nada queda tapado por el teclado.
 
 ### 13. Panal en todas las pantallas (M15) — 📱
 - [ ] 13.1 📱 Cierra sesión → Bienvenida → **Iniciar sesión**. ✓ Franja oscura con panal y el título en blanco; el formulario sube como hoja clara; "Volver" arriba de la hoja; "¿Olvidaste tu contraseña?" es un enlace y abre su hoja. ➜ Escribe correo y contraseña. ✓ **Ingresar** se enciende sin que la app se caiga.
