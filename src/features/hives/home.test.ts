@@ -78,7 +78,7 @@ describe('hivesToVisit', () => {
       ['late-5', 'Revisión atrasada 5 días'],
       ['late-1', 'Revisión atrasada 1 día'],
       ['today', 'Revisión para hoy'],
-      ['soon', 'Revisar pronto'],
+      ['soon', 'Pidió volver pronto'],
     ])
   })
 })

@@ -5,6 +5,7 @@ import { eventSummary } from '@/lib/event-summary'
 import { plural } from '@/lib/format'
 import { inspectionSummary } from '@/lib/inspection-summary'
 import { label, plannedActionLabels } from '@/lib/labels'
+import { soonText } from './attention'
 import { byNewest } from './timeline'
 
 export type LatestInspection = {
@@ -58,7 +59,7 @@ export function hivesToVisit(rows: readonly LatestInspection[], today: string): 
       urgent && 'Urgente',
       late !== null && late > 0 && `Revisión atrasada ${plural(late, 'día', 'días')}`,
       late === 0 && 'Revisión para hoy',
-      soon && 'Revisar pronto',
+      soon && soonText,
     ].filter((reason): reason is string => typeof reason === 'string')
     const visit: Visit = {
       hiveId: r.hive_id,

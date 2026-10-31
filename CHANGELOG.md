@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 
+- A hive whose last inspection set Atención to "Pronto" says "Pidió volver pronto" (ficha and Inicio) instead of "Revisar pronto", which read as if the visit just made were missing.
 - The keyboard no longer covers what you type: the app (edge-to-edge, so Android stops resizing it) and every bottom sheet (Escribir código, descripción de foto…) make room for it; the tab bar hides while typing.
 
 ## [1.3.1] - 2026-10-26
